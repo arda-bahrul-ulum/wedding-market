@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DB_HOST=postgres
+      - DB_DATABASE=wedding_market
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres123
+      - REDIS_HOST=redis
+    volumes:
+      - .:/app
+    restart: always
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=wedding_market
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,30 @@
+.idea
+.DS_Store
+.env
+.env.*
+!.env.example
+storage/framework
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db

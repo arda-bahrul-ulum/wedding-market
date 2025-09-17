@@ -1,0 +1,434 @@
+{{ define "welcome.tmpl" }}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Commerce - Platform Jasa Pernikahan Terlengkap</title>
+    <meta name="description" content="Platform marketplace jasa pernikahan terlengkap di Indonesia. Temukan venue, MUA, dekorasi, fotografer, dan vendor pernikahan terbaik.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #ff6b6b;
+        }
+        
+        .btn-primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: #ff6b6b;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 4rem 0;
+            background: #f8f9fa;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* Categories Section */
+        .categories {
+            padding: 4rem 0;
+            background: white;
+        }
+        
+        .categories h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .category-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 1rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .category-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+        
+        .stat-item h3 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-item p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #333;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features h2,
+            .categories h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>💒 Wedding Commerce</h1>
+            <p>Platform marketplace jasa pernikahan terlengkap di Indonesia</p>
+            <div class="cta-buttons">
+                <a href="#marketplace" class="btn btn-primary">Jelajahi Marketplace</a>
+                <a href="#register" class="btn btn-secondary">Daftar sebagai Vendor</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Mengapa Pilih Wedding Commerce?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Pencarian Mudah</h3>
+                    <p>Temukan vendor pernikahan terbaik berdasarkan lokasi, kategori, dan budget dengan sistem pencarian yang cerdas.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Sistem Escrow Aman</h3>
+                    <p>Pembayaran aman dengan sistem escrow yang melindungi kedua belah pihak hingga pesanan selesai.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Review & Rating</h3>
+                    <p>Baca review dari customer lain dan lihat rating vendor untuk memastikan kualitas pelayanan.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Chat Langsung</h3>
+                    <p>Komunikasi langsung dengan vendor melalui sistem chat terintegrasi untuk konsultasi dan negosiasi.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Akses platform dari mana saja dengan desain responsif yang optimal di semua perangkat.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Vendor Terverifikasi</h3>
+                    <p>Semua vendor telah melalui proses verifikasi untuk memastikan kredibilitas dan kualitas pelayanan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories" id="marketplace">
+        <div class="container">
+            <h2>Kategori Jasa Pernikahan</h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="category-icon">🏠</div>
+                    <h3>Venue</h3>
+                    <p>Tempat pernikahan</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">💄</div>
+                    <h3>Make Up Artist</h3>
+                    <p>Jasa rias pengantin</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">🌸</div>
+                    <h3>Dekorasi</h3>
+                    <p>Dekorasi & bunga</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">📸</div>
+                    <h3>Fotografer</h3>
+                    <p>Jasa fotografi</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">🎥</div>
+                    <h3>Videografer</h3>
+                    <p>Jasa videografi</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">🍽️</div>
+                    <h3>Catering</h3>
+                    <p>Jasa catering</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">📅</div>
+                    <h3>Wedding Organizer</h3>
+                    <p>Paket lengkap</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">🎵</div>
+                    <h3>Entertainment</h3>
+                    <p>Hiburan & musik</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p>Vendor Terdaftar</p>
+                </div>
+                <div class="stat-item">
+                    <h3>1000+</h3>
+                    <p>Pernikahan Berhasil</p>
+                </div>
+                <div class="stat-item">
+                    <h3>4.8</h3>
+                    <p>Rating Rata-rata</p>
+                </div>
+                <div class="stat-item">
+                    <h3>24/7</h3>
+                    <p>Customer Support</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Wedding Commerce. Dibuat dengan Goravel {{.version}}</p>
+            <p>Platform marketplace jasa pernikahan terlengkap di Indonesia</p>
+            <div class="footer-links">
+                <a href="#about">Tentang Kami</a>
+                <a href="#contact">Kontak</a>
+                <a href="#privacy">Kebijakan Privasi</a>
+                <a href="#terms">Syarat & Ketentuan</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe feature cards
+        document.querySelectorAll('.feature-card, .category-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
+{{ end }}
