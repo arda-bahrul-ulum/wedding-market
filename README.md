@@ -39,7 +39,7 @@ Platform marketplace jasa pernikahan terlengkap di Indonesia yang dibangun denga
 - **Cache**: Redis
 - **Queue**: Redis
 - **Authentication**: JWT
-- **Frontend**: HTML/CSS/JavaScript (Responsive)
+- **Frontend**: React.js, Tailwind
 
 ### Modul Sistem
 
