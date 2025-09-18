@@ -42,10 +42,10 @@ func Auth() http.Middleware {
 
 		// Get user from database
 		var userModel models.User
-		// Try to get user ID from the payload using a different approach
-		// We'll assume the payload has a method to get the user ID
-		// For now, let's try to use the user directly
-		if err := facades.Orm().Query().Where("id", user).First(&userModel); err != nil {
+		// Extract user ID from the auth payload
+		// The user payload should have a method to get the ID
+		userID := user.GetID()
+		if err := facades.Orm().Query().Where("id", userID).First(&userModel); err != nil {
 			ctx.Response().Status(401).Json(http.Json{
 				"success": false,
 				"message": "User not found",
