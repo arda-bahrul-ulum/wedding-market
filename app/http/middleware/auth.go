@@ -14,7 +14,7 @@ func Auth() http.Middleware {
 		if authHeader == "" {
 			ctx.Response().Status(401).Json(http.Json{
 				"success": false,
-				"message": "Authorization header required",
+				"message": "Token akses diperlukan",
 			})
 			return
 		}
@@ -23,7 +23,7 @@ func Auth() http.Middleware {
 		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
 			ctx.Response().Status(401).Json(http.Json{
 				"success": false,
-				"message": "Invalid authorization format",
+				"message": "Format token tidak valid",
 			})
 			return
 		}
@@ -33,9 +33,10 @@ func Auth() http.Middleware {
 		// Verify token and get user
 		user, err := facades.Auth().Parse(token)
 		if err != nil {
+			facades.Log().Error("Token parse error: " + err.Error())
 			ctx.Response().Status(401).Json(http.Json{
 				"success": false,
-				"message": "Invalid token",
+				"message": "Token tidak valid atau telah kedaluwarsa",
 			})
 			return
 		}
@@ -45,9 +46,10 @@ func Auth() http.Middleware {
 		// The user from Parse() should be the user ID directly
 		userID := user
 		if err := facades.Orm().Query().Where("id", userID).First(&userModel); err != nil {
+			facades.Log().Error("User not found: " + err.Error())
 			ctx.Response().Status(401).Json(http.Json{
 				"success": false,
-				"message": "User not found",
+				"message": "User tidak ditemukan",
 			})
 			return
 		}
@@ -56,7 +58,7 @@ func Auth() http.Middleware {
 		if !userModel.IsActive {
 			ctx.Response().Status(401).Json(http.Json{
 				"success": false,
-				"message": "Account is deactivated",
+				"message": "Akun tidak aktif",
 			})
 			return
 		}
@@ -73,10 +75,18 @@ func Role(roles ...string) http.Middleware {
 	return func(ctx http.Context) {
 		// First check authentication
 		Auth()(ctx)
-		// Check if authentication failed by looking at response headers or status
-		// Since we can't easily check status, we'll proceed and let the role check handle it
+		
+		// Check if user exists in context (auth middleware should have set it)
+		userInterface := ctx.Value("user")
+		if userInterface == nil {
+			ctx.Response().Status(401).Json(http.Json{
+				"success": false,
+				"message": "User tidak terautentikasi",
+			})
+			return
+		}
 
-		user := ctx.Value("user").(models.User)
+		user := userInterface.(models.User)
 
 		// Check if user role is allowed
 		allowed := false
@@ -90,7 +100,7 @@ func Role(roles ...string) http.Middleware {
 		if !allowed {
 			ctx.Response().Status(403).Json(http.Json{
 				"success": false,
-				"message": "Insufficient permissions",
+				"message": "Akses ditolak. Role tidak sesuai",
 			})
 			return
 		}

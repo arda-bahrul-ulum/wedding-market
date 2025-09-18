@@ -79,6 +79,7 @@ export function AuthProvider({ children }) {
             dispatch({ type: "LOGOUT" });
           }
         } catch (error) {
+          console.error("Auth check failed:", error);
           localStorage.removeItem("token");
           dispatch({ type: "LOGOUT" });
         }
@@ -88,7 +89,7 @@ export function AuthProvider({ children }) {
     };
 
     checkAuth();
-  }, []);
+  }, [state.token]);
 
   const login = async (credentials) => {
     dispatch({ type: "AUTH_START" });
@@ -204,4 +205,3 @@ export function useAuth() {
   }
   return context;
 }
-

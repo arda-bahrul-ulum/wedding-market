@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"regexp"
+	"strings"
 	"time"
 
 	"goravel/app/models"
@@ -16,14 +18,48 @@ func NewAuthController() *AuthController {
 	return &AuthController{}
 }
 
+// validateEmail validates email format
+func (c *AuthController) validateEmail(email string) bool {
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return emailRegex.MatchString(email)
+}
+
+// validatePassword validates password strength
+func (c *AuthController) validatePassword(password string) (bool, string) {
+	if len(password) < 8 {
+		return false, "Password minimal 8 karakter"
+	}
+	
+	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
+	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
+	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
+	
+	if !hasUpper || !hasLower || !hasNumber {
+		return false, "Password harus mengandung huruf besar, huruf kecil, dan angka"
+	}
+	
+	return true, ""
+}
+
+// validatePhone validates Indonesian phone number
+func (c *AuthController) validatePhone(phone string) bool {
+	if phone == "" {
+		return true // phone is optional
+	}
+	phoneRegex := regexp.MustCompile(`^08\d{8,11}$`)
+	return phoneRegex.MatchString(phone)
+}
+
 // Register handles user registration
 func (c *AuthController) Register(ctx http.Context) http.Response {
 	var request struct {
-		Name     string `json:"name" validate:"required,min:3,max:255"`
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required,min:8"`
-		Role     string `json:"role" validate:"required,oneof=customer vendor"`
-		Phone    string `json:"phone"`
+		Name            string `json:"name"`
+		Email           string `json:"email"`
+		Password        string `json:"password"`
+		ConfirmPassword string `json:"confirm_password"`
+		Role            string `json:"role"`
+		Phone           string `json:"phone"`
+		AgreeTerms      bool   `json:"agree_terms"`
 	}
 
 	if err := ctx.Request().Bind(&request); err != nil {
@@ -34,40 +70,113 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		})
 	}
 
-	// Check if email already exists
-	var existingUser models.User
-	if err := facades.Orm().Query().Where("email", request.Email).First(&existingUser); err == nil {
+	// Validate required fields
+	if strings.TrimSpace(request.Name) == "" {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
-			"message": "Email already registered",
+			"message": "Nama wajib diisi",
+		})
+	}
+
+	if len(strings.TrimSpace(request.Name)) < 3 {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Nama minimal 3 karakter",
+		})
+	}
+
+	if strings.TrimSpace(request.Email) == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Email wajib diisi",
+		})
+	}
+
+	if !c.validateEmail(request.Email) {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Format email tidak valid",
+		})
+	}
+
+	if strings.TrimSpace(request.Password) == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Password wajib diisi",
+		})
+	}
+
+	if valid, message := c.validatePassword(request.Password); !valid {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": message,
+		})
+	}
+
+	if request.Password != request.ConfirmPassword {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Password dan konfirmasi password tidak sama",
+		})
+	}
+
+	if request.Role != "customer" && request.Role != "vendor" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Role harus customer atau vendor",
+		})
+	}
+
+	if !c.validatePhone(request.Phone) {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Format nomor telepon tidak valid (contoh: 08123456789)",
+		})
+	}
+
+	if !request.AgreeTerms {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Anda harus menyetujui syarat dan ketentuan",
+		})
+	}
+
+	// Check if email already exists
+	var existingUser models.User
+	if err := facades.Orm().Query().Where("email", strings.ToLower(request.Email)).First(&existingUser); err == nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Email sudah terdaftar",
 		})
 	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
+		facades.Log().Error("Failed to hash password: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Failed to process password",
+			"message": "Gagal memproses password",
 		})
 	}
 
 	// Create user
 	now := time.Now()
 	user := models.User{
-		Name:            request.Name,
-		Email:           request.Email,
+		Name:            strings.TrimSpace(request.Name),
+		Email:           strings.ToLower(strings.TrimSpace(request.Email)),
 		Password:        string(hashedPassword),
 		Role:            request.Role,
-		Phone:           request.Phone,
+		Phone:           strings.TrimSpace(request.Phone),
 		IsActive:        true,
 		EmailVerifiedAt: &now,
 	}
 
 	if err := facades.Orm().Query().Create(&user); err != nil {
+		facades.Log().Error("Failed to create user: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Failed to create user",
+			"message": "Gagal membuat akun",
 		})
 	}
 
@@ -75,7 +184,7 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 	if request.Role == "vendor" {
 		vendorProfile := models.VendorProfile{
 			UserID:       user.ID,
-			BusinessName: request.Name + " Business",
+			BusinessName: user.Name + " Business",
 			BusinessType: "personal",
 			IsActive:     true,
 		}
@@ -87,7 +196,7 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 
 	return ctx.Response().Status(201).Json(http.Json{
 		"success": true,
-		"message": "User registered successfully",
+		"message": "Akun berhasil dibuat",
 		"data": http.Json{
 			"user": http.Json{
 				"id":    user.ID,
@@ -102,8 +211,8 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 // Login handles user login
 func (c *AuthController) Login(ctx http.Context) http.Response {
 	var request struct {
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	if err := ctx.Request().Bind(&request); err != nil {
@@ -114,12 +223,34 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 		})
 	}
 
+	// Validate required fields
+	if strings.TrimSpace(request.Email) == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Email wajib diisi",
+		})
+	}
+
+	if strings.TrimSpace(request.Password) == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Password wajib diisi",
+		})
+	}
+
+	if !c.validateEmail(request.Email) {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Format email tidak valid",
+		})
+	}
+
 	// Find user
 	var user models.User
-	if err := facades.Orm().Query().Where("email", request.Email).First(&user); err != nil {
+	if err := facades.Orm().Query().Where("email", strings.ToLower(strings.TrimSpace(request.Email))).First(&user); err != nil {
 		return ctx.Response().Status(401).Json(http.Json{
 			"success": false,
-			"message": "Invalid credentials",
+			"message": "Email atau password salah",
 		})
 	}
 
@@ -127,7 +258,7 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 		return ctx.Response().Status(401).Json(http.Json{
 			"success": false,
-			"message": "Invalid credentials",
+			"message": "Email atau password salah",
 		})
 	}
 
@@ -135,27 +266,30 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 	if !user.IsActive {
 		return ctx.Response().Status(401).Json(http.Json{
 			"success": false,
-			"message": "Account is deactivated",
+			"message": "Akun tidak aktif",
 		})
 	}
 
 	// Update last login
 	now := time.Now()
 	user.LastLoginAt = &now
-	facades.Orm().Query().Save(&user)
+	if err := facades.Orm().Query().Save(&user); err != nil {
+		facades.Log().Error("Failed to update last login: " + err.Error())
+	}
 
 	// Generate JWT token
 	token, err := facades.Auth().LoginUsingID(user.ID)
 	if err != nil {
+		facades.Log().Error("Failed to generate token: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Failed to generate token",
+			"message": "Gagal membuat token",
 		})
 	}
 
 	return ctx.Response().Status(200).Json(http.Json{
 		"success": true,
-		"message": "Login successful",
+		"message": "Login berhasil",
 		"data": http.Json{
 			"token": token,
 			"user": http.Json{
@@ -171,15 +305,16 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 // Logout handles user logout
 func (c *AuthController) Logout(ctx http.Context) http.Response {
 	if err := facades.Auth().Logout(); err != nil {
+		facades.Log().Error("Failed to logout: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Failed to logout",
+			"message": "Gagal logout",
 		})
 	}
 
 	return ctx.Response().Status(200).Json(http.Json{
 		"success": true,
-		"message": "Logout successful",
+		"message": "Logout berhasil",
 	})
 }
 
@@ -197,6 +332,7 @@ func (c *AuthController) Me(ctx http.Context) http.Response {
 
 	return ctx.Response().Status(200).Json(http.Json{
 		"success": true,
+		"message": "Data user berhasil diambil",
 		"data": http.Json{
 			"user": user,
 		},
@@ -207,14 +343,16 @@ func (c *AuthController) Me(ctx http.Context) http.Response {
 func (c *AuthController) RefreshToken(ctx http.Context) http.Response {
 	token, err := facades.Auth().Refresh()
 	if err != nil {
+		facades.Log().Error("Failed to refresh token: " + err.Error())
 		return ctx.Response().Status(401).Json(http.Json{
 			"success": false,
-			"message": "Failed to refresh token",
+			"message": "Gagal memperbarui token",
 		})
 	}
 
 	return ctx.Response().Status(200).Json(http.Json{
 		"success": true,
+		"message": "Token berhasil diperbarui",
 		"data": http.Json{
 			"token": token,
 		},

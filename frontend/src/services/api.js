@@ -36,16 +36,23 @@ api.interceptors.response.use(
 
       try {
         const refreshResponse = await api.post("/auth/refresh");
-        const newToken = refreshResponse.data.data.token;
-        localStorage.setItem("token", newToken);
+        if (refreshResponse.data.success) {
+          const newToken = refreshResponse.data.data.token;
+          localStorage.setItem("token", newToken);
 
-        // Retry the original request with new token
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        return api(originalRequest);
+          // Retry the original request with new token
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        } else {
+          throw new Error("Refresh token failed");
+        }
       } catch (refreshError) {
         // Refresh failed, redirect to login
         localStorage.removeItem("token");
-        window.location.href = "/login";
+        // Only redirect if not already on login page
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
         return Promise.reject(refreshError);
       }
     }
@@ -79,30 +86,31 @@ export const orderAPI = {
 };
 
 export const vendorAPI = {
-  getProfile: () => api.get("/profile"),
-  updateProfile: (profileData) => api.put("/profile", profileData),
-  getServices: (params) => api.get("/services", { params }),
-  createService: (serviceData) => api.post("/services", serviceData),
-  updateService: (id, serviceData) => api.put(`/services/${id}`, serviceData),
-  deleteService: (id) => api.delete(`/services/${id}`),
-  getOrders: (params) => api.get("/orders", { params }),
+  getProfile: () => api.get("/vendor/profile"),
+  updateProfile: (profileData) => api.put("/vendor/profile", profileData),
+  getServices: (params) => api.get("/vendor/services", { params }),
+  createService: (serviceData) => api.post("/vendor/services", serviceData),
+  updateService: (id, serviceData) =>
+    api.put(`/vendor/services/${id}`, serviceData),
+  deleteService: (id) => api.delete(`/vendor/services/${id}`),
+  getOrders: (params) => api.get("/vendor/orders", { params }),
   updateOrderStatus: (id, statusData) =>
-    api.put(`/orders/${id}/status`, statusData),
+    api.put(`/vendor/orders/${id}/status`, statusData),
 };
 
 export const adminAPI = {
-  getDashboard: () => api.get("/dashboard"),
-  getUsers: (params) => api.get("/users", { params }),
-  getVendors: (params) => api.get("/vendors", { params }),
+  getDashboard: () => api.get("/admin/dashboard"),
+  getUsers: (params) => api.get("/admin/users", { params }),
+  getVendors: (params) => api.get("/admin/vendors", { params }),
   updateVendorStatus: (id, statusData) =>
-    api.put(`/vendors/${id}/status`, statusData),
-  getOrders: (params) => api.get("/orders", { params }),
-  getModuleSettings: () => api.get("/module-settings"),
+    api.put(`/admin/vendors/${id}/status`, statusData),
+  getOrders: (params) => api.get("/admin/orders", { params }),
+  getModuleSettings: () => api.get("/admin/module-settings"),
   updateModuleSetting: (module, settingData) =>
-    api.put(`/module-settings/${module}`, settingData),
-  getSystemSettings: () => api.get("/system-settings"),
+    api.put(`/admin/module-settings/${module}`, settingData),
+  getSystemSettings: () => api.get("/admin/system-settings"),
   updateSystemSetting: (key, settingData) =>
-    api.put(`/system-settings/${key}`, settingData),
+    api.put(`/admin/system-settings/${key}`, settingData),
 };
 
 export const userAPI = {
@@ -110,4 +118,3 @@ export const userAPI = {
 };
 
 export default api;
-
