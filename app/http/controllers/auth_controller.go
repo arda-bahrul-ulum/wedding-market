@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -143,7 +144,41 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 
 	// Check if email already exists
 	var existingUser models.User
-	if err := facades.Orm().Query().Where("email", strings.ToLower(request.Email)).First(&existingUser); err == nil {
+	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
+	facades.Log().Info("Checking email: '" + emailToCheck + "'")
+	
+	// First, let's count total users in database
+	totalUsers, err := facades.Orm().Query().Model(&models.User{}).Count()
+	if err != nil {
+		facades.Log().Error("Error counting users: " + err.Error())
+	} else {
+		facades.Log().Info("Total users in database: " + fmt.Sprintf("%d", totalUsers))
+	}
+	
+	// Get all users for debugging
+	var allUsers []models.User
+	facades.Orm().Query().Find(&allUsers)
+	facades.Log().Info("All users in database:")
+	for i, user := range allUsers {
+		facades.Log().Info(fmt.Sprintf("  %d. ID: %d, Email: '%s', Name: %s", i+1, user.ID, user.Email, user.Name))
+	}
+	
+	err = facades.Orm().Query().Where("email", emailToCheck).First(&existingUser)
+	facades.Log().Info("Query result - err is nil: " + fmt.Sprintf("%t", err == nil))
+	if err != nil {
+		facades.Log().Info("Email not found in database, error: " + err.Error())
+		// Check if it's a "record not found" error or other error
+		if strings.Contains(err.Error(), "record not found") || strings.Contains(err.Error(), "not found") {
+			facades.Log().Info("Email is available for registration")
+		} else {
+			facades.Log().Error("Database error while checking email: " + err.Error())
+			return ctx.Response().Status(500).Json(http.Json{
+				"success": false,
+				"message": "Gagal memeriksa email",
+			})
+		}
+	} else {
+		facades.Log().Info("Email found in database: " + existingUser.Email)
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
 			"message": "Email sudah terdaftar",

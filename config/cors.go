@@ -14,12 +14,12 @@ func init() {
 		// in web browsers. You are free to adjust these settings as needed.
 		//
 		// To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
-		"paths":                []string{},
-		"allowed_methods":      []string{"*"},
-		"allowed_origins":      []string{"*"},
-		"allowed_headers":      []string{"*"},
+		"paths":                []string{"*"},
+		"allowed_methods":      []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		"allowed_origins":      []string{"http://localhost:5173"},
+		"allowed_headers":      []string{"Content-Type", "Authorization", "X-Requested-With"},
 		"exposed_headers":      []string{},
-		"max_age":              0,
-		"supports_credentials": false,
+		"max_age":              86400,
+		"supports_credentials": true,
 	})
 }

@@ -182,8 +182,8 @@ function RegisterPage() {
                     type={showConfirmPassword ? "text" : "password"}
                     autoComplete="new-password"
                     placeholder="Konfirmasi password"
-                    error={errors.confirmPassword?.message}
-                    {...register("confirmPassword", {
+                    error={errors.confirm_password?.message}
+                    {...register("confirm_password", {
                       required: "Konfirmasi password wajib diisi",
                       validate: (value) =>
                         value === password || "Password tidak sama",
@@ -209,7 +209,7 @@ function RegisterPage() {
                   name="agree-terms"
                   type="checkbox"
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  {...register("agreeTerms", {
+                  {...register("agree_terms", {
                     required: "Anda harus menyetujui syarat dan ketentuan",
                   })}
                 />
@@ -233,9 +233,9 @@ function RegisterPage() {
                   </a>
                 </label>
               </div>
-              {errors.agreeTerms && (
+              {errors.agree_terms && (
                 <p className="text-sm text-red-600">
-                  {errors.agreeTerms.message}
+                  {errors.agree_terms.message}
                 </p>
               )}
 
