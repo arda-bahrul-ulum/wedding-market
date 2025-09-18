@@ -1,347 +1,195 @@
 # Wedding Commerce Frontend
 
-Frontend React.js untuk aplikasi Wedding Commerce Marketplace yang dibangun dengan Vite, Tailwind CSS, dan teknologi modern lainnya.
+Frontend aplikasi Wedding Commerce yang dibangun dengan React + Vite + Tailwind CSS.
 
-## 🚀 Teknologi yang Digunakan
+## Prerequisites
 
-- **React.js 18** - Library JavaScript untuk membangun UI
-- **Vite** - Build tool dan development server yang cepat
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router DOM** - Routing untuk aplikasi React
-- **Axios** - HTTP client untuk komunikasi API
-- **Lucide React** - Icon library modern
-- **Context API** - State management bawaan React
-
-## 📁 Struktur Folder
-
-```
-frontend/
-├── public/                 # File statis
-├── src/
-│   ├── components/         # Komponen reusable
-│   │   ├── Auth/          # Komponen authentication
-│   │   ├── Cart/          # Komponen keranjang belanja
-│   │   ├── Layout/        # Komponen layout (Header, Footer)
-│   │   └── UI/            # Komponen UI dasar (Button, Input, Card)
-│   ├── contexts/          # React Context untuk state management
-│   │   ├── AuthContext.jsx
-│   │   └── CartContext.jsx
-│   ├── pages/             # Halaman-halaman aplikasi
-│   │   ├── Auth/          # Halaman authentication
-│   │   ├── Customer/      # Halaman customer dashboard
-│   │   ├── Vendor/        # Halaman vendor dashboard
-│   │   ├── Admin/         # Halaman admin dashboard
-│   │   ├── Marketplace/   # Halaman marketplace
-│   │   └── Error/         # Halaman error
-│   ├── services/          # Service layer untuk API
-│   ├── utils/             # Utility functions
-│   ├── App.jsx            # Komponen utama aplikasi
-│   ├── main.jsx           # Entry point aplikasi
-│   └── index.css          # Global CSS dengan Tailwind imports
-├── index.html             # HTML template
-├── package.json           # Dependencies dan scripts
-├── tailwind.config.js     # Konfigurasi Tailwind CSS
-├── vite.config.js         # Konfigurasi Vite
-└── postcss.config.js      # Konfigurasi PostCSS
-```
-
-## 🎯 Fitur Utama
-
-### 🔐 Authentication
-
-- Login & Register pengguna
-- JWT token management
-- Protected routes berdasarkan role
-- Auto-refresh token
-
-### 🏪 Marketplace
-
-- Browse kategori dan vendor
-- Pencarian dengan filter advanced
-- Detail vendor, service, dan package
-- Sistem rating dan review
-- Wishlist dan favorites
-
-### 🛒 Shopping Cart
-
-- Add/remove items ke keranjang
-- Update quantity
-- Persistent cart state
-- Checkout flow
-
-### 👥 User Roles
-
-#### Customer
-
-- Dashboard personal
-- Manajemen orders
-- Wishlist management
-- Profile settings
-
-#### Vendor
-
-- Dashboard bisnis
-- Manajemen profil vendor
-- CRUD services dan packages
-- Manajemen orders
-- Portfolio showcase
-- Kalender availability
-
-#### Admin
-
-- Dashboard sistem
-- User management
-- Vendor approval
-- Order monitoring
-- System settings
-
-## 🛠 Instalasi dan Setup
-
-### Prerequisites
-
-- Node.js (v16 atau lebih tinggi)
+- Node.js 18+
 - npm atau yarn
-- Backend API berjalan di `http://localhost:8000`
+- Backend API sudah running di http://localhost:8080
 
-### Langkah Instalasi
+## Setup Development
 
-1. **Clone repository dan masuk ke folder frontend**
-
-```bash
-cd frontend
-```
-
-2. **Install dependencies**
+### 1. Install Dependencies
 
 ```bash
 npm install
+# atau
+yarn install
 ```
 
-3. **Setup environment variables**
+### 2. Environment Configuration
+
+Buat file `.env` di root folder frontend:
 
 ```bash
+# Copy dari template
 cp .env.example .env
 ```
 
-Edit file `.env` sesuai konfigurasi:
+Edit file `.env` dengan konfigurasi yang sesuai:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8000/api
+# API Configuration
+VITE_API_URL=http://localhost:8080/api/v1
+
+# Development Configuration
 VITE_APP_NAME="Wedding Commerce"
+VITE_APP_ENV=development
+
+# Optional: Enable debug mode
+VITE_DEBUG=true
 ```
 
-4. **Jalankan development server**
+### 3. Start Development Server
 
 ```bash
 npm run dev
+# atau
+yarn dev
 ```
 
-Aplikasi akan berjalan di `http://localhost:5173`
+Aplikasi akan berjalan di http://localhost:5173
 
-## 📝 Scripts yang Tersedia
+## Available Scripts
 
-- `npm run dev` - Menjalankan development server
-- `npm run build` - Build aplikasi untuk production
-- `npm run preview` - Preview build production
-- `npm run lint` - Menjalankan ESLint untuk code linting
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-## 🎨 Styling dengan Tailwind CSS
-
-Aplikasi ini menggunakan Tailwind CSS dengan konfigurasi custom:
-
-- **Primary Colors**: Menggunakan skema warna biru untuk branding
-- **Responsive Design**: Mobile-first approach
-- **Custom Components**: Button, Input, Card dengan styling konsisten
-- **Dark Mode**: Siap untuk implementasi dark mode
-
-### Utility Classes Kustom
-
-```css
-.container-custom {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-}
-
-.btn-primary {
-  @apply bg-primary-600 hover:bg-primary-700 text-white;
-}
-```
-
-## 🔗 Integrasi API
-
-### Base Configuration
-
-```javascript
-// src/services/api.js
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-```
-
-### Endpoints Utama
-
-- `POST /auth/login` - Login pengguna
-- `POST /auth/register` - Register pengguna
-- `GET /marketplace/categories` - Daftar kategori
-- `GET /marketplace/vendors` - Daftar vendor dengan pagination
-- `GET /marketplace/services` - Daftar layanan
-- `GET /marketplace/packages` - Daftar paket
-
-## 🔒 Authentication Flow
-
-1. **Login**: User login dengan email/password
-2. **Token Storage**: JWT token disimpan di localStorage
-3. **API Interceptor**: Otomatis attach token ke setiap request
-4. **Token Refresh**: Auto-refresh token saat expired
-5. **Logout**: Clear token dan redirect ke login
-
-## 📱 Responsive Design
-
-- **Mobile First**: Optimized untuk mobile devices
-- **Breakpoints**:
-  - `sm`: 640px
-  - `md`: 768px
-  - `lg`: 1024px
-  - `xl`: 1280px
-  - `2xl`: 1536px
-
-## 🧩 State Management
-
-### AuthContext
-
-```javascript
-const { user, login, logout, register, loading } = useAuth();
-```
-
-### CartContext
-
-```javascript
-const { items, addItem, removeItem, updateQuantity, clearCart } = useCart();
-```
-
-## 🎨 Komponen UI
-
-### Button Component
-
-```jsx
-<Button variant="primary" size="lg" onClick={handleClick}>
-  Click Me
-</Button>
-```
-
-### Input Component
-
-```jsx
-<Input
-  type="email"
-  placeholder="Email"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  error={errors.email}
-/>
-```
-
-### Card Component
-
-```jsx
-<Card>
-  <CardHeader>
-    <h3>Title</h3>
-  </CardHeader>
-  <CardBody>
-    <p>Content</p>
-  </CardBody>
-</Card>
-```
-
-## 🔄 Routing Structure
+## Project Structure
 
 ```
-/                          # Homepage
-/login                     # Login page
-/register                  # Register page
-/marketplace               # Marketplace listing
-/marketplace/search        # Search results
-/vendor/:id                # Vendor detail
-/service/:id               # Service detail
-/package/:id               # Package detail
-
-# Protected Routes (Customer)
-/customer/dashboard        # Customer dashboard
-/customer/orders           # Customer orders
-/customer/wishlist         # Customer wishlist
-/customer/profile          # Customer profile
-
-# Protected Routes (Vendor)
-/vendor/dashboard          # Vendor dashboard
-/vendor/profile            # Vendor profile
-/vendor/services           # Vendor services
-/vendor/packages           # Vendor packages
-/vendor/orders             # Vendor orders
-/vendor/portfolio          # Vendor portfolio
-/vendor/availability       # Vendor availability
-
-# Protected Routes (Admin)
-/admin/dashboard           # Admin dashboard
-/admin/users               # User management
-/admin/vendors             # Vendor management
-/admin/orders              # Order management
-/admin/settings            # System settings
+frontend/
+├── public/                 # Static assets
+├── src/
+│   ├── components/        # Reusable components
+│   │   ├── Auth/         # Authentication components
+│   │   ├── Cart/         # Shopping cart components
+│   │   ├── Layout/       # Layout components
+│   │   └── UI/           # UI components
+│   ├── contexts/         # React contexts
+│   │   ├── AuthContext.jsx
+│   │   └── CartContext.jsx
+│   ├── pages/            # Page components
+│   │   ├── Auth/         # Login/Register pages
+│   │   ├── Admin/        # Admin pages
+│   │   ├── Customer/     # Customer pages
+│   │   ├── Vendor/       # Vendor pages
+│   │   └── Marketplace/  # Public marketplace pages
+│   ├── services/         # API services
+│   │   └── api.js
+│   ├── utils/            # Utility functions
+│   ├── App.jsx           # Main app component
+│   ├── main.jsx          # Entry point
+│   └── index.css         # Global styles
+├── .env.example          # Environment template
+├── .gitignore
+├── package.json
+├── tailwind.config.js
+└── vite.config.js
 ```
 
-## 🚀 Deployment
+## Features
 
-### Build untuk Production
+### Authentication
+
+- ✅ User login/register
+- ✅ JWT token management
+- ✅ Auto token refresh
+- ✅ Protected routes
+- ✅ Role-based access control
+
+### UI Components
+
+- ✅ Responsive design dengan Tailwind CSS
+- ✅ Form validation dengan react-hook-form
+- ✅ Toast notifications dengan react-hot-toast
+- ✅ Loading states dan error handling
+
+### State Management
+
+- ✅ AuthContext untuk authentication state
+- ✅ CartContext untuk shopping cart state
+- ✅ React Query untuk server state
+
+## API Integration
+
+Frontend berkomunikasi dengan backend melalui:
+
+- **Base URL**: `http://localhost:8080/api/v1`
+- **Authentication**: JWT Bearer token
+- **Content Type**: `application/json`
+
+### API Endpoints
+
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /auth/logout` - User logout
+- `GET /auth/me` - Get current user
+- `POST /auth/refresh` - Refresh token
+
+## Environment Variables
+
+| Variable        | Description      | Default                        |
+| --------------- | ---------------- | ------------------------------ |
+| `VITE_API_URL`  | Backend API URL  | `http://localhost:8080/api/v1` |
+| `VITE_APP_NAME` | Application name | `Wedding Commerce`             |
+| `VITE_APP_ENV`  | Environment      | `development`                  |
+| `VITE_DEBUG`    | Debug mode       | `true`                         |
+
+## Troubleshooting
+
+### Common Issues
+
+1. **API Connection Error**
+
+   - Pastikan backend sudah running di port 8080
+   - Cek `VITE_API_URL` di file `.env`
+
+2. **CORS Error**
+
+   - Backend sudah dikonfigurasi untuk CORS
+   - Pastikan URL frontend dan backend sesuai
+
+3. **Build Error**
+
+   - Hapus `node_modules` dan `package-lock.json`
+   - Jalankan `npm install` ulang
+
+4. **Environment Variables Not Working**
+   - Pastikan variable dimulai dengan `VITE_`
+   - Restart development server setelah mengubah `.env`
+
+### Debug Mode
+
+Set `VITE_DEBUG=true` di file `.env` untuk:
+
+- Console logging yang lebih detail
+- Error boundary yang lebih informatif
+- Development tools yang lebih lengkap
+
+## Production Build
 
 ```bash
+# Build untuk production
 npm run build
+
+# Preview production build
+npm run preview
 ```
 
-### Deploy ke Vercel
+Build output akan tersimpan di folder `dist/`.
 
-```bash
-npm install -g vercel
-vercel --prod
-```
-
-### Deploy ke Netlify
-
-```bash
-npm run build
-# Upload folder dist/ ke Netlify
-```
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork repository
-2. Buat branch fitur (`git checkout -b feature/amazing-feature`)
-3. Commit perubahan (`git commit -m 'Add amazing feature'`)
-4. Push ke branch (`git push origin feature/amazing-feature`)
+2. Buat feature branch
+3. Commit changes
+4. Push ke branch
 5. Buat Pull Request
 
-## 📄 License
+## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## 👥 Tim Pengembang
-
-- **Frontend Developer** - React.js, Tailwind CSS
-- **UI/UX Designer** - Design system, User experience
-- **Backend Developer** - Go, Goravel Framework
-
-## 📞 Support
-
-Jika ada pertanyaan atau issue, silakan:
-
-- Buat issue di GitHub repository
-- Contact: support@weddingcommerce.com
-- Documentation: [docs.weddingcommerce.com](https://docs.weddingcommerce.com)
-
----
-
-**Wedding Commerce** - Marketplace terpercaya untuk kebutuhan pernikahan Anda! 💒✨
-
+MIT License - lihat file LICENSE untuk detail.

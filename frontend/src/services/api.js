@@ -1,7 +1,7 @@
 import axios from "axios";
+import config from "../config/env.js";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
+const API_BASE_URL = config.API_URL;
 
 // Create axios instance
 const api = axios.create({
@@ -63,54 +63,63 @@ api.interceptors.response.use(
 
 // API endpoints
 export const authAPI = {
-  login: (credentials) => api.post("/auth/login", credentials),
-  register: (userData) => api.post("/auth/register", userData),
-  logout: () => api.post("/auth/logout"),
-  getMe: () => api.get("/auth/me"),
-  refreshToken: () => api.post("/auth/refresh"),
+  login: (credentials) => api.post(config.ENDPOINTS.AUTH.LOGIN, credentials),
+  register: (userData) => api.post(config.ENDPOINTS.AUTH.REGISTER, userData),
+  logout: () => api.post(config.ENDPOINTS.AUTH.LOGOUT),
+  getMe: () => api.get(config.ENDPOINTS.AUTH.ME),
+  refreshToken: () => api.post(config.ENDPOINTS.AUTH.REFRESH),
 };
 
 export const marketplaceAPI = {
-  getCategories: () => api.get("/categories"),
-  getVendors: (params) => api.get("/vendors", { params }),
-  getVendorDetail: (id) => api.get(`/vendors/${id}`),
-  getServices: (params) => api.get("/services", { params }),
-  getPackages: (params) => api.get("/packages", { params }),
+  getCategories: () => api.get(config.ENDPOINTS.MARKETPLACE.CATEGORIES),
+  getVendors: (params) =>
+    api.get(config.ENDPOINTS.MARKETPLACE.VENDORS, { params }),
+  getVendorDetail: (id) =>
+    api.get(`${config.ENDPOINTS.MARKETPLACE.VENDORS}/${id}`),
+  getServices: (params) =>
+    api.get(config.ENDPOINTS.MARKETPLACE.SERVICES, { params }),
+  getPackages: (params) =>
+    api.get(config.ENDPOINTS.MARKETPLACE.PACKAGES, { params }),
 };
 
 export const orderAPI = {
-  getOrders: (params) => api.get("/orders", { params }),
-  getOrderDetail: (id) => api.get(`/orders/${id}`),
-  createOrder: (orderData) => api.post("/orders", orderData),
-  cancelOrder: (id) => api.put(`/orders/${id}/cancel`),
+  getOrders: (params) => api.get(config.ENDPOINTS.ORDERS.LIST, { params }),
+  getOrderDetail: (id) => api.get(config.ENDPOINTS.ORDERS.DETAIL(id)),
+  createOrder: (orderData) =>
+    api.post(config.ENDPOINTS.ORDERS.CREATE, orderData),
+  cancelOrder: (id) => api.put(config.ENDPOINTS.ORDERS.CANCEL(id)),
 };
 
 export const vendorAPI = {
-  getProfile: () => api.get("/vendor/profile"),
-  updateProfile: (profileData) => api.put("/vendor/profile", profileData),
-  getServices: (params) => api.get("/vendor/services", { params }),
-  createService: (serviceData) => api.post("/vendor/services", serviceData),
+  getProfile: () => api.get(config.ENDPOINTS.VENDOR.PROFILE),
+  updateProfile: (profileData) =>
+    api.put(config.ENDPOINTS.VENDOR.PROFILE, profileData),
+  getServices: (params) =>
+    api.get(config.ENDPOINTS.VENDOR.SERVICES, { params }),
+  createService: (serviceData) =>
+    api.post(config.ENDPOINTS.VENDOR.SERVICES, serviceData),
   updateService: (id, serviceData) =>
-    api.put(`/vendor/services/${id}`, serviceData),
-  deleteService: (id) => api.delete(`/vendor/services/${id}`),
-  getOrders: (params) => api.get("/vendor/orders", { params }),
+    api.put(`${config.ENDPOINTS.VENDOR.SERVICES}/${id}`, serviceData),
+  deleteService: (id) =>
+    api.delete(`${config.ENDPOINTS.VENDOR.SERVICES}/${id}`),
+  getOrders: (params) => api.get(config.ENDPOINTS.VENDOR.ORDERS, { params }),
   updateOrderStatus: (id, statusData) =>
-    api.put(`/vendor/orders/${id}/status`, statusData),
+    api.put(`${config.ENDPOINTS.VENDOR.ORDERS}/${id}/status`, statusData),
 };
 
 export const adminAPI = {
-  getDashboard: () => api.get("/admin/dashboard"),
-  getUsers: (params) => api.get("/admin/users", { params }),
-  getVendors: (params) => api.get("/admin/vendors", { params }),
+  getDashboard: () => api.get(config.ENDPOINTS.ADMIN.DASHBOARD),
+  getUsers: (params) => api.get(config.ENDPOINTS.ADMIN.USERS, { params }),
+  getVendors: (params) => api.get(config.ENDPOINTS.ADMIN.VENDORS, { params }),
   updateVendorStatus: (id, statusData) =>
-    api.put(`/admin/vendors/${id}/status`, statusData),
-  getOrders: (params) => api.get("/admin/orders", { params }),
-  getModuleSettings: () => api.get("/admin/module-settings"),
+    api.put(`${config.ENDPOINTS.ADMIN.VENDORS}/${id}/status`, statusData),
+  getOrders: (params) => api.get(config.ENDPOINTS.ADMIN.ORDERS, { params }),
+  getModuleSettings: () => api.get(config.ENDPOINTS.ADMIN.SETTINGS),
   updateModuleSetting: (module, settingData) =>
-    api.put(`/admin/module-settings/${module}`, settingData),
-  getSystemSettings: () => api.get("/admin/system-settings"),
+    api.put(`${config.ENDPOINTS.ADMIN.SETTINGS}/${module}`, settingData),
+  getSystemSettings: () => api.get(config.ENDPOINTS.ADMIN.SETTINGS),
   updateSystemSetting: (key, settingData) =>
-    api.put(`/admin/system-settings/${key}`, settingData),
+    api.put(`${config.ENDPOINTS.ADMIN.SETTINGS}/${key}`, settingData),
 };
 
 export const userAPI = {
