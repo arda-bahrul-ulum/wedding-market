@@ -87,13 +87,13 @@ cp .env.example .env
 # Edit .env file with your database and Redis configuration
 
 # Run migrations
-go run artisan migrate
+go run . artisan migrate
 
 # Seed database
-go run artisan db:seed
+go run . artisan db:seed
 
 # Start the application
-go run main.go
+go run .
 ```
 
 ### Environment Configuration
