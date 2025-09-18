@@ -42,9 +42,8 @@ func Auth() http.Middleware {
 
 		// Get user from database
 		var userModel models.User
-		// Extract user ID from the auth payload
-		// The user payload should have a method to get the ID
-		userID := user.GetID()
+		// The user from Parse() should be the user ID directly
+		userID := user
 		if err := facades.Orm().Query().Where("id", userID).First(&userModel); err != nil {
 			ctx.Response().Status(401).Json(http.Json{
 				"success": false,
