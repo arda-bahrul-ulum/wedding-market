@@ -436,3 +436,90 @@ func (c *AdminController) UpdateSystemSetting(ctx http.Context) http.Response {
 		"data":    setting,
 	})
 }
+
+// UpdateUserStatus updates user status (activate/deactivate)
+func (c *AdminController) UpdateUserStatus(ctx http.Context) http.Response {
+	userID := ctx.Request().Route("id")
+
+	var request struct {
+		IsActive *bool `json:"is_active"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Get user
+	var user models.User
+	if err := facades.Orm().Query().Where("id", userID).First(&user); err != nil {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "User not found",
+		})
+	}
+
+	// Prevent deactivating super_user
+	if user.Role == "super_user" && request.IsActive != nil && !*request.IsActive {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Cannot deactivate super user",
+		})
+	}
+
+	// Update status
+	if request.IsActive != nil {
+		user.IsActive = *request.IsActive
+	}
+
+	if err := facades.Orm().Query().Save(&user); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Failed to update user status",
+		})
+	}
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "User status updated successfully",
+		"data":    user,
+	})
+}
+
+// DeleteUser deletes a user
+func (c *AdminController) DeleteUser(ctx http.Context) http.Response {
+	userID := ctx.Request().Route("id")
+
+	// Get user
+	var user models.User
+	if err := facades.Orm().Query().Where("id", userID).First(&user); err != nil {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "User not found",
+		})
+	}
+
+	// Prevent deleting super_user
+	if user.Role == "super_user" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Cannot delete super user",
+		})
+	}
+
+	// Delete user (this will cascade delete related records)
+	if _, err := facades.Orm().Query().Delete(&user); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Failed to delete user",
+		})
+	}
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "User deleted successfully",
+	})
+}

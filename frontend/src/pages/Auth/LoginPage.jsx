@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
@@ -6,12 +6,14 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import Card, { CardBody } from "../../components/UI/Card";
+import toast from "react-hot-toast";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const hasShownToast = useRef(false);
 
   const from = location.state?.from?.pathname || "/";
 
@@ -20,6 +22,16 @@ function LoginPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
+
+  // Show success message from registration
+  useEffect(() => {
+    if (location.state?.message && !hasShownToast.current) {
+      toast.success(location.state.message);
+      hasShownToast.current = true;
+      // Clear the message from state to prevent showing it again
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state?.message, location.pathname, navigate]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -46,9 +58,9 @@ function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-accent-600 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-xl">W</span>
-          </div>
+          <h1 className="text-3xl font-bold text-primary-600">
+            Wedding Market
+          </h1>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
           Masuk ke akun Anda
@@ -214,4 +226,3 @@ function LoginPage() {
 }
 
 export default LoginPage;
-

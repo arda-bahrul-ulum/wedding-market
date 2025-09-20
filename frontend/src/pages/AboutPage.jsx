@@ -84,7 +84,7 @@ function AboutPage() {
         <div className="container-custom section-padding">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-              Tentang <span className="text-gradient">Wedding Commerce</span>
+              Tentang <span className="text-gradient">Wedding Market</span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed mb-8">
               Kami adalah platform marketplace jasa pernikahan terlengkap di
@@ -195,13 +195,13 @@ function AboutPage() {
                 Cerita Kami
               </h2>
               <p className="text-xl text-gray-600">
-                Perjalanan Wedding Commerce dari ide hingga realitas
+                Perjalanan Wedding Market dari ide hingga realitas
               </p>
             </div>
 
             <div className="prose prose-lg max-w-none">
               <p className="text-gray-600 leading-relaxed mb-6">
-                Wedding Commerce lahir dari pengalaman pribadi founder kami yang
+                Wedding Market lahir dari pengalaman pribadi founder kami yang
                 mengalami kesulitan dalam mencari vendor pernikahan yang tepat.
                 Setelah melalui proses pernikahan yang rumit dan mahal, kami
                 menyadari bahwa industri pernikahan di Indonesia membutuhkan
@@ -217,7 +217,7 @@ function AboutPage() {
               </p>
 
               <p className="text-gray-600 leading-relaxed">
-                Hari ini, Wedding Commerce telah membantu ribuan pasangan
+                Hari ini, Wedding Market telah membantu ribuan pasangan
                 mewujudkan pernikahan impian mereka, dan kami terus berkomitmen
                 untuk memberikan pengalaman terbaik bagi setiap pengguna
                 platform kami.
@@ -235,7 +235,7 @@ function AboutPage() {
               Tim Kami
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Orang-orang hebat di balik kesuksesan Wedding Commerce
+              Orang-orang hebat di balik kesuksesan Wedding Market
             </p>
           </div>
 
@@ -300,4 +300,3 @@ function AboutPage() {
 }
 
 export default AboutPage;
-

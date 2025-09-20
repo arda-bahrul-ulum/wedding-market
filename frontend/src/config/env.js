@@ -4,7 +4,7 @@ const config = {
   API_URL: import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
 
   // App Configuration
-  APP_NAME: import.meta.env.VITE_APP_NAME || "Wedding Commerce",
+  APP_NAME: import.meta.env.VITE_APP_NAME || "Wedding Market",
   APP_ENV: import.meta.env.VITE_APP_ENV || "development",
 
   // Debug Configuration

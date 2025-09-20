@@ -110,6 +110,9 @@ export const vendorAPI = {
 export const adminAPI = {
   getDashboard: () => api.get(config.ENDPOINTS.ADMIN.DASHBOARD),
   getUsers: (params) => api.get(config.ENDPOINTS.ADMIN.USERS, { params }),
+  updateUserStatus: (id, statusData) =>
+    api.put(`${config.ENDPOINTS.ADMIN.USERS}/${id}/status`, statusData),
+  deleteUser: (id) => api.delete(`${config.ENDPOINTS.ADMIN.USERS}/${id}`),
   getVendors: (params) => api.get(config.ENDPOINTS.ADMIN.VENDORS, { params }),
   updateVendorStatus: (id, statusData) =>
     api.put(`${config.ENDPOINTS.ADMIN.VENDORS}/${id}/status`, statusData),

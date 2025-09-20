@@ -15,6 +15,8 @@ func Api() {
 	vendorController := controllers.NewVendorController()
 	adminController := controllers.NewAdminController()
 	userController := controllers.NewUserController()
+	reviewController := controllers.NewReviewController()
+	portfolioController := controllers.NewPortfolioController()
 
 	// Public routes
 	api := facades.Route().Prefix("api/v1")
@@ -31,6 +33,21 @@ func Api() {
 	api.Get("/services", marketplaceController.GetServices)
 	api.Get("/packages", marketplaceController.GetPackages)
 
+	// Admin routes - specific routes first
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/dashboard", adminController.GetDashboard)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/users", adminController.GetUsers)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/vendors", adminController.GetVendors)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders", adminController.GetOrders)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/module-settings", adminController.GetModuleSettings)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/system-settings", adminController.GetSystemSettings)
+	
+	// Admin routes with parameters
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/users/{id}/status", adminController.UpdateUserStatus)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Delete("/admin/users/{id}", adminController.DeleteUser)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/module-settings/{module}", adminController.UpdateModuleSetting)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/{key}", adminController.UpdateSystemSetting)
+
 	// Authentication protected routes
 	api.Middleware(middleware.Auth()).Post("/auth/logout", authController.Logout)
 	api.Middleware(middleware.Auth()).Get("/auth/me", authController.Me)
@@ -40,6 +57,10 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role("customer")).Get("/orders/{id}", orderController.GetOrderDetail)
 	api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/orders", orderController.CreateOrder)
 	api.Middleware(middleware.Auth(), middleware.Role("customer")).Put("/orders/{id}/cancel", orderController.CancelOrder)
+	api.Middleware(middleware.Auth(), middleware.Role("customer")).Get("/wishlist", userController.GetWishlist)
+	api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/wishlist", userController.AddToWishlist)
+	api.Middleware(middleware.Auth(), middleware.Role("customer")).Delete("/wishlist/{id}", userController.RemoveFromWishlist)
+	api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/reviews", reviewController.CreateReview)
 
 	// Vendor routes
 	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/profile", vendorController.GetProfile)
@@ -50,24 +71,16 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Delete("/vendor/services/{id}", vendorController.DeleteService)
 	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/orders", vendorController.GetOrders)
 	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Put("/vendor/orders/{id}/status", vendorController.UpdateOrderStatus)
+	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/portfolios", portfolioController.GetPortfolios)
+	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Post("/vendor/portfolios", portfolioController.CreatePortfolio)
+	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Put("/vendor/portfolios/{id}", portfolioController.UpdatePortfolio)
+	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Delete("/vendor/portfolios/{id}", portfolioController.DeletePortfolio)
+	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Post("/reviews/{id}/reply", reviewController.ReplyToReview)
 
-	// Admin routes
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/dashboard", adminController.GetDashboard)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/users", adminController.GetUsers)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/vendors", adminController.GetVendors)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders", adminController.GetOrders)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/module-settings", adminController.GetModuleSettings)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/module-settings/{module}", adminController.UpdateModuleSetting)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/system-settings", adminController.GetSystemSettings)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/{key}", adminController.UpdateSystemSetting)
-
-	// Super user only routes
-	// superUser := protected.Group(func(ctx http.Context) {
-	// 	middleware.Role("super_user")(ctx)
-	// })
-	// Add super user specific routes here if needed
-
-	// Legacy route
+	// User profile routes
+	api.Middleware(middleware.Auth()).Put("/profile", userController.UpdateProfile)
+	
+	// Public routes
+	api.Get("/reviews", reviewController.GetReviews)
 	api.Get("/users/{id}", userController.Show)
 }

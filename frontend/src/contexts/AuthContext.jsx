@@ -52,6 +52,12 @@ function authReducer(state, action) {
         ...state,
         user: { ...state.user, ...action.payload },
       };
+    case "AUTH_RESET":
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+      };
     default:
       return state;
   }
@@ -63,7 +69,8 @@ export function AuthProvider({ children }) {
   // Check if user is logged in on app start
   useEffect(() => {
     const checkAuth = async () => {
-      if (state.token) {
+      const token = localStorage.getItem("token");
+      if (token) {
         try {
           const response = await authAPI.getMe();
           if (response.data.success) {
@@ -71,7 +78,7 @@ export function AuthProvider({ children }) {
               type: "AUTH_SUCCESS",
               payload: {
                 user: response.data.data.user,
-                token: state.token,
+                token: token,
               },
             });
           } else {
@@ -89,7 +96,7 @@ export function AuthProvider({ children }) {
     };
 
     checkAuth();
-  }, [state.token]);
+  }, []); // Remove state.token dependency to prevent infinite loop
 
   const login = async (credentials) => {
     dispatch({ type: "AUTH_START" });
@@ -129,7 +136,8 @@ export function AuthProvider({ children }) {
     try {
       const response = await authAPI.register(userData);
       if (response.data.success) {
-        toast.success("Registrasi berhasil! Silakan login.");
+        // Reset loading state after successful registration
+        dispatch({ type: "AUTH_RESET" });
         return { success: true };
       } else {
         dispatch({

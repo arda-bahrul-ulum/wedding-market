@@ -74,7 +74,7 @@ function NotFoundPage() {
             >
               <h3 className="font-medium text-gray-900 mb-1">Tentang Kami</h3>
               <p className="text-sm text-gray-600">
-                Pelajari lebih lanjut tentang Wedding Commerce
+                Pelajari lebih lanjut tentang Wedding Market
               </p>
             </Link>
             <Link

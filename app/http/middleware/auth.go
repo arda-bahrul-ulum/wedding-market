@@ -73,9 +73,6 @@ func Auth() http.Middleware {
 
 func Role(roles ...string) http.Middleware {
 	return func(ctx http.Context) {
-		// First check authentication
-		Auth()(ctx)
-		
 		// Check if user exists in context (auth middleware should have set it)
 		userInterface := ctx.Value("user")
 		if userInterface == nil {

@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import Layout from "./components/Layout/Layout";
+import AdminLayout from "./components/Layout/AdminLayout";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import RoleRoute from "./components/Auth/RoleRoute";
 
@@ -174,61 +175,71 @@ function App() {
               }
             />
 
-            {/* Admin Routes */}
-            <Route
-              path="admin"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["admin", "super_user"]}>
-                    <AdminDashboard />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/users"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["admin", "super_user"]}>
-                    <AdminUsers />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/vendors"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["admin", "super_user"]}>
-                    <AdminVendors />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/orders"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["admin", "super_user"]}>
-                    <AdminOrders />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/settings"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["admin", "super_user"]}>
-                    <AdminSettings />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-
             {/* Error Routes */}
             <Route path="*" element={<NotFoundPage />} />
           </Route>
+
+          {/* Admin Routes - Outside of Layout wrapper to avoid topbar */}
+          <Route
+            path="admin"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["super_user"]}>
+                  <AdminLayout>
+                    <AdminDashboard />
+                  </AdminLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/users"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["super_user"]}>
+                  <AdminLayout>
+                    <AdminUsers />
+                  </AdminLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/vendors"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["super_user"]}>
+                  <AdminLayout>
+                    <AdminVendors />
+                  </AdminLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/orders"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["super_user"]}>
+                  <AdminLayout>
+                    <AdminOrders />
+                  </AdminLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/settings"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["super_user"]}>
+                  <AdminLayout>
+                    <AdminSettings />
+                  </AdminLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </CartProvider>
     </AuthProvider>
@@ -236,4 +247,3 @@ function App() {
 }
 
 export default App;
-

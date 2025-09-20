@@ -100,6 +100,38 @@ go run . artisan migrate
 go run . artisan db:seed
 ```
 
+## 🧪 Testing
+
+### Automated Testing
+
+```bash
+# Run all tests
+go test ./tests/...
+
+# Run specific test file
+go test ./tests/feature/auth_test.go -v
+
+# Run tests with coverage
+go test ./tests/... -cover
+
+# Run comprehensive test suite
+./run_tests.sh
+```
+
+### API Simulation
+
+```bash
+# Run API simulation (requires Python 3)
+python3 simulate_api.py
+
+# Run simulation with custom base URL
+python3 simulate_api.py http://localhost:8080
+```
+
+### Manual Testing
+
+Lihat [TESTING_GUIDE.md](TESTING_GUIDE.md) untuk panduan lengkap testing manual dengan cURL dan Postman.
+
 ## 🏃‍♂️ Cara Menjalankan
 
 ### Development Mode
@@ -138,6 +170,59 @@ go run .
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://127.0.0.1:8080
 - **Backend Welcome**: http://127.0.0.1:8080
+
+## ✨ Fitur yang Tersedia
+
+### ✅ Authentication & Authorization
+
+- User registration (Customer & Vendor)
+- JWT-based authentication
+- Role-based access control
+- Password validation & hashing
+- Token refresh mechanism
+
+### ✅ Marketplace
+
+- Browse categories, vendors, services, packages
+- Advanced filtering & search
+- Pagination support
+- Vendor detail pages
+- Public review system
+
+### ✅ Customer Features
+
+- Order management
+- Wishlist functionality
+- Review & rating system
+- Profile management
+- Order history & tracking
+
+### ✅ Vendor Features
+
+- Vendor profile management
+- Service & package management
+- Portfolio showcase
+- Order management
+- Review response system
+- Business analytics
+
+### ✅ Admin Features
+
+- Dashboard with statistics
+- User management
+- Vendor verification
+- Order oversight
+- System settings
+- Module configuration
+
+### ✅ Additional Features
+
+- Comprehensive error handling
+- Input validation
+- CORS support
+- Database migrations
+- Sample data seeding
+- Performance optimization
 
 ## 📱 Menu dan Fitur
 

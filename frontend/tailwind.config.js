@@ -42,8 +42,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        serif: ["Playfair Display", "serif"],
+        sans: ["Poppins", "system-ui", "sans-serif"],
+        serif: ["Poppins", "system-ui", "sans-serif"],
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
@@ -72,4 +72,3 @@ export default {
     require("@tailwindcss/aspect-ratio"),
   ],
 };
-

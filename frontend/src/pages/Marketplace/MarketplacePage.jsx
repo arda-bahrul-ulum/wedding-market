@@ -380,4 +380,3 @@ function MarketplacePage() {
 }
 
 export default MarketplacePage;
-

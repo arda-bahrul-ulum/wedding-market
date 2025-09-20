@@ -19,11 +19,10 @@ function Footer() {
         <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">W</span>
-              </div>
-              <span className="text-xl font-bold">Wedding Commerce</span>
+            <div className="flex items-center">
+              <span className="text-2xl font-bold text-white">
+                Wedding Market
+              </span>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
               Platform marketplace jasa pernikahan terlengkap di Indonesia.
@@ -181,7 +180,7 @@ function Footer() {
         <div className="border-t border-gray-800 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-sm">
-              © {currentYear} Wedding Commerce. Semua hak dilindungi.
+              © {currentYear} Wedding Market. Semua hak dilindungi.
             </p>
             <div className="flex items-center space-x-1 text-sm text-gray-400">
               <span>Dibuat dengan</span>
@@ -196,4 +195,3 @@ function Footer() {
 }
 
 export default Footer;
-

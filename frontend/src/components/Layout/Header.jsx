@@ -84,12 +84,9 @@ function Header() {
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">W</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">
-              Wedding Commerce
+          <Link to="/" className="flex items-center">
+            <span className="text-2xl font-bold text-primary-600">
+              Wedding Market
             </span>
           </Link>
 
@@ -301,4 +298,3 @@ function Header() {
 }
 
 export default Header;
-

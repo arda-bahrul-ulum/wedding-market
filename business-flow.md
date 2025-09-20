@@ -4,9 +4,7 @@ Customer (User) → cari jasa, booking, bayar, review.
 
 Vendor (Personal/Perusahaan/WO) → daftar, listing jasa/paket, kolaborasi, kelola order.
 
-Admin → kelola vendor, order, konten, support.
-
-Super User (Owner Platform) → master control → aktif/nonaktif modul.
+Super User (Owner Platform) → master control → aktif/nonaktif modul, kelola vendor, order, konten, support.
 
 AI Chatbot (via n8n) → customer service otomatis (FAQ, tracking, keluhan).
 
@@ -161,8 +159,8 @@ Health check (meta missing, duplicate slug, dsb).
 
 Insight keyword (roadmap scale-up → AI recommendation).
 
-10. Admin & Super User Flow
-    Admin biasa:
+10. Super User Flow
+    Super User (Owner Platform):
 
 Kelola order, vendor, customer.
 
@@ -171,8 +169,6 @@ Approve/disapprove vendor baru.
 Monitor review & laporan.
 
 Tangani dispute/refund.
-
-Super User (Owner):
 
 Full akses modul control → toggle ON/OFF:
 
@@ -209,8 +205,7 @@ Vendor Terima → Order Selesai → Dana Cair → Customer Review
 ↘ Chatbot bantu FAQ / tracking
 Vendor → Daftar → Setup Profil & Jasa/Paket → Kelola Order → Kolaborasi (opsional) →
 Terima Bayaran → Statistik (premium)
-Admin → Kelola Vendor / Order / Dispute
-Super User → Aktif/Nonaktifkan Modul → Atur Payment & SEO → Monitoring
+Super User → Kelola Vendor / Order / Dispute → Aktif/Nonaktifkan Modul → Atur Payment & SEO → Monitoring
 
 🚀 Roadmap Modular (Prioritas)
 MVP (fase awal)

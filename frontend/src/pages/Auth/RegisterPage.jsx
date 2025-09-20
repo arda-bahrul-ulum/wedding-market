@@ -31,7 +31,12 @@ function RegisterPage() {
   const onSubmit = async (data) => {
     const result = await registerUser(data);
     if (result.success) {
-      navigate("/login");
+      // Redirect to login page with success message
+      navigate("/login", {
+        state: {
+          message: "Registrasi berhasil! Silakan login dengan akun Anda.",
+        },
+      });
     }
   };
 
@@ -47,9 +52,9 @@ function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-accent-600 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-xl">W</span>
-          </div>
+          <h1 className="text-3xl font-bold text-primary-600">
+            Wedding Market
+          </h1>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
           Daftar akun baru

@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
+
 @layer base {
   html {
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: "Poppins", system-ui, sans-serif;
   }
 
   body {
@@ -17,7 +19,7 @@
   h4,
   h5,
   h6 {
-    font-family: "Playfair Display", serif;
+    font-family: "Poppins", system-ui, sans-serif;
   }
 }
 
@@ -137,5 +139,150 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* React Select Styles */
+  .react-select-container {
+    @apply w-full;
+  }
+
+  .react-select__control {
+    @apply min-h-[38px] border border-gray-300 rounded-lg shadow-sm;
+  }
+
+  .react-select__control--is-focused {
+    @apply border-primary-500 ring-1 ring-primary-500;
+  }
+
+  .react-select__control--is-disabled {
+    @apply bg-gray-50 cursor-not-allowed;
+  }
+
+  .react-select__value-container {
+    @apply px-3 py-0;
+  }
+
+  .react-select__placeholder {
+    @apply text-gray-400 text-sm;
+  }
+
+  .react-select__single-value {
+    @apply text-gray-900 text-sm;
+  }
+
+  .react-select__multi-value {
+    @apply bg-gray-100 rounded-md;
+  }
+
+  .react-select__multi-value__label {
+    @apply text-gray-700 text-sm px-2 py-1;
+  }
+
+  .react-select__multi-value__remove {
+    @apply text-gray-500 hover:bg-red-500 hover:text-white rounded-r-md px-1;
+  }
+
+  .react-select__indicator-separator {
+    @apply bg-gray-300;
+  }
+
+  .react-select__dropdown-indicator {
+    @apply text-gray-400 hover:text-gray-600;
+  }
+
+  .react-select__clear-indicator {
+    @apply text-gray-400 hover:text-gray-600;
+  }
+
+  .react-select__menu {
+    @apply z-50 mt-1 border border-gray-300 rounded-lg shadow-lg;
+  }
+
+  .react-select__menu-list {
+    @apply py-1;
+  }
+
+  .react-select__option {
+    @apply px-3 py-2 text-sm cursor-pointer;
+  }
+
+  .react-select__option--is-focused {
+    @apply bg-gray-100;
+  }
+
+  .react-select__option--is-selected {
+    @apply bg-primary-600 text-white;
+  }
+
+  .react-select__option--is-disabled {
+    @apply text-gray-400 cursor-not-allowed;
+  }
+
+  .react-select__no-options-message {
+    @apply px-3 py-2 text-sm text-gray-500;
+  }
+
+  .react-select__loading-message {
+    @apply px-3 py-2 text-sm text-gray-500;
+  }
+
+  .react-select__loading-indicator {
+    @apply text-gray-500;
+  }
 }
 
+/* Modal Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-fadeOut {
+  animation: fadeOut 0.2s ease-in;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-in;
+}
