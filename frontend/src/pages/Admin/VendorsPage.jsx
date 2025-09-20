@@ -4,8 +4,10 @@ import { Card, CardBody } from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import Select from "../../components/UI/Select";
+import { adminAPI } from "../../services/api";
 import {
   confirmDelete,
+  confirmAction,
   confirmStatusChange,
   showSuccess,
   showError,
@@ -65,19 +67,18 @@ function AdminVendorsPage() {
   const fetchVendors = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `/api/v1/admin/vendors?page=${currentPage}&limit=10`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const data = await response.json();
+      const response = await adminAPI.getVendors({
+        page: currentPage,
+        limit: 10,
+        status: statusFilter !== "all" ? statusFilter : "",
+        verification: verificationFilter !== "all" ? verificationFilter : "",
+        business_type: businessTypeFilter !== "all" ? businessTypeFilter : "",
+        search: searchTerm,
+      });
 
-      if (data.success) {
-        setVendors(data.data.vendors);
-        setTotalPages(data.data.total_pages);
+      if (response.data && response.data.success) {
+        setVendors(response.data.data.vendors);
+        setTotalPages(response.data.data.pagination.total_pages);
       } else {
         // Fallback data untuk testing
         const fallbackVendors = [
@@ -241,46 +242,98 @@ function AdminVendorsPage() {
   };
 
   const handleVendorAction = async (vendorId, action) => {
+    // Konfirmasi berdasarkan action
+    let confirmed = false;
+    const vendor = vendors.find((v) => v.id === vendorId);
+    const vendorName = vendor?.business_name || "vendor";
+
+    if (action === "verify") {
+      const result = await confirmAction(
+        "Konfirmasi Verifikasi Vendor",
+        `Apakah Anda yakin ingin memverifikasi vendor "${vendorName}"?`
+      );
+      confirmed = result.isConfirmed;
+    } else if (action === "unverify") {
+      const result = await confirmAction(
+        "Konfirmasi Unverify Vendor",
+        `Apakah Anda yakin ingin membatalkan verifikasi vendor "${vendorName}"?`
+      );
+      confirmed = result.isConfirmed;
+    } else if (action === "activate") {
+      const result = await confirmStatusChange("activate", vendorName);
+      confirmed = result.isConfirmed;
+    } else if (action === "deactivate") {
+      const result = await confirmStatusChange("deactivate", vendorName);
+      confirmed = result.isConfirmed;
+    } else {
+      confirmed = true;
+    }
+
+    if (!confirmed) return;
+
+    // Show loading
+    showLoading("Memproses...", "Mohon tunggu sebentar...");
+
     try {
-      let endpoint = "";
-      let method = "PUT";
-      let body = {};
+      let response;
 
       switch (action) {
         case "verify":
-          endpoint = `/api/v1/admin/vendors/${vendorId}/status`;
-          body = { is_verified: true };
+          response = await adminAPI.updateVendorStatus(vendorId, {
+            is_verified: true,
+          });
           break;
         case "unverify":
-          endpoint = `/api/v1/admin/vendors/${vendorId}/status`;
-          body = { is_verified: false };
+          response = await adminAPI.updateVendorStatus(vendorId, {
+            is_verified: false,
+          });
           break;
         case "activate":
-          endpoint = `/api/v1/admin/vendors/${vendorId}/status`;
-          body = { is_active: true };
+          response = await adminAPI.updateVendorStatus(vendorId, {
+            is_active: true,
+          });
           break;
         case "deactivate":
-          endpoint = `/api/v1/admin/vendors/${vendorId}/status`;
-          body = { is_active: false };
+          response = await adminAPI.updateVendorStatus(vendorId, {
+            is_active: false,
+          });
           break;
         default:
           return;
       }
 
-      const response = await fetch(`/api/v1${endpoint}`, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(body),
-      });
+      if (response.data && response.data.success) {
+        // Refresh the list
+        await fetchVendors();
 
-      if (response.ok) {
-        fetchVendors(); // Refresh the list
+        // Close loading and show success
+        closeLoading();
+
+        const actionText =
+          action === "verify"
+            ? "diverifikasi"
+            : action === "unverify"
+            ? "dibatalkan verifikasinya"
+            : action === "activate"
+            ? "diaktifkan"
+            : "dinonaktifkan";
+
+        await showSuccess("Berhasil!", `Vendor berhasil ${actionText}.`);
+      } else {
+        throw new Error(response.data?.message || `Gagal ${action} vendor`);
       }
     } catch (error) {
       console.error("Error performing vendor action:", error);
+
+      // Close loading and show error
+      closeLoading();
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        `Gagal ${action} vendor`;
+
+      showError("Error!", errorMessage);
     }
   };
 
@@ -696,6 +749,199 @@ function AdminVendorsPage() {
           </CardBody>
         </Card>
       </div>
+
+      {/* Vendor Detail Modal */}
+      {showVendorModal && selectedVendor && (
+        <div
+          className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 animate-fadeIn"
+          onClick={() => {
+            setShowVendorModal(false);
+            setSelectedVendor(null);
+          }}
+        >
+          <div
+            className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slideDown"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Detail Vendor
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowVendorModal(false);
+                    setSelectedVendor(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200 hover:bg-gray-100 rounded-full p-1"
+                >
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0 h-16 w-16">
+                    <div className="h-16 w-16 rounded-lg bg-primary-100 flex items-center justify-center">
+                      <Store className="h-8 w-8 text-primary-600" />
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900">
+                      {selectedVendor.business_name}
+                    </h4>
+                    <p className="text-sm text-gray-500">
+                      {selectedVendor.user?.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Business Type
+                    </label>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getBusinessTypeBadgeColor(
+                        selectedVendor.business_type
+                      )}`}
+                    >
+                      {selectedVendor.business_type?.replace("_", " ")}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Subscription
+                    </label>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSubscriptionBadgeColor(
+                        selectedVendor.subscription_plan
+                      )}`}
+                    >
+                      {selectedVendor.subscription_plan?.toUpperCase() ||
+                        "FREE"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Status
+                    </label>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        selectedVendor.is_active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {selectedVendor.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Verification
+                    </label>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        selectedVendor.is_verified
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {selectedVendor.is_verified ? "Verified" : "Pending"}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Contact Person
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {selectedVendor.user?.name}
+                  </p>
+                  {selectedVendor.user?.phone && (
+                    <p className="text-sm text-gray-500 flex items-center">
+                      <Phone className="h-3 w-3 mr-1" />
+                      {selectedVendor.user.phone}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Location
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {selectedVendor.city}, {selectedVendor.province}
+                  </p>
+                  <p className="text-sm text-gray-500 flex items-center">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    {selectedVendor.address}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Joined
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {formatDate(selectedVendor.created_at)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowVendorModal(false);
+                    setSelectedVendor(null);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
+                >
+                  Close
+                </button>
+                {!selectedVendor.is_verified && (
+                  <button
+                    onClick={() => {
+                      setShowVendorModal(false);
+                      handleVendorAction(selectedVendor.id, "verify");
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors duration-200"
+                  >
+                    Verify Vendor
+                  </button>
+                )}
+                {selectedVendor.is_verified && (
+                  <button
+                    onClick={() => {
+                      setShowVendorModal(false);
+                      handleVendorAction(selectedVendor.id, "unverify");
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors duration-200"
+                  >
+                    Unverify Vendor
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

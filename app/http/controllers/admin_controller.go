@@ -126,23 +126,36 @@ func (c *AdminController) GetVendors(ctx http.Context) http.Response {
 	// Get query parameters
 	page, _ := strconv.Atoi(ctx.Request().Query("page", "1"))
 	limit, _ := strconv.Atoi(ctx.Request().Query("limit", "10"))
-	status := ctx.Request().Query("status", "") // active, inactive, verified, unverified
+	status := ctx.Request().Query("status", "") // active, inactive
+	verification := ctx.Request().Query("verification", "") // verified, unverified
+	businessType := ctx.Request().Query("business_type", "")
 	search := ctx.Request().Query("search", "")
 
 	// Build query
 	query := facades.Orm().Query().Model(&models.VendorProfile{})
 
+	// Status filter
 	switch status {
 	case "active":
 		query = query.Where("is_active", true)
 	case "inactive":
 		query = query.Where("is_active", false)
+	}
+
+	// Verification filter
+	switch verification {
 	case "verified":
 		query = query.Where("is_verified", true)
 	case "unverified":
 		query = query.Where("is_verified", false)
 	}
 
+	// Business type filter
+	if businessType != "" {
+		query = query.Where("business_type", businessType)
+	}
+
+	// Search filter
 	if search != "" {
 		query = query.Where("business_name ILIKE ? OR description ILIKE ?", "%"+search+"%", "%"+search+"%")
 	}
@@ -235,6 +248,184 @@ func (c *AdminController) UpdateVendorStatus(ctx http.Context) http.Response {
 		"success": true,
 		"message": "Vendor status updated successfully",
 		"data":    vendor,
+	})
+}
+
+// CreateVendor creates a new vendor
+func (c *AdminController) CreateVendor(ctx http.Context) http.Response {
+	var request struct {
+		UserID          uint   `json:"user_id" validate:"required"`
+		BusinessName    string `json:"business_name" validate:"required,min=3"`
+		BusinessType    string `json:"business_type" validate:"required,oneof=personal company wedding_organizer venue photographer makeup_artist catering decoration"`
+		Description     string `json:"description"`
+		Address         string `json:"address"`
+		City            string `json:"city"`
+		Province        string `json:"province"`
+		PostalCode      string `json:"postal_code"`
+		Latitude        float64 `json:"latitude"`
+		Longitude       float64 `json:"longitude"`
+		Website         string `json:"website"`
+		Instagram       string `json:"instagram"`
+		Whatsapp        string `json:"whatsapp"`
+		SubscriptionPlan string `json:"subscription_plan" validate:"oneof=free premium enterprise"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Check if user exists
+	var user models.User
+	if err := facades.Orm().Query().Where("id", request.UserID).First(&user); err != nil {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "User not found",
+		})
+	}
+
+	// Check if user already has vendor profile
+	var existingVendor models.VendorProfile
+	if err := facades.Orm().Query().Where("user_id", request.UserID).First(&existingVendor); err == nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "User already has vendor profile",
+		})
+	}
+
+	// Create vendor profile
+	vendor := models.VendorProfile{
+		UserID:           request.UserID,
+		BusinessName:     request.BusinessName,
+		BusinessType:     request.BusinessType,
+		Description:      request.Description,
+		Address:          request.Address,
+		City:             request.City,
+		Province:         request.Province,
+		PostalCode:       request.PostalCode,
+		Latitude:         request.Latitude,
+		Longitude:        request.Longitude,
+		Website:          request.Website,
+		Instagram:        request.Instagram,
+		Whatsapp:         request.Whatsapp,
+		IsVerified:       false,
+		IsActive:         true,
+		SubscriptionPlan: request.SubscriptionPlan,
+	}
+
+	if err := facades.Orm().Query().Create(&vendor); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Failed to create vendor profile",
+		})
+	}
+
+	// Load user data
+	facades.Orm().Query().Where("id", vendor.UserID).First(&vendor.User)
+
+	return ctx.Response().Status(201).Json(http.Json{
+		"success": true,
+		"message": "Vendor profile created successfully",
+		"data":    vendor,
+	})
+}
+
+// UpdateVendor updates vendor profile
+func (c *AdminController) UpdateVendor(ctx http.Context) http.Response {
+	vendorID := ctx.Request().Route("id")
+
+	var request struct {
+		BusinessName    string `json:"business_name" validate:"required,min=3"`
+		BusinessType    string `json:"business_type" validate:"required,oneof=personal company wedding_organizer venue photographer makeup_artist catering decoration"`
+		Description     string `json:"description"`
+		Address         string `json:"address"`
+		City            string `json:"city"`
+		Province        string `json:"province"`
+		PostalCode      string `json:"postal_code"`
+		Latitude        float64 `json:"latitude"`
+		Longitude       float64 `json:"longitude"`
+		Website         string `json:"website"`
+		Instagram       string `json:"instagram"`
+		Whatsapp        string `json:"whatsapp"`
+		SubscriptionPlan string `json:"subscription_plan" validate:"oneof=free premium enterprise"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Get vendor
+	var vendor models.VendorProfile
+	if err := facades.Orm().Query().Where("id", vendorID).First(&vendor); err != nil {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "Vendor not found",
+		})
+	}
+
+	// Update vendor data
+	vendor.BusinessName = request.BusinessName
+	vendor.BusinessType = request.BusinessType
+	vendor.Description = request.Description
+	vendor.Address = request.Address
+	vendor.City = request.City
+	vendor.Province = request.Province
+	vendor.PostalCode = request.PostalCode
+	vendor.Latitude = request.Latitude
+	vendor.Longitude = request.Longitude
+	vendor.Website = request.Website
+	vendor.Instagram = request.Instagram
+	vendor.Whatsapp = request.Whatsapp
+	vendor.SubscriptionPlan = request.SubscriptionPlan
+
+	if err := facades.Orm().Query().Save(&vendor); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Failed to update vendor profile",
+		})
+	}
+
+	// Load user data
+	facades.Orm().Query().Where("id", vendor.UserID).First(&vendor.User)
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "Vendor profile updated successfully",
+		"data":    vendor,
+	})
+}
+
+// DeleteVendor deletes vendor profile
+func (c *AdminController) DeleteVendor(ctx http.Context) http.Response {
+	vendorID := ctx.Request().Route("id")
+
+	// Get vendor
+	var vendor models.VendorProfile
+	if err := facades.Orm().Query().Where("id", vendorID).First(&vendor); err != nil {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "Vendor not found",
+		})
+	}
+
+	// Delete vendor profile
+	if _, err := facades.Orm().Query().Delete(&vendor); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Failed to delete vendor profile",
+		})
+	}
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "Vendor profile deleted successfully",
 	})
 }
 
