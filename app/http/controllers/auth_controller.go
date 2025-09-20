@@ -263,7 +263,8 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 
 	// Find user
 	var user models.User
-	if err := facades.Orm().Query().Where("email", strings.ToLower(strings.TrimSpace(request.Email))).First(&user); err != nil {
+	err := facades.Orm().Query().Where("email", strings.ToLower(strings.TrimSpace(request.Email))).First(&user)
+	if err != nil || user.ID == 0 {
 		return ctx.Response().Status(401).Json(http.Json{
 			"success": false,
 			"message": "Email atau password salah",
@@ -294,7 +295,7 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 	}
 
 	// Generate JWT token
-	token, err := facades.Auth().LoginUsingID(user.ID)
+	token, err := facades.Auth(ctx).LoginUsingID(user.ID)
 	if err != nil {
 		facades.Log().Error("Failed to generate token: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
@@ -320,7 +321,7 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 
 // Logout handles user logout
 func (c *AuthController) Logout(ctx http.Context) http.Response {
-	if err := facades.Auth().Logout(); err != nil {
+	if err := facades.Auth(ctx).Logout(); err != nil {
 		facades.Log().Error("Failed to logout: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
@@ -357,7 +358,7 @@ func (c *AuthController) Me(ctx http.Context) http.Response {
 
 // RefreshToken refreshes JWT token
 func (c *AuthController) RefreshToken(ctx http.Context) http.Response {
-	token, err := facades.Auth().Refresh()
+	token, err := facades.Auth(ctx).Refresh()
 	if err != nil {
 		facades.Log().Error("Failed to refresh token: " + err.Error())
 		return ctx.Response().Status(401).Json(http.Json{

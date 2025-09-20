@@ -31,7 +31,7 @@ func Auth() http.Middleware {
 		token := authHeader[7:]
 
 		// Verify token and get user
-		user, err := facades.Auth().Parse(token)
+		payload, err := facades.Auth(ctx).Parse(token)
 		if err != nil {
 			facades.Log().Error("Token parse error: " + err.Error())
 			ctx.Response().Status(401).Json(http.Json{
@@ -43,8 +43,8 @@ func Auth() http.Middleware {
 
 		// Get user from database
 		var userModel models.User
-		// The user from Parse() should be the user ID directly
-		userID := user
+		// The payload.Key contains the user ID
+		userID := payload.Key
 		if err := facades.Orm().Query().Where("id", userID).First(&userModel); err != nil {
 			facades.Log().Error("User not found: " + err.Error())
 			ctx.Response().Status(401).Json(http.Json{
