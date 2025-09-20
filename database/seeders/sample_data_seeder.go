@@ -217,7 +217,11 @@ func (s *SampleDataSeeder) createSampleServices() error {
 			Images:      `["https://example.com/venue1.jpg", "https://example.com/venue2.jpg"]`,
 			Tags:        `["gedung", "mewah", "kapasitas besar"]`,
 		},
-		{
+	}
+
+	// Add more services only if we have enough vendors and categories
+	if len(vendors) > 1 && len(categories) > 1 {
+		services = append(services, models.Service{
 			VendorID:    vendors[1].ID,
 			CategoryID:  categories[1].ID, // MUA
 			Name:        "Paket Make Up Pengantin",
@@ -228,8 +232,11 @@ func (s *SampleDataSeeder) createSampleServices() error {
 			IsFeatured:  true,
 			Images:      `["https://example.com/mua1.jpg"]`,
 			Tags:        `["makeup", "pengantin", "trial"]`,
-		},
-		{
+		})
+	}
+
+	if len(vendors) > 2 && len(categories) > 3 {
+		services = append(services, models.Service{
 			VendorID:    vendors[2].ID,
 			CategoryID:  categories[3].ID, // Fotografer
 			Name:        "Paket Foto Prewedding",
@@ -240,7 +247,7 @@ func (s *SampleDataSeeder) createSampleServices() error {
 			IsFeatured:  false,
 			Images:      `["https://example.com/photo1.jpg"]`,
 			Tags:        `["foto", "prewedding", "edit"]`,
-		},
+		})
 	}
 
 	for _, service := range services {
@@ -277,7 +284,11 @@ func (s *SampleDataSeeder) createSamplePackages() error {
 			Images:     `["https://example.com/package1.jpg"]`,
 			Tags:       `["lengkap", "paket", "all in one"]`,
 		},
-		{
+	}
+
+	// Add second package only if we have at least 2 vendors
+	if len(vendors) > 1 {
+		packages = append(packages, models.Package{
 			VendorID:   vendors[1].ID,
 			Name:       "Paket Make Up & Hair",
 			Description: "Paket make up dan hair styling untuk pengantin dan keluarga",
@@ -286,7 +297,7 @@ func (s *SampleDataSeeder) createSamplePackages() error {
 			IsFeatured: false,
 			Images:     `["https://example.com/package2.jpg"]`,
 			Tags:       `["makeup", "hair", "family"]`,
-		},
+		})
 	}
 
 	for _, pkg := range packages {
@@ -421,7 +432,11 @@ func (s *SampleDataSeeder) createSamplePortfolios() error {
 			IsFeatured:  true,
 			SortOrder:   1,
 		},
-		{
+	}
+
+	// Add second portfolio only if we have at least 2 vendors
+	if len(vendors) > 1 {
+		portfolios = append(portfolios, models.Portfolio{
 			VendorID:    vendors[1].ID,
 			Title:       "Make Up Natural untuk Pengantin",
 			Description: "Look natural dan fresh untuk pengantin",
@@ -429,7 +444,7 @@ func (s *SampleDataSeeder) createSamplePortfolios() error {
 			ImageType:   "image",
 			IsFeatured:  true,
 			SortOrder:   1,
-		},
+		})
 	}
 
 	for _, portfolio := range portfolios {

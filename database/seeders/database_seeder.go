@@ -35,5 +35,9 @@ func (s *DatabaseSeeder) Run() error {
 		return err
 	}
 	
+	if err := facades.Seeder().Call([]seeder.Seeder{&OrderSampleSeeder{}}); err != nil {
+		return err
+	}
+	
 	return nil
 }
