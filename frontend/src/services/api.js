@@ -110,6 +110,8 @@ export const vendorAPI = {
 export const adminAPI = {
   getDashboard: () => api.get(config.ENDPOINTS.ADMIN.DASHBOARD),
   getUsers: (params) => api.get(config.ENDPOINTS.ADMIN.USERS, { params }),
+  updateUser: (id, userData) =>
+    api.put(`${config.ENDPOINTS.ADMIN.USERS}/${id}`, userData),
   updateUserStatus: (id, statusData) =>
     api.put(`${config.ENDPOINTS.ADMIN.USERS}/${id}/status`, statusData),
   deleteUser: (id) => api.delete(`${config.ENDPOINTS.ADMIN.USERS}/${id}`),
@@ -117,12 +119,12 @@ export const adminAPI = {
   updateVendorStatus: (id, statusData) =>
     api.put(`${config.ENDPOINTS.ADMIN.VENDORS}/${id}/status`, statusData),
   getOrders: (params) => api.get(config.ENDPOINTS.ADMIN.ORDERS, { params }),
-  getModuleSettings: () => api.get(config.ENDPOINTS.ADMIN.SETTINGS),
+  getModuleSettings: () => api.get(config.ENDPOINTS.ADMIN.MODULE_SETTINGS),
   updateModuleSetting: (module, settingData) =>
-    api.put(`${config.ENDPOINTS.ADMIN.SETTINGS}/${module}`, settingData),
-  getSystemSettings: () => api.get(config.ENDPOINTS.ADMIN.SETTINGS),
+    api.put(`${config.ENDPOINTS.ADMIN.MODULE_SETTINGS}/${module}`, settingData),
+  getSystemSettings: () => api.get(config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS),
   updateSystemSetting: (key, settingData) =>
-    api.put(`${config.ENDPOINTS.ADMIN.SETTINGS}/${key}`, settingData),
+    api.put(`${config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS}/${key}`, settingData),
 };
 
 export const userAPI = {

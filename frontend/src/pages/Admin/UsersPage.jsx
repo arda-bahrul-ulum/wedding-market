@@ -7,6 +7,7 @@ import Select from "../../components/UI/Select";
 import { adminAPI } from "../../services/api";
 import {
   confirmDelete,
+  confirmAction,
   confirmStatusChange,
   showSuccess,
   showError,
@@ -41,6 +42,13 @@ function AdminUsersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    email: "",
+    role: "",
+    is_active: true,
+  });
   const [actionLoading, setActionLoading] = useState({});
   const [actionError, setActionError] = useState(null);
 
@@ -60,6 +68,96 @@ function AdminUsersPage() {
   const closeModal = () => {
     setShowUserModal(false);
     setSelectedUser(null);
+  };
+
+  const openEditModal = (user) => {
+    setSelectedUser(user);
+    setEditFormData({
+      name: user.name || "",
+      email: user.email || "",
+      role: user.role || "",
+      is_active: user.is_active !== undefined ? user.is_active : true,
+    });
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setSelectedUser(null);
+    setEditFormData({
+      name: "",
+      email: "",
+      role: "",
+      is_active: true,
+    });
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
+
+    // Validasi form
+    if (!editFormData.name || !editFormData.email || !editFormData.role) {
+      showError("Error!", "Mohon lengkapi semua field yang diperlukan.");
+      return;
+    }
+
+    // Validasi email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(editFormData.email)) {
+      showError("Error!", "Format email tidak valid.");
+      return;
+    }
+
+    // Konfirmasi sebelum update
+    const confirmResult = await confirmAction(
+      "Konfirmasi Update User",
+      `Apakah Anda yakin ingin mengupdate user "${editFormData.name}"?`
+    );
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+
+    try {
+      showLoading("Mengupdate user...", "Mohon tunggu sebentar...");
+
+      const response = await adminAPI.updateUser(selectedUser.id, editFormData);
+
+      if (response.data && response.data.success) {
+        // Refresh the list
+        await fetchUsers();
+
+        // Close loading and show success
+        closeLoading();
+
+        await showSuccess("Berhasil!", `User berhasil diupdate.`);
+
+        // Close modal after success
+        closeEditModal();
+      } else {
+        closeLoading();
+        showError(response.data?.message || "Gagal mengupdate user");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      closeLoading();
+
+      // Show more specific error message
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Terjadi kesalahan saat mengupdate user";
+
+      showError("Error!", errorMessage);
+    }
   };
 
   const fetchUsers = async () => {
@@ -535,6 +633,14 @@ function AdminUsersPage() {
                             <Eye className="h-4 w-4" />
                           </button>
 
+                          <button
+                            onClick={() => openEditModal(user)}
+                            className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50 transition-all duration-200 hover:scale-110"
+                            title="Edit User"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+
                           {user.is_active ? (
                             <button
                               onClick={() =>
@@ -805,6 +911,111 @@ function AdminUsersPage() {
                     {selectedUser.is_active ? "Deactivate" : "Activate"}
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditModal && selectedUser && (
+        <div
+          className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 animate-fadeIn"
+          onClick={closeEditModal}
+        >
+          <div
+            className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slideDown"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Edit User</h3>
+                <button
+                  onClick={closeEditModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200 hover:bg-gray-100 rounded-full p-1"
+                >
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="label">Nama</label>
+                  <Input
+                    type="text"
+                    name="name"
+                    value={editFormData.name}
+                    onChange={handleEditFormChange}
+                    placeholder="Masukkan nama user"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Email</label>
+                  <Input
+                    type="email"
+                    name="email"
+                    value={editFormData.email}
+                    onChange={handleEditFormChange}
+                    placeholder="Masukkan email user"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Role</label>
+                  <Select
+                    name="role"
+                    value={editFormData.role}
+                    onChange={handleEditFormChange}
+                    options={[
+                      { value: "customer", label: "Customer" },
+                      { value: "vendor", label: "Vendor" },
+                      { value: "admin", label: "Admin" },
+                      { value: "super_user", label: "Super User" },
+                    ]}
+                    placeholder="Pilih role"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    checked={editFormData.is_active}
+                    onChange={handleEditFormChange}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <label className="ml-2 block text-sm text-gray-900">
+                    User Aktif
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={closeEditModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleUpdateUser}
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors duration-200"
+                >
+                  Update User
+                </button>
               </div>
             </div>
           </div>

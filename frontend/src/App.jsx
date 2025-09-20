@@ -179,7 +179,7 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Route>
 
-          {/* Admin Routes - Outside of Layout wrapper to avoid topbar */}
+          {/* Admin Routes - Inside AuthProvider but outside Layout wrapper */}
           <Route
             path="admin"
             element={

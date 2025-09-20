@@ -33,20 +33,21 @@ func Api() {
 	api.Get("/services", marketplaceController.GetServices)
 	api.Get("/packages", marketplaceController.GetPackages)
 
-	// Admin routes - specific routes first
+	// Admin routes - parameterized routes first to avoid conflicts
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/users/{id}", adminController.UpdateUser)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/users/{id}/status", adminController.UpdateUserStatus)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Delete("/admin/users/{id}", adminController.DeleteUser)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/module-settings/{module}", adminController.UpdateModuleSetting)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/{key}", adminController.UpdateSystemSetting)
+	
+	// Admin routes - specific routes
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/dashboard", adminController.GetDashboard)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/users", adminController.GetUsers)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/vendors", adminController.GetVendors)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders", adminController.GetOrders)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/module-settings", adminController.GetModuleSettings)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/system-settings", adminController.GetSystemSettings)
-	
-	// Admin routes with parameters
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/users/{id}/status", adminController.UpdateUserStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Delete("/admin/users/{id}", adminController.DeleteUser)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/module-settings/{module}", adminController.UpdateModuleSetting)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/{key}", adminController.UpdateSystemSetting)
 
 	// Authentication protected routes
 	api.Middleware(middleware.Auth()).Post("/auth/logout", authController.Logout)

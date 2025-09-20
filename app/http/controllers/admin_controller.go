@@ -437,6 +437,73 @@ func (c *AdminController) UpdateSystemSetting(ctx http.Context) http.Response {
 	})
 }
 
+// UpdateUser updates user data
+func (c *AdminController) UpdateUser(ctx http.Context) http.Response {
+	userID := ctx.Request().Route("id")
+
+	var request struct {
+		Name    string `json:"name" validate:"required,min=3"`
+		Email   string `json:"email" validate:"required,email"`
+		Role    string `json:"role" validate:"required,oneof=customer vendor admin super_user"`
+		IsActive *bool `json:"is_active"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Get user
+	var user models.User
+	if err := facades.Orm().Query().Where("id", userID).First(&user); err != nil {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "User not found",
+		})
+	}
+
+	// Check if email is already taken by another user
+	var existingUser models.User
+	if err := facades.Orm().Query().Where("email", request.Email).Where("id !=", userID).First(&existingUser); err == nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Email already taken",
+		})
+	}
+
+	// Prevent changing super_user role
+	if user.Role == "super_user" && request.Role != "super_user" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Cannot change super user role",
+		})
+	}
+
+	// Update user data
+	user.Name = request.Name
+	user.Email = request.Email
+	user.Role = request.Role
+	if request.IsActive != nil {
+		user.IsActive = *request.IsActive
+	}
+
+	if err := facades.Orm().Query().Save(&user); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Failed to update user",
+		})
+	}
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "User updated successfully",
+		"data":    user,
+	})
+}
+
 // UpdateUserStatus updates user status (activate/deactivate)
 func (c *AdminController) UpdateUserStatus(ctx http.Context) http.Response {
 	userID := ctx.Request().Route("id")

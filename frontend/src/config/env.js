@@ -48,7 +48,8 @@ const config = {
       USERS: "/admin/users",
       VENDORS: "/admin/vendors",
       ORDERS: "/admin/orders",
-      SETTINGS: "/admin/settings",
+      MODULE_SETTINGS: "/admin/module-settings",
+      SYSTEM_SETTINGS: "/admin/system-settings",
     },
   },
 
