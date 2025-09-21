@@ -213,7 +213,7 @@ function Footer() {
                 <div>
                   <p className="text-sm font-semibold text-white">Email</p>
                   <p className="text-gray-300 text-sm">
-                    support@weddingcommerce.com
+                    support@weddingdream.com
                   </p>
                 </div>
               </div>
@@ -235,9 +235,9 @@ function Footer() {
                 <div>
                   <p className="text-sm font-semibold text-white">Alamat</p>
                   <p className="text-gray-300 text-sm">
-                    Jl. Sudirman No. 123
+                    Jl. Raya Surabaya No. 123
                     <br />
-                    Jakarta Selatan 12190
+                    Surabaya, Jawa Timur
                   </p>
                 </div>
               </div>

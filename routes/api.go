@@ -75,9 +75,10 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role("customer")).Put("/orders/{id}", orderController.UpdateOrder)
 	api.Middleware(middleware.Auth(), middleware.Role("customer")).Delete("/orders/{id}", orderController.DeleteOrder)
 	api.Middleware(middleware.Auth(), middleware.Role("customer")).Put("/orders/{id}/cancel", orderController.CancelOrder)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Get("/wishlist", userController.GetWishlist)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/wishlist", userController.AddToWishlist)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Delete("/wishlist/{id}", userController.RemoveFromWishlist)
+	// Wishlist routes will be implemented later
+	// api.Middleware(middleware.Auth(), middleware.Role("customer")).Get("/wishlist", userController.GetWishlist)
+	// api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/wishlist", userController.AddToWishlist)
+	// api.Middleware(middleware.Auth(), middleware.Role("customer")).Delete("/wishlist/{id}", userController.RemoveFromWishlist)
 	api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/reviews", reviewController.CreateReview)
 
 	// Vendor routes

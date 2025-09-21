@@ -196,7 +196,7 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		})
 	}
 
-	// If vendor, create vendor profile
+	// Create profile based on role
 	if request.Role == "vendor" {
 		vendorProfile := models.VendorProfile{
 			UserID:       user.ID,
@@ -207,6 +207,16 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		if err := facades.Orm().Query().Create(&vendorProfile); err != nil {
 			// Log error but don't fail registration
 			facades.Log().Error("Failed to create vendor profile: " + err.Error())
+		}
+	} else if request.Role == "customer" {
+		customerProfile := models.CustomerProfile{
+			UserID:   user.ID,
+			FullName: user.Name,
+			IsActive: true,
+		}
+		if err := facades.Orm().Query().Create(&customerProfile); err != nil {
+			// Log error but don't fail registration
+			facades.Log().Error("Failed to create customer profile: " + err.Error())
 		}
 	}
 
@@ -386,11 +396,16 @@ func (c *AuthController) Me(ctx http.Context) http.Response {
 		})
 	}
 
-	// Load vendor profile if user is vendor
+	// Load profile based on role
 	if user.Role == "vendor" {
 		var vendorProfile models.VendorProfile
 		if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err == nil {
 			user.VendorProfile = &vendorProfile
+		}
+	} else if user.Role == "customer" {
+		var customerProfile models.CustomerProfile
+		if err := facades.Orm().Query().Where("user_id", user.ID).First(&customerProfile); err == nil {
+			user.CustomerProfile = &customerProfile
 		}
 	}
 

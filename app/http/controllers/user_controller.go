@@ -1,7 +1,8 @@
 package controllers
 
 import (
-	"strconv"
+	"strings"
+	"time"
 
 	"goravel/app/models"
 
@@ -15,234 +16,226 @@ func NewUserController() *UserController {
 	return &UserController{}
 }
 
-// Show returns user profile by ID
+// UpdateProfile handles profile updates for both customer and vendor
+func (c *UserController) UpdateProfile(ctx http.Context) http.Response {
+	var request struct {
+		ProfileType   string `json:"profile_type"` // "customer" or "vendor"
+		FullName      string `json:"full_name"`
+		Phone         string `json:"phone"`
+		Address       string `json:"address"`
+		City          string `json:"city"`
+		Province      string `json:"province"`
+		PostalCode    string `json:"postal_code"`
+		BirthDate     string `json:"birth_date"`
+		Gender        string `json:"gender"`
+		Bio           string `json:"bio"`
+		// Vendor specific fields
+		BusinessName  string `json:"business_name"`
+		BusinessType  string `json:"business_type"`
+		Description   string `json:"description"`
+		Website       string `json:"website"`
+		Instagram     string `json:"instagram"`
+		Whatsapp      string `json:"whatsapp"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Get user from context
+	userInterface := ctx.Value("user")
+	if userInterface == nil {
+		return ctx.Response().Status(401).Json(http.Json{
+			"success": false,
+			"message": "Unauthorized - user not found in context",
+		})
+	}
+
+	user, ok := userInterface.(models.User)
+	if !ok {
+		return ctx.Response().Status(401).Json(http.Json{
+			"success": false,
+			"message": "Unauthorized - invalid user data",
+		})
+	}
+
+	// Validate profile type
+	if request.ProfileType != "customer" && request.ProfileType != "vendor" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Profile type must be customer or vendor",
+		})
+	}
+
+	// Validate role matches profile type
+	if (request.ProfileType == "customer" && user.Role != "customer") ||
+		(request.ProfileType == "vendor" && user.Role != "vendor") {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Profile type does not match user role",
+		})
+	}
+
+	if request.ProfileType == "customer" {
+		// Update customer profile
+		var customerProfile models.CustomerProfile
+		err := facades.Orm().Query().Where("user_id", user.ID).First(&customerProfile)
+		if err != nil {
+			return ctx.Response().Status(404).Json(http.Json{
+				"success": false,
+				"message": "Customer profile not found",
+			})
+		}
+
+		// Update fields
+		if request.FullName != "" {
+			customerProfile.FullName = strings.TrimSpace(request.FullName)
+		}
+		if request.Phone != "" {
+			customerProfile.Phone = &request.Phone
+		}
+		if request.Address != "" {
+			customerProfile.Address = &request.Address
+		}
+		if request.City != "" {
+			customerProfile.City = &request.City
+		}
+		if request.Province != "" {
+			customerProfile.Province = &request.Province
+		}
+		if request.PostalCode != "" {
+			customerProfile.PostalCode = &request.PostalCode
+		}
+		if request.BirthDate != "" {
+			if birthDate, err := time.Parse("2006-01-02", request.BirthDate); err == nil {
+				customerProfile.BirthDate = &birthDate
+			}
+		}
+		if request.Gender != "" {
+			customerProfile.Gender = &request.Gender
+		}
+		if request.Bio != "" {
+			customerProfile.Bio = &request.Bio
+		}
+
+		if err := facades.Orm().Query().Save(&customerProfile); err != nil {
+			facades.Log().Error("Failed to update customer profile: " + err.Error())
+			return ctx.Response().Status(500).Json(http.Json{
+				"success": false,
+				"message": "Gagal memperbarui profil customer",
+			})
+		}
+
+		return ctx.Response().Status(200).Json(http.Json{
+			"success": true,
+			"message": "Profil customer berhasil diperbarui",
+			"data": http.Json{
+				"customer_profile": customerProfile,
+			},
+		})
+
+	} else {
+		// Update vendor profile
+		var vendorProfile models.VendorProfile
+		err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile)
+		if err != nil {
+			return ctx.Response().Status(404).Json(http.Json{
+				"success": false,
+				"message": "Vendor profile not found",
+			})
+		}
+
+		// Update fields
+		if request.BusinessName != "" {
+			vendorProfile.BusinessName = strings.TrimSpace(request.BusinessName)
+		}
+		if request.BusinessType != "" {
+			vendorProfile.BusinessType = request.BusinessType
+		}
+		if request.Description != "" {
+			vendorProfile.Description = request.Description
+		}
+		if request.Address != "" {
+			vendorProfile.Address = request.Address
+		}
+		if request.City != "" {
+			vendorProfile.City = request.City
+		}
+		if request.Province != "" {
+			vendorProfile.Province = request.Province
+		}
+		if request.PostalCode != "" {
+			vendorProfile.PostalCode = request.PostalCode
+		}
+		if request.Website != "" {
+			vendorProfile.Website = request.Website
+		}
+		if request.Instagram != "" {
+			vendorProfile.Instagram = request.Instagram
+		}
+		if request.Whatsapp != "" {
+			vendorProfile.Whatsapp = request.Whatsapp
+		}
+
+		if err := facades.Orm().Query().Save(&vendorProfile); err != nil {
+			facades.Log().Error("Failed to update vendor profile: " + err.Error())
+			return ctx.Response().Status(500).Json(http.Json{
+				"success": false,
+				"message": "Gagal memperbarui profil vendor",
+			})
+		}
+
+		return ctx.Response().Status(200).Json(http.Json{
+			"success": true,
+			"message": "Profil vendor berhasil diperbarui",
+			"data": http.Json{
+				"vendor_profile": vendorProfile,
+			},
+		})
+	}
+}
+
+// Show returns user information by ID
 func (c *UserController) Show(ctx http.Context) http.Response {
-	userID := ctx.Request().Route("id")
+	userID := ctx.Request().Input("id")
+	if userID == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "User ID is required",
+		})
+	}
 
 	var user models.User
-	if err := facades.Orm().Query().Where("id", userID).First(&user); err != nil {
+	err := facades.Orm().Query().Where("id", userID).First(&user)
+	if err != nil {
 		return ctx.Response().Status(404).Json(http.Json{
 			"success": false,
 			"message": "User not found",
 		})
 	}
 
-	// Load vendor profile if user is vendor
+	// Load profile based on role
 	if user.Role == "vendor" {
 		var vendorProfile models.VendorProfile
 		if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err == nil {
 			user.VendorProfile = &vendorProfile
 		}
-	}
-
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"data":    user,
-	})
-}
-
-// UpdateProfile updates user profile
-func (c *UserController) UpdateProfile(ctx http.Context) http.Response {
-	user := ctx.Value("user").(models.User)
-
-	var request struct {
-		Name  string `json:"name" validate:"required,min=3"`
-		Phone string `json:"phone"`
-		Avatar string `json:"avatar"`
-	}
-
-	if err := ctx.Request().Bind(&request); err != nil {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Invalid request data",
-			"errors":  err.Error(),
-		})
-	}
-
-	// Update user
-	user.Name = request.Name
-	user.Phone = request.Phone
-	user.Avatar = request.Avatar
-
-	if err := facades.Orm().Query().Save(&user); err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to update profile",
-		})
-	}
-
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Profile updated successfully",
-		"data":    user,
-	})
-}
-
-// GetWishlist returns user's wishlist
-func (c *UserController) GetWishlist(ctx http.Context) http.Response {
-	user := ctx.Value("user").(models.User)
-
-	// Get query parameters
-	page, _ := strconv.Atoi(ctx.Request().Query("page", "1"))
-	limit, _ := strconv.Atoi(ctx.Request().Query("limit", "10"))
-	itemType := ctx.Request().Query("item_type", "")
-
-	// Build query
-	query := facades.Orm().Query().Model(&models.Wishlist{}).Where("customer_id", user.ID)
-
-	if itemType != "" {
-		query = query.Where("item_type", itemType)
-	}
-
-	query = query.Order("created_at desc")
-
-	// Get total count
-	total, err := query.Count()
-	if err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to count wishlist items",
-		})
-	}
-
-	// Calculate pagination
-	offset := (page - 1) * limit
-	totalPages := int(float64(total)/float64(limit) + 0.5)
-
-	// Get wishlist items
-	var wishlistItems []models.Wishlist
-	if err := query.Offset(offset).Limit(limit).Get(&wishlistItems); err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to fetch wishlist items",
-		})
-	}
-
-	// Load related data
-	for i := range wishlistItems {
-		if wishlistItems[i].ItemType == "service" && wishlistItems[i].ServiceID != nil {
-			facades.Orm().Query().Where("id", *wishlistItems[i].ServiceID).First(&wishlistItems[i].Service)
-		} else if wishlistItems[i].ItemType == "package" && wishlistItems[i].PackageID != nil {
-			facades.Orm().Query().Where("id", *wishlistItems[i].PackageID).First(&wishlistItems[i].Package)
+	} else if user.Role == "customer" {
+		var customerProfile models.CustomerProfile
+		if err := facades.Orm().Query().Where("user_id", user.ID).First(&customerProfile); err == nil {
+			user.CustomerProfile = &customerProfile
 		}
 	}
 
 	return ctx.Response().Status(200).Json(http.Json{
 		"success": true,
+		"message": "User data retrieved successfully",
 		"data": http.Json{
-			"wishlist": wishlistItems,
-			"pagination": http.Json{
-				"current_page": page,
-				"per_page":     limit,
-				"total":        total,
-				"total_pages":  totalPages,
-			},
+			"user": user,
 		},
-	})
-}
-
-// AddToWishlist adds item to wishlist
-func (c *UserController) AddToWishlist(ctx http.Context) http.Response {
-	user := ctx.Value("user").(models.User)
-
-	var request struct {
-		ItemType string `json:"item_type" validate:"required,oneof=service package"`
-		ItemID   uint   `json:"item_id" validate:"required"`
-	}
-
-	if err := ctx.Request().Bind(&request); err != nil {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Invalid request data",
-			"errors":  err.Error(),
-		})
-	}
-
-	// Check if item exists
-	if request.ItemType == "service" {
-		var service models.Service
-		if err := facades.Orm().Query().Where("id", request.ItemID).Where("is_active", true).First(&service); err != nil {
-			return ctx.Response().Status(404).Json(http.Json{
-				"success": false,
-				"message": "Service not found",
-			})
-		}
-	} else if request.ItemType == "package" {
-		var pkg models.Package
-		if err := facades.Orm().Query().Where("id", request.ItemID).Where("is_active", true).First(&pkg); err != nil {
-			return ctx.Response().Status(404).Json(http.Json{
-				"success": false,
-				"message": "Package not found",
-			})
-		}
-	}
-
-	// Check if already in wishlist
-	var existingWishlist models.Wishlist
-	query := facades.Orm().Query().Where("customer_id", user.ID).Where("item_type", request.ItemType)
-	if request.ItemType == "service" {
-		query = query.Where("service_id", request.ItemID)
-	} else {
-		query = query.Where("package_id", request.ItemID)
-	}
-
-	if err := query.First(&existingWishlist); err == nil {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Item already in wishlist",
-		})
-	}
-
-	// Create wishlist item
-	wishlistItem := models.Wishlist{
-		CustomerID: user.ID,
-		ItemType:   request.ItemType,
-	}
-
-	if request.ItemType == "service" {
-		wishlistItem.ServiceID = &request.ItemID
-	} else {
-		wishlistItem.PackageID = &request.ItemID
-	}
-
-	if err := facades.Orm().Query().Create(&wishlistItem); err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to add to wishlist",
-		})
-	}
-
-	return ctx.Response().Status(201).Json(http.Json{
-		"success": true,
-		"message": "Item added to wishlist successfully",
-		"data":    wishlistItem,
-	})
-}
-
-// RemoveFromWishlist removes item from wishlist
-func (c *UserController) RemoveFromWishlist(ctx http.Context) http.Response {
-	user := ctx.Value("user").(models.User)
-	itemID := ctx.Request().Route("id")
-
-	// Get wishlist item
-	var wishlistItem models.Wishlist
-	if err := facades.Orm().Query().Where("id", itemID).Where("customer_id", user.ID).First(&wishlistItem); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Wishlist item not found",
-		})
-	}
-
-	// Delete wishlist item
-	if _, err := facades.Orm().Query().Delete(&wishlistItem); err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to remove from wishlist",
-		})
-	}
-
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Item removed from wishlist successfully",
 	})
 }

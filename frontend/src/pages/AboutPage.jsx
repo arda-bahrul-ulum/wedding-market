@@ -177,14 +177,25 @@ function AboutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-200 transition-colors">
-                  <value.icon className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {value.title}
-                </h3>
-                <p className="text-gray-600 text-sm">{value.description}</p>
+              <div key={index} className="text-center group stagger-animation">
+                <Card
+                  variant="elevated"
+                  hover
+                  className="card-hover-effect group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-300"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <CardBody className="p-8">
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-accent-500 rounded-3xl flex items-center justify-center mx-auto mb-6 icon-bounce group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                      <value.icon className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                      {value.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {value.description}
+                    </p>
+                  </CardBody>
+                </Card>
               </div>
             ))}
           </div>
@@ -246,25 +257,34 @@ function AboutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, index) => (
-              <Card
-                key={index}
-                className="text-center group hover:shadow-lg transition-shadow"
-              >
-                <CardBody className="p-6">
-                  <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 overflow-hidden">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {member.name}
-                  </h3>
-                  <p className="text-sm text-primary-600 mb-2">{member.role}</p>
-                  <p className="text-sm text-gray-600">{member.description}</p>
-                </CardBody>
-              </Card>
+              <div key={index} className="stagger-animation">
+                <Card
+                  variant="elevated"
+                  hover
+                  className="text-center group card-hover-effect group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <CardBody className="p-6">
+                    <div className="relative w-28 h-28 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full mx-auto mb-6 overflow-hidden group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <img
+                        src={member.image}
+                        alt={member.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-2 text-lg group-hover:text-primary-600 transition-colors">
+                      {member.name}
+                    </h3>
+                    <p className="text-sm font-semibold text-primary-600 mb-3 bg-primary-50 px-3 py-1 rounded-full inline-block">
+                      {member.role}
+                    </p>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {member.description}
+                    </p>
+                  </CardBody>
+                </Card>
+              </div>
             ))}
           </div>
         </div>

@@ -3,15 +3,32 @@ import clsx from "clsx";
 
 const Card = forwardRef(
   (
-    { children, className = "", hover = false, glow = false, ...props },
+    {
+      children,
+      className = "",
+      hover = false,
+      glow = false,
+      variant = "default",
+      ...props
+    },
     ref
   ) => {
+    const variants = {
+      default: "bg-white rounded-2xl shadow-lg border border-gray-100/50",
+      elevated: "bg-white rounded-2xl shadow-xl border border-gray-100/50",
+      glass:
+        "bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20",
+      gradient:
+        "bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-gray-100/50",
+    };
+
     return (
       <div
         ref={ref}
         className={clsx(
-          "bg-white/80 backdrop-blur-sm rounded-2xl shadow-soft border border-white/20 transition-all duration-300",
-          hover && "hover:shadow-medium hover:-translate-y-1",
+          "transition-all duration-300 ease-out",
+          variants[variant],
+          hover && "hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]",
           glow && "shadow-glow hover:shadow-glow-lg",
           className
         )}
@@ -31,7 +48,7 @@ const CardHeader = forwardRef(
       <div
         ref={ref}
         className={clsx(
-          "px-8 py-6 border-b border-gray-100",
+          "px-6 py-5 border-b border-gray-100/50",
           gradient && "bg-gradient-to-r from-primary-50 to-accent-50",
           className
         )}
@@ -50,8 +67,9 @@ const CardBody = forwardRef(
     const paddingClasses = {
       none: "",
       sm: "px-4 py-4",
-      default: "px-8 py-6",
-      lg: "px-10 py-8",
+      default: "px-6 py-5",
+      lg: "px-8 py-6",
+      xl: "px-10 py-8",
     };
 
     return (

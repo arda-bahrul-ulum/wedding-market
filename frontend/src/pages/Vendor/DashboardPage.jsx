@@ -99,17 +99,13 @@ function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="container-custom py-8">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center mb-6">
-            <div className="text-left">
-              <h1 className="heading-xl text-gradient mb-2">
-                Dashboard Vendor
-              </h1>
-              <p className="text-xl text-gray-600">
-                Selamat datang, {profile?.business_name || user?.name}!
-              </p>
-            </div>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+            Dashboard Vendor
+          </h1>
+          <p className="text-lg text-gray-600">
+            Selamat datang, {profile?.business_name || user?.name}!
+          </p>
         </div>
 
         {/* Stats Cards */}

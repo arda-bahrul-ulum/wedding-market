@@ -94,34 +94,35 @@ function Header() {
       ];
     }
 
-    const baseItems = [
-      { name: "Beranda", href: "/" },
-      { name: "Booking Vendor", href: "/marketplace" },
-    ];
-
     if (user?.role === "customer") {
       return [
-        ...baseItems,
+        { name: "Beranda", href: "/" },
+        { name: "Booking Vendor", href: "/marketplace" },
         { name: "Pesanan", href: "/customer/orders" },
         { name: "Wishlist", href: "/customer/wishlist" },
       ];
     } else if (user?.role === "vendor") {
       return [
-        ...baseItems,
-        { name: "Dashboard", href: "/vendor" },
+        { name: "Beranda", href: "/" },
+        { name: "Kerjasama", href: "/vendor/collaboration" },
         { name: "Jasa", href: "/vendor/services" },
         { name: "Pesanan", href: "/vendor/orders" },
       ];
     } else if (user?.role === "admin" || user?.role === "super_user") {
       return [
-        ...baseItems,
+        { name: "Beranda", href: "/" },
+        { name: "Booking Vendor", href: "/marketplace" },
         { name: "Dashboard", href: "/admin" },
         { name: "Pengguna", href: "/admin/users" },
         { name: "Vendor", href: "/admin/vendors" },
       ];
     }
 
-    return baseItems;
+    // Fallback for unknown roles
+    return [
+      { name: "Beranda", href: "/" },
+      { name: "Booking Vendor", href: "/marketplace" },
+    ];
   };
 
   const navigationItems = getNavigationItems();
@@ -268,6 +269,14 @@ function Header() {
                           >
                             <User className="w-4 h-4 mr-3 text-primary-500" />
                             Dashboard
+                          </Link>
+                          <Link
+                            to="/customer/profile"
+                            className="flex items-center px-6 py-3.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                            onClick={() => setIsProfileOpen(false)}
+                          >
+                            <Settings className="w-4 h-4 mr-3 text-gray-500" />
+                            Profil
                           </Link>
                           <Link
                             to="/customer/wishlist"

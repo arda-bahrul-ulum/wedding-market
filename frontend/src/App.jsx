@@ -26,16 +26,17 @@ import ContactPage from "./pages/ContactPage";
 import CustomerDashboard from "./pages/Customer/DashboardPage";
 import CustomerOrders from "./pages/Customer/OrdersPage";
 import CustomerWishlist from "./pages/Customer/WishlistPage";
-import CustomerProfile from "./pages/Customer/ProfilePage";
+import CustomerProfilePage from "./pages/Customer/CustomerProfilePage";
 
 // Vendor Pages
 import VendorDashboard from "./pages/Vendor/DashboardPage";
-import VendorProfile from "./pages/Vendor/ProfilePage";
+import VendorProfilePage from "./pages/Vendor/VendorProfilePage";
 import VendorServices from "./pages/Vendor/ServicesPage";
 import VendorPackages from "./pages/Vendor/PackagesPage";
 import VendorOrders from "./pages/Vendor/OrdersPage";
 import VendorPortfolio from "./pages/Vendor/PortfolioPage";
 import VendorAvailability from "./pages/Vendor/AvailabilityPage";
+import VendorCollaborationPage from "./pages/Vendor/VendorCollaborationPage";
 
 // Admin Pages
 import AdminDashboard from "./pages/Admin/DashboardPage";
@@ -118,7 +119,7 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={["customer"]}>
-                <CustomerProfile />
+                <CustomerProfilePage />
               </RoleRoute>
             </ProtectedRoute>
           }
@@ -140,7 +141,7 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={["vendor"]}>
-                <VendorProfile />
+                <VendorProfilePage />
               </RoleRoute>
             </ProtectedRoute>
           }
@@ -191,6 +192,16 @@ function AppContent() {
             <ProtectedRoute>
               <RoleRoute allowedRoles={["vendor"]}>
                 <VendorAvailability />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="vendor/collaboration"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["vendor"]}>
+                <VendorCollaborationPage />
               </RoleRoute>
             </ProtectedRoute>
           }

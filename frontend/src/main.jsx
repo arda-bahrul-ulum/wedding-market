@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { Toaster } from "react-hot-toast";
 import App from "./App.jsx";
 import "./index.css";
+import "./styles/animations.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {

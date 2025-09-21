@@ -163,6 +163,7 @@ export const adminAPI = {
 
 export const userAPI = {
   getUser: (id) => api.get(`/users/${id}`),
+  updateProfile: (profileData) => api.put("/profile", profileData),
 };
 
 export default api;
