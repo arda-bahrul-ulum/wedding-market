@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
+import { authAPI } from "../../services/api";
+import toast from "react-hot-toast";
 import {
   Eye,
   EyeOff,
@@ -14,10 +16,10 @@ import {
   CheckCircle,
   Users,
   Store,
+  Building2,
 } from "lucide-react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
-import Select from "../../components/UI/Select";
 import Card, {
   CardBody,
   CardHeader,
@@ -28,17 +30,41 @@ import Card, {
 function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registerType, setRegisterType] = useState("customer"); // "customer" or "vendor"
+  const [emailStatus, setEmailStatus] = useState(null); // null, 'checking', 'available', 'taken'
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({
+    hasUpper: false,
+    hasLower: false,
+    hasNumber: false,
+    hasNoSpace: false,
+    hasSpecialChar: false,
+    isValid: false,
+    hasInput: false, // Track if password field has any input
+  });
+  const [passwordMatch, setPasswordMatch] = useState({
+    isMatching: false,
+    isChecking: false,
+  });
   const { register: registerUser, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const checkEmailTimeoutRef = useRef(null);
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm();
+    reset,
+  } = useForm({
+    defaultValues: {
+      agree_terms: false,
+    },
+  });
 
   const password = watch("password");
+  const agreeTermsForm = watch("agree_terms");
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -46,22 +72,202 @@ function RegisterPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  const onSubmit = async (data) => {
-    const result = await registerUser(data);
-    if (result.success) {
-      // Redirect to login page with success message
-      navigate("/login", {
-        state: {
-          message: "Registrasi berhasil! Silakan login dengan akun Anda.",
-        },
-      });
+  // Set register type based on URL parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get("tab");
+
+    if (tab === "customer" || tab === "vendor") {
+      setRegisterType(tab);
+    }
+  }, [location.search]);
+
+  // Reset form when register type changes
+  useEffect(() => {
+    reset({
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirm_password: "",
+      role: registerType, // Auto-set role based on selected tab
+    });
+    setEmailStatus(null);
+    setPasswordStrength({
+      hasUpper: false,
+      hasLower: false,
+      hasNumber: false,
+      hasNoSpace: false,
+      hasSpecialChar: false,
+      isValid: false,
+      hasInput: false,
+    });
+    setPasswordMatch({
+      isMatching: false,
+      isChecking: false,
+    });
+
+    // Clear any pending timeout
+    if (checkEmailTimeoutRef.current) {
+      clearTimeout(checkEmailTimeoutRef.current);
+    }
+  }, [registerType, reset]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (checkEmailTimeoutRef.current) {
+        clearTimeout(checkEmailTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Function to check if email is already registered
+  const checkEmailAvailability = async (email) => {
+    if (!email || !email.includes("@")) {
+      setEmailStatus(null);
+      return;
+    }
+
+    setIsCheckingEmail(true);
+    setEmailStatus("checking");
+
+    try {
+      const response = await authAPI.checkRole(email);
+      if (response.data.success) {
+        // Email is registered
+        setEmailStatus("taken");
+        toast.error(
+          "Email sudah terdaftar. Silakan gunakan email lain atau login dengan email ini."
+        );
+      }
+    } catch (error) {
+      if (error.response?.status === 404) {
+        // Email is available for registration
+        setEmailStatus("available");
+        toast.success("Email tersedia untuk registrasi");
+      } else {
+        // Other error
+        setEmailStatus("error");
+        toast.error("Gagal memeriksa ketersediaan email. Silakan coba lagi.");
+      }
+    } finally {
+      setIsCheckingEmail(false);
     }
   };
 
-  const roleOptions = [
-    { value: "customer", label: "Customer", icon: Users },
-    { value: "vendor", label: "Vendor", icon: Store },
-  ];
+  // Function to check password strength
+  const checkPasswordStrength = (password) => {
+    const hasInput = password && password.length > 0;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasNoSpace = !/\s/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(
+      password
+    );
+    const isValid =
+      hasUpper &&
+      hasLower &&
+      hasNumber &&
+      hasNoSpace &&
+      hasSpecialChar &&
+      password.length >= 8;
+
+    setPasswordStrength({
+      hasUpper,
+      hasLower,
+      hasNumber,
+      hasNoSpace,
+      hasSpecialChar,
+      isValid,
+      hasInput,
+    });
+  };
+
+  // Function to check password match
+  const checkPasswordMatch = (confirmPassword) => {
+    if (!confirmPassword) {
+      setPasswordMatch({
+        isMatching: false,
+        isChecking: false,
+      });
+      return;
+    }
+
+    setPasswordMatch({
+      isMatching: confirmPassword === password,
+      isChecking: false,
+    });
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      console.log("Form data:", data);
+      console.log("agree_terms from form:", data.agree_terms);
+      console.log("agreeTermsForm from watch:", agreeTermsForm);
+
+      // Check if terms are agreed
+      if (!data.agree_terms) {
+        toast.error(
+          "Anda harus menyetujui syarat dan ketentuan terlebih dahulu."
+        );
+        return;
+      }
+
+      // Check if email is already taken
+      if (emailStatus === "taken") {
+        toast.error("Email sudah terdaftar. Silakan gunakan email lain.");
+        return;
+      }
+
+      // If email status is still checking, wait
+      if (emailStatus === "checking") {
+        toast.error("Tunggu sebentar, sedang memeriksa email...");
+        return;
+      }
+
+      // If email status is error, prevent registration
+      if (emailStatus === "error") {
+        toast.error("Gagal memeriksa email. Silakan coba lagi.");
+        return;
+      }
+
+      // Check password strength
+      if (!passwordStrength.isValid) {
+        toast.error(
+          "Password tidak memenuhi kriteria keamanan. Pastikan password mengandung huruf kapital, huruf kecil, angka, karakter khusus, dan tidak ada spasi."
+        );
+        return;
+      }
+
+      // Check password match
+      if (!passwordMatch.isMatching) {
+        toast.error("Password dan konfirmasi password tidak sama.");
+        return;
+      }
+
+      // Ensure role is properly set based on selected tab
+      const registerData = {
+        ...data,
+        role: registerType, // Auto-set role based on selected tab
+      };
+
+      console.log("Attempting registration with role:", registerType);
+      const result = await registerUser(registerData);
+      if (result.success) {
+        // Redirect to login page with success message
+        navigate("/login", {
+          state: {
+            message: "Registrasi berhasil! Silakan login dengan akun Anda.",
+          },
+        });
+      }
+    } catch (error) {
+      // Error handling is done in AuthContext
+      console.error("Registration error:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -74,7 +280,7 @@ function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col justify-center py-6 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 hero-pattern opacity-5"></div>
 
@@ -90,43 +296,85 @@ function RegisterPage() {
       ></div>
 
       <div className="relative z-10">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="flex justify-center mb-8">
-            <div className="flex items-center space-x-3">
-              <div className="text-left">
-                <h1 className="text-3xl font-bold text-gradient">
-                  Wedding Dream
-                </h1>
-                <p className="text-sm text-gray-500 -mt-1">
-                  Platform Terpercaya
-                </p>
-              </div>
+        {/* Trust Indicators */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-4 h-4 text-success-500" />
+              <span>100% Aman</span>
             </div>
-          </div>
-
-          <div className="text-center mb-8">
-            <h2 className="heading-lg text-gray-900 mb-4">
-              Bergabung dengan Kami
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Daftar akun baru untuk memulai perjalanan pernikahan impian Anda
-            </p>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-4 h-4 text-success-500" />
+              <span>Terpercaya</span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
           <Card hover glow>
             <CardHeader gradient>
               <CardTitle size="lg" className="text-center">
                 Buat Akun Baru
               </CardTitle>
               <CardDescription className="text-center">
-                Isi informasi di bawah ini untuk membuat akun
+                Pilih jenis akun dan isi informasi di bawah ini
               </CardDescription>
             </CardHeader>
 
             <CardBody padding="lg">
+              {/* Register Type Tabs */}
+              <div className="mb-6">
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    type="button"
+                    onClick={() => setRegisterType("customer")}
+                    className={`flex-1 flex items-center justify-center py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                      registerType === "customer"
+                        ? "bg-white text-primary-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Customer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRegisterType("vendor")}
+                    className={`flex-1 flex items-center justify-center py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                      registerType === "vendor"
+                        ? "bg-white text-primary-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <Store className="w-4 h-4 mr-2" />
+                    Vendor
+                  </button>
+                </div>
+              </div>
+
+              {/* Register Type Description */}
+              <div className="mb-6 text-center">
+                {registerType === "customer" ? (
+                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                    <Users className="w-4 h-4" />
+                    <span>Daftar sebagai pelanggan untuk booking jasa</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                    <Building2 className="w-4 h-4" />
+                    <span>Daftar sebagai vendor untuk mengelola bisnis</span>
+                  </div>
+                )}
+              </div>
+
               <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                {/* Hidden input to ensure role is included in form data - always matches selected tab */}
+                <input
+                  type="hidden"
+                  {...register("role")}
+                  value={registerType}
+                  readOnly
+                />
                 <div>
                   <Input
                     label="Nama Lengkap"
@@ -159,8 +407,56 @@ function RegisterPage() {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                         message: "Format email tidak valid",
                       },
+                      onChange: (e) => {
+                        const email = e.target.value;
+
+                        // Clear previous timeout
+                        if (checkEmailTimeoutRef.current) {
+                          clearTimeout(checkEmailTimeoutRef.current);
+                        }
+
+                        if (email && email.includes("@")) {
+                          // Debounce the API call
+                          checkEmailTimeoutRef.current = setTimeout(() => {
+                            checkEmailAvailability(email);
+                          }, 800);
+                        } else {
+                          setEmailStatus(null);
+                        }
+                      },
                     })}
                   />
+
+                  {/* Email status indicators */}
+                  {isCheckingEmail && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Memeriksa ketersediaan email...
+                    </p>
+                  )}
+
+                  {emailStatus === "available" && (
+                    <div className="mt-2">
+                      <div className="flex items-center space-x-2 text-sm text-green-600">
+                        <span>✓ Email tersedia untuk registrasi</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {emailStatus === "taken" && (
+                    <div className="mt-2">
+                      <div className="flex items-center space-x-2 text-sm text-red-600">
+                        <span>⚠ Email sudah terdaftar</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {emailStatus === "error" && (
+                    <div className="mt-2">
+                      <div className="flex items-center space-x-2 text-sm text-red-600">
+                        <span>⚠ Gagal memeriksa email</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -175,19 +471,6 @@ function RegisterPage() {
                         value: /^08\d{8,11}$/,
                         message: "Format nomor telepon tidak valid",
                       },
-                    })}
-                  />
-                </div>
-
-                <div>
-                  <Select
-                    label="Pilih Role"
-                    options={roleOptions}
-                    placeholder="Pilih role Anda"
-                    error={errors.role?.message}
-                    required
-                    {...register("role", {
-                      required: "Role wajib dipilih",
                     })}
                   />
                 </div>
@@ -208,12 +491,91 @@ function RegisterPage() {
                         message: "Password minimal 8 karakter",
                       },
                       pattern: {
-                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                        value:
+                          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`])(?!.*\s)/,
                         message:
-                          "Password harus mengandung huruf besar, huruf kecil, dan angka",
+                          "Password harus mengandung huruf besar, huruf kecil, angka, karakter khusus, dan tidak boleh ada spasi",
+                      },
+                      onChange: (e) => {
+                        checkPasswordStrength(e.target.value);
                       },
                     })}
                   />
+
+                  {/* Password strength indicator */}
+                  {password && (
+                    <div className="mt-2 space-y-1">
+                      <div className="text-sm text-gray-600">
+                        Kekuatan password:
+                      </div>
+                      <div className="space-y-1">
+                        <div
+                          className={`flex items-center space-x-2 text-xs ${
+                            passwordStrength.hasUpper
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          <span>{passwordStrength.hasUpper ? "✓" : "✗"}</span>
+                          <span>Minimal 1 huruf kapital (A-Z)</span>
+                        </div>
+                        <div
+                          className={`flex items-center space-x-2 text-xs ${
+                            passwordStrength.hasLower
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          <span>{passwordStrength.hasLower ? "✓" : "✗"}</span>
+                          <span>Minimal 1 huruf kecil (a-z)</span>
+                        </div>
+                        <div
+                          className={`flex items-center space-x-2 text-xs ${
+                            passwordStrength.hasNumber
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          <span>{passwordStrength.hasNumber ? "✓" : "✗"}</span>
+                          <span>Minimal 1 angka (0-9)</span>
+                        </div>
+                        <div
+                          className={`flex items-center space-x-2 text-xs ${
+                            passwordStrength.hasNoSpace
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          <span>{passwordStrength.hasNoSpace ? "✓" : "✗"}</span>
+                          <span>Tidak boleh ada spasi</span>
+                        </div>
+                        <div
+                          className={`flex items-center space-x-2 text-xs ${
+                            passwordStrength.hasSpecialChar
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          <span>
+                            {passwordStrength.hasSpecialChar ? "✓" : "✗"}
+                          </span>
+                          <span>Minimal 1 karakter khusus (!@#$%^&*)</span>
+                        </div>
+                        <div
+                          className={`flex items-center space-x-2 text-xs ${
+                            password && password.length >= 8
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          <span>
+                            {password && password.length >= 8 ? "✓" : "✗"}
+                          </span>
+                          <span>Minimal 8 karakter</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -229,8 +591,30 @@ function RegisterPage() {
                       required: "Konfirmasi password wajib diisi",
                       validate: (value) =>
                         value === password || "Password tidak sama",
+                      onChange: (e) => {
+                        checkPasswordMatch(e.target.value);
+                      },
                     })}
                   />
+
+                  {/* Password match indicator */}
+                  {password && (
+                    <div className="mt-2">
+                      {passwordMatch.isMatching ? (
+                        <div className="flex items-center space-x-2 text-sm text-green-600">
+                          <span>✓ Password cocok</span>
+                        </div>
+                      ) : passwordMatch.isChecking ? (
+                        <div className="flex items-center space-x-2 text-sm text-gray-500">
+                          <span>Memeriksa password...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 text-sm text-red-600">
+                          <span>✗ Password tidak sama</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-start">
@@ -241,11 +625,23 @@ function RegisterPage() {
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1"
                     {...register("agree_terms", {
                       required: "Anda harus menyetujui syarat dan ketentuan",
+                      onChange: (e) => {
+                        // Clear any previous error messages when terms are agreed
+                        if (e.target.checked) {
+                          toast.dismiss();
+                        }
+                      },
                     })}
                   />
                   <label
                     htmlFor="agree-terms"
-                    className="ml-3 block text-sm text-gray-700"
+                    className="ml-3 block text-sm text-gray-700 cursor-pointer"
+                    onClick={() => {
+                      const checkbox = document.getElementById("agree-terms");
+                      if (checkbox) {
+                        checkbox.click();
+                      }
+                    }}
                   >
                     Saya menyetujui{" "}
                     <a
@@ -277,10 +673,37 @@ function RegisterPage() {
                     size="lg"
                     gradient
                     glow
-                    isLoading={isSubmitting}
-                    disabled={isSubmitting}
+                    isLoading={isSubmitting || isCheckingEmail}
+                    disabled={
+                      isSubmitting ||
+                      isCheckingEmail ||
+                      emailStatus === "taken" ||
+                      emailStatus === "error" ||
+                      !agreeTermsForm ||
+                      (passwordStrength.hasInput &&
+                        !passwordStrength.isValid) ||
+                      (passwordMatch.isMatching === false &&
+                        password &&
+                        password.length > 0)
+                    }
                   >
-                    {isSubmitting ? "Memproses..." : "Daftar Sekarang"}
+                    {isSubmitting
+                      ? "Memproses..."
+                      : isCheckingEmail
+                      ? "Memeriksa email..."
+                      : emailStatus === "taken"
+                      ? "Email sudah terdaftar"
+                      : emailStatus === "error"
+                      ? "Gagal memeriksa email"
+                      : passwordStrength.hasInput && !passwordStrength.isValid
+                      ? "Password tidak memenuhi kriteria"
+                      : passwordMatch.isMatching === false &&
+                        password &&
+                        password.length > 0
+                      ? "Password tidak sama"
+                      : `Daftar sebagai ${
+                          registerType === "customer" ? "Customer" : "Vendor"
+                        }`}
                   </Button>
                 </div>
               </form>
@@ -353,20 +776,6 @@ function RegisterPage() {
               </div>
             </CardBody>
           </Card>
-
-          {/* Trust Indicators */}
-          <div className="mt-8 text-center">
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center space-x-2">
-                <Shield className="w-4 h-4 text-success-500" />
-                <span>100% Aman</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-success-500" />
-                <span>Terpercaya</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

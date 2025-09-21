@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
+import { authAPI } from "../../services/api";
 import {
   Eye,
   EyeOff,
@@ -10,6 +11,10 @@ import {
   ArrowRight,
   Shield,
   CheckCircle,
+  User,
+  Store,
+  Users,
+  Building2,
 } from "lucide-react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
@@ -23,10 +28,15 @@ import toast from "react-hot-toast";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginType, setLoginType] = useState("customer"); // "customer" or "vendor"
+  const [userRole, setUserRole] = useState(null); // Role dari database
+  const [isCheckingRole, setIsCheckingRole] = useState(false);
+  const [emailEntered, setEmailEntered] = useState(false); // Track if email has been entered
   const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const hasShownToast = useRef(false);
+  const checkRoleTimeoutRef = useRef(null);
 
   const from = location.state?.from?.pathname || "/";
 
@@ -34,6 +44,7 @@ function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm();
 
   // Show success message from registration
@@ -52,10 +63,115 @@ function LoginPage() {
     }
   }, [isAuthenticated, navigate, from]);
 
+  // Reset form when login type changes
+  useEffect(() => {
+    reset({
+      email: "",
+      password: "",
+      role: loginType, // Ensure role is set to current tab
+    });
+    setUserRole(null); // Reset user role when login type changes
+    setEmailEntered(false); // Reset email entered state
+
+    // Clear any pending timeout
+    if (checkRoleTimeoutRef.current) {
+      clearTimeout(checkRoleTimeoutRef.current);
+    }
+  }, [loginType, reset]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (checkRoleTimeoutRef.current) {
+        clearTimeout(checkRoleTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Function to check user role by email
+  const checkUserRole = async (email) => {
+    if (!email || !email.includes("@")) {
+      setUserRole(null);
+      setEmailEntered(false);
+      return;
+    }
+
+    setIsCheckingRole(true);
+
+    try {
+      const response = await authAPI.checkRole(email);
+      if (response.data.success) {
+        const detectedRole = response.data.data.role;
+        setUserRole(detectedRole);
+        setEmailEntered(true);
+        console.log("User role found:", detectedRole);
+
+        // Show immediate feedback if role doesn't match selected tab
+        if (detectedRole !== loginType) {
+          toast.error(`Email tidak sesuai`);
+        } else {
+          // Clear any previous error messages when role matches
+          toast.dismiss();
+        }
+      }
+    } catch (error) {
+      console.log(
+        "User not found or error checking role:",
+        error.response?.data?.message || error.message
+      );
+      setUserRole(null);
+      setEmailEntered(true); // Still consider email as entered even if not found
+
+      // Show toast error for email not found
+      if (error.response?.status === 404) {
+        toast.error(
+          "Email tidak terdaftar. Silakan periksa email Anda atau daftar terlebih dahulu."
+        );
+      } else {
+        toast.error("Gagal memeriksa role user. Silakan coba lagi.");
+      }
+    } finally {
+      setIsCheckingRole(false);
+    }
+  };
+
   const onSubmit = async (data) => {
-    const result = await login(data);
-    if (result.success) {
-      navigate(from, { replace: true });
+    try {
+      // Force role to match selected login type
+      const loginData = {
+        ...data,
+        role: loginType, // Always use the selected tab role
+      };
+
+      // Check if user role matches selected login type
+      if (userRole && userRole !== loginType) {
+        toast.error(
+          `Email ini terdaftar sebagai ${
+            userRole === "customer" ? "Customer" : "Vendor"
+          }. ` +
+            `Silakan pilih tab ${
+              userRole === "customer" ? "Customer" : "Vendor"
+            } untuk login.`
+        );
+        return;
+      }
+
+      // If no role detected yet, show error and prevent login
+      if (!userRole) {
+        toast.error(
+          `Email tidak terdaftar atau tidak valid. Pastikan email yang Anda masukkan terdaftar`
+        );
+        return;
+      }
+
+      console.log("Attempting login with role:", loginType);
+      const result = await login(loginData);
+      if (result.success) {
+        navigate(from, { replace: true });
+      }
+    } catch (error) {
+      // Error handling is done in AuthContext
+      console.error("Login error:", error);
     }
   };
 
@@ -70,7 +186,7 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col justify-center py-6 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 hero-pattern opacity-5"></div>
 
@@ -86,43 +202,85 @@ function LoginPage() {
       ></div>
 
       <div className="relative z-10">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="flex justify-center mb-8">
-            <div className="flex items-center space-x-3">
-              <div className="text-left">
-                <h1 className="text-3xl font-bold text-gradient">
-                  Wedding Dream
-                </h1>
-                <p className="text-sm text-gray-500 -mt-1">
-                  Platform Terpercaya
-                </p>
-              </div>
+        {/* Trust Indicators */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-4 h-4 text-success-500" />
+              <span>100% Aman</span>
             </div>
-          </div>
-
-          <div className="text-center mb-8">
-            <h2 className="heading-lg text-gray-900 mb-4">
-              Selamat Datang Kembali
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Masuk ke akun Anda untuk melanjutkan
-            </p>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-4 h-4 text-success-500" />
+              <span>Terpercaya</span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
           <Card hover glow>
             <CardHeader gradient>
               <CardTitle size="lg" className="text-center">
                 Masuk ke Akun
               </CardTitle>
               <CardDescription className="text-center">
-                Masukkan kredensial Anda untuk mengakses dashboard
+                Pilih jenis akun dan masukkan kredensial Anda
               </CardDescription>
             </CardHeader>
 
             <CardBody padding="lg">
+              {/* Login Type Tabs */}
+              <div className="mb-6">
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    type="button"
+                    onClick={() => setLoginType("customer")}
+                    className={`flex-1 flex items-center justify-center py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                      loginType === "customer"
+                        ? "bg-white text-primary-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Customer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLoginType("vendor")}
+                    className={`flex-1 flex items-center justify-center py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                      loginType === "vendor"
+                        ? "bg-white text-primary-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <Store className="w-4 h-4 mr-2" />
+                    Vendor
+                  </button>
+                </div>
+              </div>
+
+              {/* Login Type Description */}
+              <div className="mb-6 text-center">
+                {loginType === "customer" ? (
+                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                    <Users className="w-4 h-4" />
+                    <span>Masuk sebagai pelanggan untuk booking jasa</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                    <Building2 className="w-4 h-4" />
+                    <span>Masuk sebagai vendor untuk mengelola bisnis</span>
+                  </div>
+                )}
+              </div>
+
               <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                {/* Hidden input to ensure role is included in form data - always matches selected tab */}
+                <input
+                  type="hidden"
+                  {...register("role")}
+                  value={loginType}
+                  readOnly
+                />
                 <div>
                   <Input
                     label="Email"
@@ -137,8 +295,59 @@ function LoginPage() {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                         message: "Format email tidak valid",
                       },
+                      onChange: (e) => {
+                        // Check role when email changes
+                        const email = e.target.value;
+                        const isValidEmail = email && email.includes("@");
+                        setEmailEntered(isValidEmail);
+
+                        // Clear previous timeout
+                        if (checkRoleTimeoutRef.current) {
+                          clearTimeout(checkRoleTimeoutRef.current);
+                        }
+
+                        if (isValidEmail) {
+                          // Debounce the API call with longer timeout
+                          checkRoleTimeoutRef.current = setTimeout(() => {
+                            checkUserRole(email);
+                          }, 800);
+                        } else {
+                          setUserRole(null);
+                          setEmailEntered(false);
+                        }
+                      },
                     })}
                   />
+                  {isCheckingRole && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Memeriksa role user...
+                    </p>
+                  )}
+                  {userRole && (
+                    <div className="mt-2">
+                      {userRole === loginType ? (
+                        <div className="flex items-center space-x-2 text-sm text-green-600">
+                          <span>✓ Email terdaftar</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 text-sm text-red-600">
+                          <span>⚠ Email tidak sesuai</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Show warning when email is entered but not found */}
+                  {emailEntered && !userRole && !isCheckingRole && (
+                    <div className="mt-2">
+                      <div className="flex items-center space-x-2 text-sm text-red-600">
+                        <span>
+                          ⚠ Email tidak terdaftar. Silakan periksa email Anda
+                          atau daftar terlebih dahulu.
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -193,10 +402,25 @@ function LoginPage() {
                     size="lg"
                     gradient
                     glow
-                    isLoading={isSubmitting}
-                    disabled={isSubmitting}
+                    isLoading={isSubmitting || isCheckingRole}
+                    disabled={
+                      isSubmitting ||
+                      isCheckingRole ||
+                      (userRole && userRole !== loginType) ||
+                      (emailEntered && !userRole)
+                    }
                   >
-                    {isSubmitting ? "Memproses..." : "Masuk ke Akun"}
+                    {isSubmitting
+                      ? "Memproses..."
+                      : isCheckingRole
+                      ? "Memeriksa role..."
+                      : userRole && userRole !== loginType
+                      ? "Email tidak sesuai"
+                      : emailEntered && !userRole
+                      ? "Email tidak terdaftar"
+                      : `Masuk sebagai ${
+                          loginType === "customer" ? "Customer" : "Vendor"
+                        }`}
                   </Button>
                 </div>
               </form>
@@ -259,30 +483,17 @@ function LoginPage() {
                 <p className="text-gray-600">
                   Belum punya akun?{" "}
                   <Link
-                    to="/register"
+                    to={`/register?tab=${loginType}`}
                     className="font-semibold text-primary-600 hover:text-primary-500 transition-colors duration-200 inline-flex items-center group"
                   >
-                    Daftar sekarang
+                    Daftar sebagai{" "}
+                    {loginType === "customer" ? "Customer" : "Vendor"}
                     <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
                   </Link>
                 </p>
               </div>
             </CardBody>
           </Card>
-
-          {/* Trust Indicators */}
-          <div className="mt-8 text-center">
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center space-x-2">
-                <Shield className="w-4 h-4 text-success-500" />
-                <span>100% Aman</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-success-500" />
-                <span>Terpercaya</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

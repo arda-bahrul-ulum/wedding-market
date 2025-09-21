@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   Users,
   Target,
@@ -92,10 +93,14 @@ function AboutPage() {
               mewujudkan pernikahan impian mereka.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg">Mulai Sekarang</Button>
-              <Button variant="outline" size="lg">
-                Hubungi Kami
-              </Button>
+              <Link to="/register?tab=customer">
+                <Button size="lg">Mulai Sekarang</Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="outline" size="lg">
+                  Hubungi Kami
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -277,20 +282,24 @@ function AboutPage() {
               ekosistem pernikahan yang lebih baik
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="w-full sm:w-auto"
-              >
-                Daftar sebagai Customer
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600"
-              >
-                Daftar sebagai Vendor
-              </Button>
+              <Link to="/register?tab=customer">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="w-full sm:w-auto"
+                >
+                  Daftar sebagai Customer
+                </Button>
+              </Link>
+              <Link to="/register?tab=vendor">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto border-white text-white"
+                >
+                  Daftar sebagai Vendor
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -24,6 +24,7 @@ func Api() {
 	// Authentication routes
 	api.Post("/auth/register", authController.Register)
 	api.Post("/auth/login", authController.Login)
+	api.Post("/auth/check-role", authController.CheckUserRole)
 	api.Post("/auth/refresh", authController.RefreshToken)
 
 	// Marketplace routes (public)

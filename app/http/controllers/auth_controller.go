@@ -229,6 +229,7 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 	var request struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		Role     string `json:"role"`
 	}
 
 	if err := ctx.Request().Bind(&request); err != nil {
@@ -261,15 +262,30 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 		})
 	}
 
+	// Validate role
+	if request.Role != "customer" && request.Role != "vendor" {
+		facades.Log().Error("Invalid role provided: " + request.Role)
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Role harus customer atau vendor",
+		})
+	}
+
 	// Find user
 	var user models.User
-	err := facades.Orm().Query().Where("email", strings.ToLower(strings.TrimSpace(request.Email))).First(&user)
+ 	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
+	facades.Log().Info("Login attempt for email: " + emailToCheck + " with role: " + request.Role)
+	
+	err := facades.Orm().Query().Where("email", emailToCheck).First(&user)
 	if err != nil || user.ID == 0 {
+		facades.Log().Info("User not found for email: " + emailToCheck)
 		return ctx.Response().Status(401).Json(http.Json{
 			"success": false,
 			"message": "Email atau password salah",
 		})
 	}
+	
+	facades.Log().Info("User found with role: " + user.Role + ", requested role: " + request.Role)
 
 	// Check password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
@@ -285,6 +301,22 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 			"success": false,
 			"message": "Akun tidak aktif",
 		})
+	}
+
+	// Check if user role matches requested role
+	if user.Role != request.Role {
+		facades.Log().Info("Role mismatch: user role=" + user.Role + ", requested role=" + request.Role)
+		if request.Role == "customer" {
+			return ctx.Response().Status(401).Json(http.Json{
+				"success": false,
+				"message": "Anda belum punya akun customer. Silakan daftar sebagai customer atau login sebagai vendor.",
+			})
+		} else {
+			return ctx.Response().Status(401).Json(http.Json{
+				"success": false,
+				"message": "Anda belum punya akun vendor. Silakan daftar sebagai vendor atau login sebagai customer.",
+			})
+		}
 	}
 
 	// Update last login
@@ -367,6 +399,64 @@ func (c *AuthController) Me(ctx http.Context) http.Response {
 		"message": "Data user berhasil diambil",
 		"data": http.Json{
 			"user": user,
+		},
+	})
+}
+
+// CheckUserRole checks user role by email before login
+func (c *AuthController) CheckUserRole(ctx http.Context) http.Response {
+	var request struct {
+		Email string `json:"email"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Validate email format
+	if strings.TrimSpace(request.Email) == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Email wajib diisi",
+		})
+	}
+
+	if !c.validateEmail(request.Email) {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Format email tidak valid",
+		})
+	}
+
+	// Find user by email
+	var user models.User
+	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
+	err := facades.Orm().Query().Where("email", emailToCheck).First(&user)
+	
+	if err != nil || user.ID == 0 {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "Email tidak terdaftar",
+		})
+	}
+
+	// Check if user is active
+	if !user.IsActive {
+		return ctx.Response().Status(403).Json(http.Json{
+			"success": false,
+			"message": "Akun tidak aktif",
+		})
+	}
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "Role user berhasil ditemukan",
+		"data": http.Json{
+			"role": user.Role,
 		},
 	})
 }

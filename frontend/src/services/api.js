@@ -89,6 +89,7 @@ export const authAPI = {
   logout: () => api.post(config.ENDPOINTS.AUTH.LOGOUT),
   getMe: () => api.get(config.ENDPOINTS.AUTH.ME),
   refreshToken: () => api.post(config.ENDPOINTS.AUTH.REFRESH),
+  checkRole: (email) => api.post(config.ENDPOINTS.AUTH.CHECK_ROLE, { email }),
 };
 
 export const marketplaceAPI = {

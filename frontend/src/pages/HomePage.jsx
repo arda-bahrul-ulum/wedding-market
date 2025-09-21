@@ -107,7 +107,7 @@ function HomePage() {
                     Booking Vendor
                   </Button>
                 </Link>
-                <Link to="/register">
+                <Link to="/register?tab=vendor">
                   <Button
                     variant="outline"
                     size="lg"
@@ -290,7 +290,7 @@ function HomePage() {
               Bergabunglah dengan ribuan pasangan yang telah mempercayai kami
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register">
+              <Link to="/register?tab=customer">
                 <Button
                   size="lg"
                   variant="secondary"

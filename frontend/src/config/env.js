@@ -25,6 +25,7 @@ const config = {
       LOGOUT: "/auth/logout",
       ME: "/auth/me",
       REFRESH: "/auth/refresh",
+      CHECK_ROLE: "/auth/check-role",
     },
     MARKETPLACE: {
       CATEGORIES: "/categories",
