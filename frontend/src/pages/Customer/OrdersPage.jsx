@@ -143,7 +143,7 @@ function OrdersPage() {
               <p className="text-gray-600 mb-4">
                 Mulai pesan jasa pernikahan impian Anda
               </p>
-              <Button>Jelajahi Marketplace</Button>
+              <Button>Booking Vendor</Button>
             </CardBody>
           </Card>
         ) : (

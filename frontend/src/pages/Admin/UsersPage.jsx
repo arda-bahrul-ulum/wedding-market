@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Card, CardBody } from "../../components/UI/Card";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import Select from "../../components/UI/Select";
@@ -28,6 +34,10 @@ import {
   Phone,
   Calendar,
   LogOut,
+  ArrowRight,
+  TrendingUp,
+  Shield,
+  X,
 } from "lucide-react";
 
 function AdminUsersPage() {
@@ -388,52 +398,62 @@ function AdminUsersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-700">
+            Loading users...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="px-6 py-6">
+      <div className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200/50">
+        <div className="px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                User Management
-              </h1>
-              <p className="text-gray-600 mt-1">Kelola semua pengguna sistem</p>
+            <div className="flex items-center space-x-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  User Management
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  Kelola semua pengguna sistem
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-700">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-semibold text-gray-700">
                   {user?.name}
                 </p>
                 <p className="text-xs text-gray-500 capitalize">
                   {user?.role?.replace("_", " ")}
                 </p>
               </div>
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                title="Logout"
+                className="group"
               >
-                <LogOut className="h-5 w-5" />
-              </button>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-6 py-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
         {/* Filters */}
-        <Card className="mb-6">
-          <CardBody className="p-6">
+        <Card hover className="mb-6">
+          <CardBody>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="sm:col-span-2 lg:col-span-1">
+              <div className="lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Search
                 </label>
@@ -444,12 +464,12 @@ function AdminUsersPage() {
                     placeholder="Cari nama atau email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 w-full h-10"
                   />
                 </div>
               </div>
 
-              <div>
+              <div className="lg:col-span-1">
                 <Select
                   label="Role"
                   placeholder="All Roles"
@@ -464,7 +484,7 @@ function AdminUsersPage() {
                 />
               </div>
 
-              <div>
+              <div className="lg:col-span-1">
                 <Select
                   label="Status"
                   placeholder="All Status"
@@ -478,7 +498,7 @@ function AdminUsersPage() {
                 />
               </div>
 
-              <div className="flex items-end">
+              <div className="lg:col-span-1 flex items-end">
                 <Button
                   onClick={() => {
                     setSearchTerm("");
@@ -487,6 +507,7 @@ function AdminUsersPage() {
                   }}
                   variant="outline"
                   className="w-full"
+                  icon={<X className="w-4 h-4" />}
                 >
                   Reset Filters
                 </Button>
@@ -534,54 +555,67 @@ function AdminUsersPage() {
         )}
 
         {/* Users Table */}
-        <Card>
+        <Card hover>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-primary-600" />
+              Daftar Pengguna
+            </CardTitle>
+            <CardDescription>
+              {filteredUsers.length} pengguna ditemukan
+            </CardDescription>
+          </CardHeader>
           <CardBody className="p-0">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table
+                className="min-w-full divide-y divide-gray-200"
+                style={{ minWidth: "1200px" }}
+              >
+                <thead className="bg-gradient-to-r from-primary-50 to-blue-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[200px]">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[120px]">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[120px]">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[140px]">
                       Joined
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[140px]">
                       Last Login
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[120px]">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white/50 backdrop-blur-sm divide-y divide-gray-200">
                   {filteredUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr
+                      key={user.id}
+                      className="hover:bg-white/80 transition-all duration-200"
+                    >
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                              <span className="text-sm font-medium text-primary-600">
-                                {user.name?.charAt(0)?.toUpperCase() || "U"}
-                              </span>
+                          <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
+                              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                             </div>
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                          <div className="ml-2 sm:ml-4">
+                            <div className="text-xs sm:text-sm font-semibold text-gray-900">
                               {user.name}
                             </div>
-                            <div className="text-sm text-gray-500 flex items-center">
+                            <div className="text-xs sm:text-sm text-gray-500 flex items-center">
                               <Mail className="h-3 w-3 mr-1" />
                               {user.email}
                             </div>
                             {user.phone && (
-                              <div className="text-sm text-gray-500 flex items-center">
+                              <div className="text-xs sm:text-sm text-gray-500 flex items-center">
                                 <Phone className="h-3 w-3 mr-1" />
                                 {user.phone}
                               </div>
@@ -589,18 +623,18 @@ function AdminUsersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getRoleBadgeColor(
                             user.role
                           )}`}
                         >
                           {user.role?.replace("_", " ")}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${
                             user.is_active
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
@@ -609,36 +643,36 @@ function AdminUsersPage() {
                           {user.is_active ? "Active" : "Inactive"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                         <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
+                          <Calendar className="h-3 w-3 mr-1 text-primary-600" />
                           {formatDate(user.created_at)}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                         {user.last_login_at
                           ? formatDate(user.last_login_at)
                           : "Never"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-1 sm:space-x-2">
                           <button
                             onClick={() => {
                               setSelectedUser(user);
                               setShowUserModal(true);
                             }}
-                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-all duration-200 hover:scale-110"
+                            className="text-blue-600 hover:text-blue-900 p-1"
                             title="Lihat Detail"
                           >
-                            <Eye className="h-4 w-4" />
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                           </button>
 
                           <button
                             onClick={() => openEditModal(user)}
-                            className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50 transition-all duration-200 hover:scale-110"
+                            className="text-indigo-600 hover:text-indigo-900 p-1"
                             title="Edit User"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                           </button>
 
                           {user.is_active ? (
@@ -647,7 +681,7 @@ function AdminUsersPage() {
                                 handleUserAction(user.id, "deactivate")
                               }
                               disabled={actionLoading[`${user.id}-deactivate`]}
-                              className={`text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50 transition-all duration-200 hover:scale-110 ${
+                              className={`text-yellow-600 hover:text-yellow-900 p-1 ${
                                 actionLoading[`${user.id}-deactivate`]
                                   ? "opacity-50 cursor-not-allowed"
                                   : ""
@@ -655,9 +689,9 @@ function AdminUsersPage() {
                               title="Nonaktifkan User"
                             >
                               {actionLoading[`${user.id}-deactivate`] ? (
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600"></div>
+                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-yellow-600"></div>
                               ) : (
-                                <UserX className="h-4 w-4" />
+                                <UserX className="h-3 w-3 sm:h-4 sm:w-4" />
                               )}
                             </button>
                           ) : (
@@ -666,7 +700,7 @@ function AdminUsersPage() {
                                 handleUserAction(user.id, "activate")
                               }
                               disabled={actionLoading[`${user.id}-activate`]}
-                              className={`text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 transition-all duration-200 hover:scale-110 ${
+                              className={`text-green-600 hover:text-green-900 p-1 ${
                                 actionLoading[`${user.id}-activate`]
                                   ? "opacity-50 cursor-not-allowed"
                                   : ""
@@ -674,9 +708,9 @@ function AdminUsersPage() {
                               title="Aktifkan User"
                             >
                               {actionLoading[`${user.id}-activate`] ? (
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-green-600"></div>
                               ) : (
-                                <UserCheck className="h-4 w-4" />
+                                <UserCheck className="h-3 w-3 sm:h-4 sm:w-4" />
                               )}
                             </button>
                           )}
@@ -687,7 +721,7 @@ function AdminUsersPage() {
                                 handleUserAction(user.id, "delete")
                               }
                               disabled={actionLoading[`${user.id}-delete`]}
-                              className={`text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-all duration-200 hover:scale-110 ${
+                              className={`text-red-600 hover:text-red-900 p-1 ${
                                 actionLoading[`${user.id}-delete`]
                                   ? "opacity-50 cursor-not-allowed"
                                   : ""
@@ -695,9 +729,9 @@ function AdminUsersPage() {
                               title="Hapus User"
                             >
                               {actionLoading[`${user.id}-delete`] ? (
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-red-600"></div>
                               ) : (
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                               )}
                             </button>
                           )}
@@ -711,57 +745,73 @@ function AdminUsersPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div className="bg-white/80 backdrop-blur-sm px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
                 <div className="flex-1 flex justify-between sm:hidden">
-                  <button
+                  <Button
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
                     disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    variant="outline"
+                    size="sm"
+                    icon={<ArrowRight className="w-4 h-4" />}
+                    className="rotate-180"
                   >
                     Previous
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() =>
                       setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                     }
                     disabled={currentPage === totalPages}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    variant="outline"
+                    size="sm"
+                    icon={<ArrowRight className="w-4 h-4" />}
                   >
                     Next
-                  </button>
+                  </Button>
                 </div>
                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
                       Showing page{" "}
-                      <span className="font-medium">{currentPage}</span> of{" "}
-                      <span className="font-medium">{totalPages}</span>
+                      <span className="font-semibold text-primary-600">
+                        {currentPage}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-semibold text-primary-600">
+                        {totalPages}
+                      </span>
                     </p>
                   </div>
                   <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                      <button
+                    <nav className="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px">
+                      <Button
                         onClick={() =>
                           setCurrentPage((prev) => Math.max(prev - 1, 1))
                         }
                         disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                        variant="outline"
+                        size="sm"
+                        icon={<ArrowRight className="w-4 h-4" />}
+                        className="rotate-180 rounded-r-none"
                       >
                         Previous
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() =>
                           setCurrentPage((prev) =>
                             Math.min(prev + 1, totalPages)
                           )
                         }
                         disabled={currentPage === totalPages}
-                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                        variant="outline"
+                        size="sm"
+                        icon={<ArrowRight className="w-4 h-4" />}
+                        className="rounded-l-none"
                       >
                         Next
-                      </button>
+                      </Button>
                     </nav>
                   </div>
                 </div>

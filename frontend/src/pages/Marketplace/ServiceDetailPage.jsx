@@ -113,7 +113,7 @@ function ServiceDetailPage() {
           </Link>
           <span>/</span>
           <Link to="/marketplace" className="hover:text-primary-600">
-            Marketplace
+            Booking Vendor
           </Link>
           <span>/</span>
           <Link

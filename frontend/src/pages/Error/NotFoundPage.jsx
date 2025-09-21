@@ -34,7 +34,7 @@ function NotFoundPage() {
             <Link to="/marketplace">
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
                 <Search className="w-5 h-5 mr-2" />
-                Jelajahi Marketplace
+                Booking Vendor
               </Button>
             </Link>
           </div>
@@ -63,7 +63,7 @@ function NotFoundPage() {
               to="/marketplace"
               className="block p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all"
             >
-              <h3 className="font-medium text-gray-900 mb-1">Marketplace</h3>
+              <h3 className="font-medium text-gray-900 mb-1">Booking Vendor</h3>
               <p className="text-sm text-gray-600">
                 Temukan vendor pernikahan terbaik
               </p>
@@ -74,7 +74,7 @@ function NotFoundPage() {
             >
               <h3 className="font-medium text-gray-900 mb-1">Tentang Kami</h3>
               <p className="text-sm text-gray-600">
-                Pelajari lebih lanjut tentang Wedding Market
+                Pelajari lebih lanjut tentang Wedding Dream
               </p>
             </Link>
             <Link

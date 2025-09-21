@@ -40,6 +40,9 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/module-settings/{module}", adminController.UpdateModuleSetting)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/{key}", adminController.UpdateSystemSetting)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings", adminController.BulkUpdateSystemSettings)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/by-key", adminController.UpdateSystemSettingByKey)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/system-settings/by-key", adminController.GetSystemSettingByKey)
 	
 	// Admin routes - specific routes
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/dashboard", adminController.GetDashboard)
@@ -48,10 +51,15 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/vendors", adminController.CreateVendor)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}", adminController.UpdateVendor)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Delete("/admin/vendors/{id}", adminController.DeleteVendor)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders", orderController.GetAdminOrders)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders", adminController.GetOrders)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/statistics", adminController.GetOrderStatistics)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/orders/bulk-update-status", adminController.BulkUpdateOrderStatus)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/orders/bulk-delete", adminController.BulkDeleteOrders)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/export", adminController.ExportOrders)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/status-options", adminController.GetOrderStatusOptions)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/{id}", orderController.GetAdminOrderDetail)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/orders/{id}/status", orderController.UpdateAdminOrderStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/statistics", orderController.GetAdminOrderStatistics)
+	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/orders/{id}/refund", orderController.ProcessRefund)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/module-settings", adminController.GetModuleSettings)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/system-settings", adminController.GetSystemSettings)
 

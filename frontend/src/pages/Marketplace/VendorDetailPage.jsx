@@ -78,7 +78,7 @@ function VendorDetailPage() {
             Vendor yang Anda cari tidak tersedia
           </p>
           <Link to="/marketplace">
-            <Button>Kembali ke Marketplace</Button>
+            <Button>Kembali ke Booking Vendor</Button>
           </Link>
         </div>
       </div>
@@ -551,4 +551,3 @@ function VendorDetailPage() {
 }
 
 export default VendorDetailPage;
-

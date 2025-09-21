@@ -10,10 +10,22 @@ import {
   MessageCircle,
   Calendar,
   DollarSign,
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
+  Lightbulb,
+  Plus,
+  BarChart3,
+  Settings,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "../../utils/format";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
-import Card, { CardBody, CardHeader } from "../../components/UI/Card";
+import Card, {
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
 
 function DashboardPage() {
@@ -75,80 +87,110 @@ function DashboardPage() {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium">Memuat dashboard...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="container-custom py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Dashboard Vendor
-          </h1>
-          <p className="text-gray-600">
-            Selamat datang, {profile?.business_name || user?.name}!
-          </p>
+        <div className="mb-8 text-center">
+          <div className="flex items-center justify-center mb-6">
+            <div className="text-left">
+              <h1 className="heading-xl text-gradient mb-2">
+                Dashboard Vendor
+              </h1>
+              <p className="text-xl text-gray-600">
+                Selamat datang, {profile?.business_name || user?.name}!
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                  <Package className="w-6 h-6 text-blue-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <Package className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Pesanan</p>
-                  <p className="text-2xl font-bold text-gray-900">24</p>
+                  <p className="text-sm text-gray-600 font-medium">
+                    Total Pesanan
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900">24</p>
+                  <div className="flex items-center text-xs text-success-600 mt-1">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +3 dari bulan lalu
+                  </div>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                  <DollarSign className="w-6 h-6 text-green-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-success-500 to-success-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <DollarSign className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Pendapatan Bulan Ini</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-gray-600 font-medium">
+                    Pendapatan Bulan Ini
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900">
                     {formatCurrency(15000000)}
                   </p>
+                  <div className="flex items-center text-xs text-success-600 mt-1">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +12% dari bulan lalu
+                  </div>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
-                  <Star className="w-6 h-6 text-yellow-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-warning-500 to-warning-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <Star className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Rating Rata-rata</p>
-                  <p className="text-2xl font-bold text-gray-900">4.8</p>
+                  <p className="text-sm text-gray-600 font-medium">
+                    Rating Rata-rata
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900">4.8</p>
+                  <div className="flex items-center text-xs text-warning-600 mt-1">
+                    <Star className="w-3 h-3 mr-1" />
+                    Excellent rating
+                  </div>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                  <Users className="w-6 h-6 text-purple-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <Users className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Review</p>
-                  <p className="text-2xl font-bold text-gray-900">156</p>
+                  <p className="text-sm text-gray-600 font-medium">
+                    Total Review
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900">156</p>
+                  <div className="flex items-center text-xs text-accent-600 mt-1">
+                    <Users className="w-3 h-3 mr-1" />
+                    Customer reviews
+                  </div>
                 </div>
               </div>
             </CardBody>
@@ -158,46 +200,73 @@ function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Orders */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card hover>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Pesanan Terbaru
-                  </h2>
-                  <Button variant="outline" size="sm">
+                  <div>
+                    <CardTitle>Pesanan Terbaru</CardTitle>
+                    <CardDescription>
+                      Kelola pesanan dari customer
+                    </CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" className="group">
                     Lihat Semua
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </div>
               </CardHeader>
               <CardBody className="p-0">
                 {ordersLoading ? (
-                  <div className="flex justify-center py-8">
-                    <LoadingSpinner />
+                  <div className="flex justify-center py-12">
+                    <div className="text-center">
+                      <p className="text-gray-600 font-medium">
+                        Memuat pesanan...
+                      </p>
+                    </div>
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">Belum ada pesanan</p>
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Package className="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Belum ada pesanan
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      Pesanan akan muncul di sini
+                    </p>
+                    <Button gradient glow>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Tambah Jasa
+                    </Button>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-200">
+                  <div className="divide-y divide-gray-100">
                     {orders.map((order) => (
-                      <div key={order.id} className="p-6 hover:bg-gray-50">
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <h3 className="font-medium text-gray-900">
-                              #{order.order_number}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              {order.customer?.name}
-                            </p>
+                      <div
+                        key={order.id}
+                        className="p-6 hover:bg-gray-50/50 transition-colors duration-200 group"
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center">
+                              <Package className="w-6 h-6 text-primary-600" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                                #{order.order_number}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {order.customer?.name}
+                              </p>
+                            </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium text-gray-900">
+                            <p className="text-lg font-bold text-gray-900">
                               {formatCurrency(order.total_amount)}
                             </p>
                             <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
                                 order.status
                               )}`}
                             >
@@ -206,28 +275,36 @@ function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-sm text-gray-600">
-                          <p>Tanggal: {formatDate(order.created_at)}</p>
-                          <p>Event: {formatDate(order.event_date)}</p>
+                        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            <span>Tanggal: {formatDate(order.created_at)}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            <span>Event: {formatDate(order.event_date)}</span>
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between mt-4">
+                        <div className="flex items-center justify-between">
                           <div className="flex space-x-2">
                             <Button size="sm" variant="outline">
-                              <Eye className="w-4 h-4 mr-1" />
+                              <Eye className="w-4 h-4 mr-2" />
                               Detail
                             </Button>
                             <Button size="sm" variant="outline">
-                              <MessageCircle className="w-4 h-4 mr-1" />
+                              <MessageCircle className="w-4 h-4 mr-2" />
                               Chat
                             </Button>
                           </div>
                           {order.status === "pending" && (
                             <div className="flex space-x-2">
-                              <Button size="sm" variant="primary">
+                              <Button size="sm" variant="primary" gradient>
+                                <CheckCircle className="w-4 h-4 mr-2" />
                                 Terima
                               </Button>
-                              <Button size="sm" variant="danger">
+                              <Button size="sm" variant="danger" gradient>
+                                <AlertCircle className="w-4 h-4 mr-2" />
                                 Tolak
                               </Button>
                             </div>
@@ -244,55 +321,80 @@ function DashboardPage() {
           {/* Quick Actions & Info */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card>
+            <Card hover>
               <CardHeader>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Aksi Cepat
-                </h2>
+                <CardTitle>Aksi Cepat</CardTitle>
+                <CardDescription>
+                  Menu utama untuk aktivitas vendor
+                </CardDescription>
               </CardHeader>
               <CardBody className="space-y-3">
-                <Button className="w-full justify-start">
-                  <Package className="w-4 h-4 mr-2" />
+                <Button className="w-full justify-start" gradient glow>
+                  <Plus className="w-4 h-4 mr-3" />
                   Tambah Jasa Baru
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Users className="w-4 h-4 mr-2" />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start group"
+                >
+                  <Users className="w-4 h-4 mr-3" />
                   Kelola Pesanan
+                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Calendar className="w-4 h-4 mr-2" />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start group"
+                >
+                  <Calendar className="w-4 h-4 mr-3" />
                   Atur Ketersediaan
+                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <TrendingUp className="w-4 h-4 mr-2" />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start group"
+                >
+                  <BarChart3 className="w-4 h-4 mr-3" />
                   Lihat Analitik
+                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
               </CardBody>
             </Card>
 
             {/* Recent Services */}
-            <Card>
+            <Card hover>
               <CardHeader>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Jasa Terbaru
-                </h2>
+                <CardTitle>Jasa Terbaru</CardTitle>
+                <CardDescription>
+                  Daftar jasa yang Anda tawarkan
+                </CardDescription>
               </CardHeader>
               <CardBody>
                 {servicesLoading ? (
-                  <div className="flex justify-center py-4">
-                    <LoadingSpinner size="sm" />
+                  <div className="flex justify-center py-8">
+                    <div className="text-center">
+                      <p className="text-gray-600 text-sm">Memuat jasa...</p>
+                    </div>
                   </div>
                 ) : services.length === 0 ? (
-                  <p className="text-gray-600 text-sm">Belum ada jasa</p>
+                  <div className="text-center py-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Package className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-600 text-sm mb-4">Belum ada jasa</p>
+                    <Button size="sm" gradient>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Tambah Jasa
+                    </Button>
+                  </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {services.map((service) => (
                       <div
                         key={service.id}
-                        className="flex items-center justify-between"
+                        className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
                       >
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-900 mb-1">
                             {service.name}
                           </p>
                           <p className="text-xs text-gray-600">
@@ -300,14 +402,14 @@ function DashboardPage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-bold text-gray-900">
                             {formatCurrency(service.price)}
                           </p>
                           <span
-                            className={`text-xs px-2 py-1 rounded-full ${
+                            className={`text-xs px-2 py-1 rounded-full font-semibold ${
                               service.is_active
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
+                                ? "bg-success-100 text-success-800"
+                                : "bg-danger-100 text-danger-800"
                             }`}
                           >
                             {service.is_active ? "Aktif" : "Nonaktif"}
@@ -321,29 +423,45 @@ function DashboardPage() {
             </Card>
 
             {/* Performance Tips */}
-            <Card>
+            <Card hover>
               <CardHeader>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Tips Performa
-                </h2>
+                <CardTitle>Tips Performa</CardTitle>
+                <CardDescription>
+                  Panduan untuk meningkatkan bisnis
+                </CardDescription>
               </CardHeader>
               <CardBody>
-                <div className="space-y-3">
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-800">
-                      💡 Update foto portfolio secara berkala untuk menarik
-                      lebih banyak customer
-                    </p>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl border border-primary-200">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Lightbulb className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="text-sm text-primary-800 font-medium">
+                        Update foto portfolio secara berkala untuk menarik lebih
+                        banyak customer
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <p className="text-sm text-green-800">
-                      ✅ Balas pesanan dalam 24 jam untuk meningkatkan rating
-                    </p>
+                  <div className="p-4 bg-gradient-to-r from-success-50 to-success-100 rounded-xl border border-success-200">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-success-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <CheckCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="text-sm text-success-800 font-medium">
+                        Balas pesanan dalam 24 jam untuk meningkatkan rating
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-3 bg-yellow-50 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                      ⚠️ Pastikan deskripsi jasa lengkap dan akurat
-                    </p>
+                  <div className="p-4 bg-gradient-to-r from-warning-50 to-warning-100 rounded-xl border border-warning-200">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-warning-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <AlertCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="text-sm text-warning-800 font-medium">
+                        Pastikan deskripsi jasa lengkap dan akurat
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardBody>
@@ -356,4 +474,3 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
-

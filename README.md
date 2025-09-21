@@ -1,10 +1,10 @@
-# 💒 Wedding Market
+# 💒 Wedding Dream
 
 Platform marketplace jasa pernikahan terlengkap di Indonesia yang dibangun dengan Goravel Framework (Go) dan React.js.
 
 ## 📖 Deskripsi Project
 
-Wedding Market adalah platform marketplace yang menghubungkan customer dengan vendor jasa pernikahan di seluruh Indonesia. Platform ini menyediakan sistem booking, pembayaran escrow, review & rating, dan manajemen pesanan yang terintegrasi untuk memudahkan proses perencanaan pernikahan.
+Wedding Dream adalah platform marketplace yang menghubungkan customer dengan vendor jasa pernikahan di seluruh Indonesia. Platform ini menyediakan sistem booking, pembayaran escrow, review & rating, dan manajemen pesanan yang terintegrasi untuk memudahkan proses perencanaan pernikahan.
 
 ### 🎯 Tujuan
 
@@ -397,7 +397,7 @@ Frontend (React) ←→ API (Goravel) ←→ Database (PostgreSQL)
 
 ```env
 # Application
-APP_NAME="Wedding Market"
+APP_NAME="Wedding Dream"
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8080

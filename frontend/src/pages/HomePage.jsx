@@ -104,7 +104,7 @@ function HomePage() {
                 <Link to="/marketplace">
                   <Button size="lg" className="w-full sm:w-auto">
                     <Search className="w-5 h-5 mr-2" />
-                    Jelajahi Marketplace
+                    Booking Vendor
                   </Button>
                 </Link>
                 <Link to="/register">
@@ -137,7 +137,7 @@ function HomePage() {
             <div className="relative">
               <div className="relative z-10">
                 <img
-                  src="/api/placeholder/600/400"
+                  src="https://picsum.photos/600/400"
                   alt="Wedding couple"
                   className="rounded-2xl shadow-2xl w-full"
                 />
@@ -241,7 +241,7 @@ function HomePage() {
                   <Card className="group hover:shadow-lg transition-shadow">
                     <div className="aspect-w-16 aspect-h-9">
                       <img
-                        src="/api/placeholder/400/300"
+                        src="https://picsum.photos/400/300"
                         alt={vendor.business_name}
                         className="w-full h-48 object-cover rounded-t-lg"
                       />
@@ -303,9 +303,9 @@ function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600"
+                  className="w-full sm:w-auto border-white text-white"
                 >
-                  Jelajahi Vendor
+                  Booking Vendor
                 </Button>
               </Link>
             </div>
@@ -317,4 +317,3 @@ function HomePage() {
 }
 
 export default HomePage;
-

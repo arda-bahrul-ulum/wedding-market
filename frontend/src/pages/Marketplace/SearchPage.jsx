@@ -199,11 +199,12 @@ function SearchPage() {
                       }
                     >
                       <option value="">Semua Kategori</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
+                      {Array.isArray(categories) &&
+                        categories.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
                     </select>
                   </div>
 

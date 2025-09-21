@@ -1,6 +1,10 @@
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import { SessionProvider, useSession } from "./contexts/SessionContext";
+import SessionExpiredModal from "./components/UI/SessionExpiredModal";
+import { setSessionExpiredHandler } from "./services/api";
 import Layout from "./components/Layout/Layout";
 import AdminLayout from "./components/Layout/AdminLayout";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
@@ -43,206 +47,227 @@ import AdminSettings from "./pages/Admin/SettingsPage";
 // Error Pages
 import NotFoundPage from "./pages/Error/NotFoundPage";
 
+// Component to handle session expired modal
+function SessionHandler() {
+  const { isSessionExpired, showSessionExpired, hideSessionExpired } =
+    useSession();
+
+  // Set up session expired handler
+  React.useEffect(() => {
+    setSessionExpiredHandler(showSessionExpired);
+  }, [showSessionExpired]);
+
+  return (
+    <SessionExpiredModal
+      isOpen={isSessionExpired}
+      onClose={hideSessionExpired}
+    />
+  );
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<HomePage />} />
-            <Route path="login" element={<LoginPage />} />
-            <Route path="register" element={<RegisterPage />} />
-            <Route path="marketplace" element={<MarketplacePage />} />
-            <Route path="vendor/:id" element={<VendorDetailPage />} />
-            <Route path="service/:id" element={<ServiceDetailPage />} />
-            <Route path="package/:id" element={<PackageDetailPage />} />
-            <Route path="search" element={<SearchPage />} />
-            <Route path="about" element={<AboutPage />} />
-            <Route path="contact" element={<ContactPage />} />
+    <SessionProvider>
+      <AuthProvider>
+        <CartProvider>
+          <SessionHandler />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Layout />}>
+              <Route index element={<HomePage />} />
+              <Route path="login" element={<LoginPage />} />
+              <Route path="register" element={<RegisterPage />} />
+              <Route path="marketplace" element={<MarketplacePage />} />
+              <Route path="vendor/:id" element={<VendorDetailPage />} />
+              <Route path="service/:id" element={<ServiceDetailPage />} />
+              <Route path="package/:id" element={<PackageDetailPage />} />
+              <Route path="search" element={<SearchPage />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="contact" element={<ContactPage />} />
 
-            {/* Customer Routes */}
-            <Route
-              path="customer"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["customer"]}>
-                    <CustomerDashboard />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="customer/orders"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["customer"]}>
-                    <CustomerOrders />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="customer/wishlist"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["customer"]}>
-                    <CustomerWishlist />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="customer/profile"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["customer"]}>
-                    <CustomerProfile />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
+              {/* Customer Routes */}
+              <Route
+                path="customer"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["customer"]}>
+                      <CustomerDashboard />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="customer/orders"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["customer"]}>
+                      <CustomerOrders />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="customer/wishlist"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["customer"]}>
+                      <CustomerWishlist />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="customer/profile"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["customer"]}>
+                      <CustomerProfile />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Vendor Routes */}
-            <Route
-              path="vendor"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["vendor"]}>
-                    <VendorDashboard />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="vendor/profile"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["vendor"]}>
-                    <VendorProfile />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="vendor/services"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["vendor"]}>
-                    <VendorServices />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="vendor/packages"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["vendor"]}>
-                    <VendorPackages />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="vendor/orders"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["vendor"]}>
-                    <VendorOrders />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="vendor/portfolio"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["vendor"]}>
-                    <VendorPortfolio />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="vendor/availability"
-              element={
-                <ProtectedRoute>
-                  <RoleRoute allowedRoles={["vendor"]}>
-                    <VendorAvailability />
-                  </RoleRoute>
-                </ProtectedRoute>
-              }
-            />
+              {/* Vendor Routes */}
+              <Route
+                path="vendor"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["vendor"]}>
+                      <VendorDashboard />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor/profile"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["vendor"]}>
+                      <VendorProfile />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor/services"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["vendor"]}>
+                      <VendorServices />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor/packages"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["vendor"]}>
+                      <VendorPackages />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor/orders"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["vendor"]}>
+                      <VendorOrders />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor/portfolio"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["vendor"]}>
+                      <VendorPortfolio />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor/availability"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={["vendor"]}>
+                      <VendorAvailability />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Error Routes */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
+              {/* Error Routes */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
 
-          {/* Admin Routes - Inside AuthProvider but outside Layout wrapper */}
-          <Route
-            path="admin"
-            element={
-              <ProtectedRoute>
-                <RoleRoute allowedRoles={["super_user"]}>
-                  <AdminLayout>
-                    <AdminDashboard />
-                  </AdminLayout>
-                </RoleRoute>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/users"
-            element={
-              <ProtectedRoute>
-                <RoleRoute allowedRoles={["super_user"]}>
-                  <AdminLayout>
-                    <AdminUsers />
-                  </AdminLayout>
-                </RoleRoute>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/vendors"
-            element={
-              <ProtectedRoute>
-                <RoleRoute allowedRoles={["super_user"]}>
-                  <AdminLayout>
-                    <AdminVendors />
-                  </AdminLayout>
-                </RoleRoute>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/orders"
-            element={
-              <ProtectedRoute>
-                <RoleRoute allowedRoles={["super_user"]}>
-                  <AdminLayout>
-                    <AdminOrders />
-                  </AdminLayout>
-                </RoleRoute>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/settings"
-            element={
-              <ProtectedRoute>
-                <RoleRoute allowedRoles={["super_user"]}>
-                  <AdminLayout>
-                    <AdminSettings />
-                  </AdminLayout>
-                </RoleRoute>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </CartProvider>
-    </AuthProvider>
+            {/* Admin Routes - Inside AuthProvider but outside Layout wrapper */}
+            <Route
+              path="admin"
+              element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={["super_user"]}>
+                    <AdminLayout>
+                      <AdminDashboard />
+                    </AdminLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/users"
+              element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={["super_user"]}>
+                    <AdminLayout>
+                      <AdminUsers />
+                    </AdminLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/vendors"
+              element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={["super_user"]}>
+                    <AdminLayout>
+                      <AdminVendors />
+                    </AdminLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/orders"
+              element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={["super_user"]}>
+                    <AdminLayout>
+                      <AdminOrders />
+                    </AdminLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/settings"
+              element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={["super_user"]}>
+                    <AdminLayout>
+                      <AdminSettings />
+                    </AdminLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
+    </SessionProvider>
   );
 }
 

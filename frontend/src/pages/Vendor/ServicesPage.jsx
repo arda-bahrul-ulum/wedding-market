@@ -24,7 +24,7 @@ function ServicesPage() {
     page: 1,
   });
 
-  const { data: categoriesData } = useQuery(
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery(
     "categories",
     marketplaceAPI.getCategories
   );
@@ -103,11 +103,12 @@ function ServicesPage() {
                 }
               >
                 <option value="">Semua Kategori</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
+                {Array.isArray(categories) &&
+                  categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
               </select>
 
               <Button variant="outline" className="w-full md:w-auto">

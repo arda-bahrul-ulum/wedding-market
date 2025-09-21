@@ -1,13 +1,32 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "react-query";
-import { Search, Filter, MapPin, Star, Heart } from "lucide-react";
+import {
+  Search,
+  Filter,
+  MapPin,
+  Star,
+  Heart,
+  ArrowRight,
+  TrendingUp,
+  Award,
+  Users,
+  Clock,
+  ChevronDown,
+  X,
+} from "lucide-react";
 import { marketplaceAPI } from "../../services/api";
 import { formatCurrency, formatRating } from "../../utils/format";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
 import Button from "../../components/UI/Button";
-import Card, { CardBody } from "../../components/UI/Card";
+import Card, {
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../../components/UI/Card";
 import Input from "../../components/UI/Input";
+import Select from "../../components/UI/Select";
 
 function MarketplacePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,10 +42,11 @@ function MarketplacePage() {
     page: 1,
   });
 
-  const { data: categoriesData } = useQuery(
-    "categories",
-    marketplaceAPI.getCategories
-  );
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useQuery("categories", marketplaceAPI.getCategories);
   const { data: vendorsData, isLoading: vendorsLoading } = useQuery(
     ["vendors", filters],
     () => marketplaceAPI.getVendors(filters),
@@ -68,17 +88,27 @@ function MarketplacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container-custom py-8">
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 hero-pattern opacity-5"></div>
+        <div className="container-custom py-8 relative z-10">
           <div className="text-center">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Marketplace Jasa Pernikahan
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Temukan vendor pernikahan terbaik untuk hari istimewa Anda
-            </p>
+            {/* Trust Indicators */}
+            <div className="flex items-center justify-center space-x-8">
+              <div className="flex items-center space-x-2 text-gray-600">
+                <Users className="w-5 h-5 text-primary-600" />
+                <span className="font-semibold">1000+ Vendor</span>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <Award className="w-5 h-5 text-success-600" />
+                <span className="font-semibold">Terpercaya</span>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <TrendingUp className="w-5 h-5 text-accent-600" />
+                <span className="font-semibold">Rating Tinggi</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -87,14 +117,14 @@ function MarketplacePage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
-            <Card>
-              <CardBody className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Filter
-                </h3>
-
+            <Card hover>
+              <CardHeader>
+                <CardTitle>Filter Pencarian</CardTitle>
+                <CardDescription>Temukan vendor yang tepat</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-6">
                 {/* Search */}
-                <form onSubmit={handleSearch} className="mb-6">
+                <form onSubmit={handleSearch}>
                   <div className="relative">
                     <Input
                       placeholder="Cari vendor..."
@@ -102,60 +132,72 @@ function MarketplacePage() {
                       onChange={(e) =>
                         setFilters({ ...filters, search: e.target.value })
                       }
+                      icon={<Search className="w-4 h-4" />}
                     />
-                    <button
-                      type="submit"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600"
-                    >
-                      <Search className="w-4 h-4" />
-                    </button>
                   </div>
                 </form>
 
                 {/* Categories */}
-                <div className="mb-6">
+                <div>
                   <label className="label">Kategori</label>
-                  <select
-                    className="input"
-                    value={filters.category_id}
-                    onChange={(e) =>
-                      handleFilterChange("category_id", e.target.value)
-                    }
-                  >
-                    <option value="">Semua Kategori</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+                  {categoriesLoading ? (
+                    <div className="flex items-center justify-center py-3">
+                      <LoadingSpinner size="sm" />
+                      <span className="ml-2 text-sm text-gray-500">
+                        Memuat kategori...
+                      </span>
+                    </div>
+                  ) : categoriesError ? (
+                    <div className="text-red-500 text-sm py-2">
+                      Error memuat kategori
+                    </div>
+                  ) : (
+                    <Select
+                      options={[
+                        { value: "", label: "Semua Kategori" },
+                        ...(Array.isArray(categories)
+                          ? categories.map((category) => ({
+                              value: category.id,
+                              label: category.name,
+                            }))
+                          : []),
+                      ]}
+                      value={filters.category_id}
+                      onChange={(option) =>
+                        handleFilterChange("category_id", option?.value || "")
+                      }
+                      placeholder="Pilih kategori"
+                    />
+                  )}
                 </div>
 
                 {/* Location */}
-                <div className="mb-6">
-                  <label className="label">Kota</label>
-                  <Input
-                    placeholder="Masukkan kota"
-                    value={filters.city}
-                    onChange={(e) => handleFilterChange("city", e.target.value)}
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="label">Provinsi</label>
-                  <Input
-                    placeholder="Masukkan provinsi"
-                    value={filters.province}
-                    onChange={(e) =>
-                      handleFilterChange("province", e.target.value)
-                    }
-                  />
+                <div>
+                  <label className="label">Lokasi</label>
+                  <div className="space-y-3">
+                    <Input
+                      placeholder="Masukkan kota"
+                      value={filters.city}
+                      onChange={(e) =>
+                        handleFilterChange("city", e.target.value)
+                      }
+                      icon={<MapPin className="w-4 h-4" />}
+                    />
+                    <Input
+                      placeholder="Masukkan provinsi"
+                      value={filters.province}
+                      onChange={(e) =>
+                        handleFilterChange("province", e.target.value)
+                      }
+                      icon={<MapPin className="w-4 h-4" />}
+                    />
+                  </div>
                 </div>
 
                 {/* Price Range */}
-                <div className="mb-6">
+                <div>
                   <label className="label">Rentang Harga</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <Input
                       placeholder="Min"
                       type="number"
@@ -194,6 +236,7 @@ function MarketplacePage() {
                   }}
                   className="w-full"
                 >
+                  <X className="w-4 h-4 mr-2" />
                   Reset Filter
                 </Button>
               </CardBody>
@@ -203,50 +246,60 @@ function MarketplacePage() {
           {/* Results */}
           <div className="lg:col-span-3">
             {/* Sort and Results Count */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
-                  {pagination.total || 0} vendor ditemukan
-                </span>
+                <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm">
+                  <TrendingUp className="w-4 h-4 text-primary-600" />
+                  <span className="text-sm font-semibold text-gray-700">
+                    {pagination.total || 0} vendor ditemukan
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Urutkan:</span>
-                <select
-                  className="input text-sm"
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-medium text-gray-600">
+                  Urutkan:
+                </span>
+                <Select
+                  options={[
+                    { value: "created_at-desc", label: "Terbaru" },
+                    { value: "created_at-asc", label: "Terlama" },
+                    { value: "rating-desc", label: "Rating Tertinggi" },
+                    { value: "rating-asc", label: "Rating Terendah" },
+                    { value: "price-asc", label: "Harga Terendah" },
+                    { value: "price-desc", label: "Harga Tertinggi" },
+                  ]}
                   value={`${filters.sort_by}-${filters.sort_order}`}
-                  onChange={(e) => {
-                    const [sortBy, sortOrder] = e.target.value.split("-");
+                  onChange={(option) => {
+                    const [sortBy, sortOrder] = option.value.split("-");
                     handleSort(sortBy);
                   }}
-                >
-                  <option value="created_at-desc">Terbaru</option>
-                  <option value="created_at-asc">Terlama</option>
-                  <option value="rating-desc">Rating Tertinggi</option>
-                  <option value="rating-asc">Rating Terendah</option>
-                  <option value="price-asc">Harga Terendah</option>
-                  <option value="price-desc">Harga Tertinggi</option>
-                </select>
+                  className="min-w-[180px]"
+                />
               </div>
             </div>
 
             {/* Vendors Grid */}
             {vendorsLoading ? (
-              <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
+              <div className="flex justify-center py-16">
+                <div className="text-center">
+                  <p className="text-gray-600 font-medium">Memuat vendor...</p>
+                </div>
               </div>
             ) : vendors.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-12 h-12 text-gray-400" />
+              <div className="text-center py-16">
+                <div className="w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                  <Search className="w-16 h-16 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
                   Tidak ada vendor ditemukan
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-8 text-lg">
                   Coba ubah filter atau kata kunci pencarian Anda
                 </p>
                 <Button
+                  gradient
+                  glow
                   onClick={() => {
                     setFilters({
                       search: "",
@@ -262,74 +315,88 @@ function MarketplacePage() {
                     setSearchParams({});
                   }}
                 >
+                  <X className="w-4 h-4 mr-2" />
                   Reset Filter
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {vendors.map((vendor) => (
-                  <Link key={vendor.id} to={`/vendor/${vendor.id}`}>
-                    <Card className="group hover:shadow-lg transition-shadow">
-                      <div className="aspect-w-16 aspect-h-9">
-                        <img
-                          src="/api/placeholder/400/300"
-                          alt={vendor.business_name}
-                          className="w-full h-48 object-cover rounded-t-lg"
-                        />
-                      </div>
-                      <CardBody className="p-6">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-1">
-                            {vendor.business_name}
-                          </h3>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              // Add to wishlist logic
-                            }}
-                            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                          >
-                            <Heart className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                          {vendor.description ||
-                            "Vendor pernikahan profesional dengan pengalaman bertahun-tahun."}
-                        </p>
-
-                        <div className="flex items-center space-x-1 mb-3">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium text-gray-600">
-                            {formatRating(vendor.average_rating || 4.8)}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            ({vendor.total_reviews || 0} review)
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center text-gray-500">
-                            <MapPin className="w-4 h-4 mr-1" />
-                            <span>
-                              {vendor.city}, {vendor.province}
-                            </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {Array.isArray(vendors) &&
+                  vendors.map((vendor) => (
+                    <Link key={vendor.id} to={`/vendor/${vendor.id}`}>
+                      <Card className="group hover hover:scale-105 transition-all duration-300 overflow-hidden">
+                        <div className="relative">
+                          <img
+                            src="/api/placeholder/400/300"
+                            alt={vendor.business_name}
+                            className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-110"
+                          />
+                          <div className="absolute top-4 right-4">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                // Add to wishlist logic
+                              }}
+                              className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white transition-all duration-200 shadow-lg"
+                            >
+                              <Heart className="w-5 h-5" />
+                            </button>
                           </div>
-                          <span className="font-medium text-primary-600">
-                            Mulai dari {formatCurrency(2500000)}
-                          </span>
+                          <div className="absolute bottom-4 left-4">
+                            <div className="flex items-center space-x-1 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-sm font-semibold text-gray-700">
+                                {formatRating(vendor.average_rating || 4.8)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </CardBody>
-                    </Card>
-                  </Link>
-                ))}
+                        <CardBody className="p-6">
+                          <div className="mb-4">
+                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors mb-2 line-clamp-1">
+                              {vendor.business_name}
+                            </h3>
+                            <p className="text-gray-600 text-sm line-clamp-2">
+                              {vendor.description ||
+                                "Vendor pernikahan profesional dengan pengalaman bertahun-tahun."}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-between text-sm mb-4">
+                            <div className="flex items-center text-gray-500">
+                              <MapPin className="w-4 h-4 mr-2" />
+                              <span className="font-medium">
+                                {vendor.city}, {vendor.province}
+                              </span>
+                            </div>
+                            <div className="flex items-center text-gray-500">
+                              <Clock className="w-4 h-4 mr-1" />
+                              <span>{vendor.total_reviews || 0} review</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-2xl font-bold text-primary-600">
+                                Mulai dari {formatCurrency(2500000)}
+                              </span>
+                            </div>
+                            <Button size="sm" className="group/btn">
+                              Lihat Detail
+                              <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-200" />
+                            </Button>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    </Link>
+                  ))}
               </div>
             )}
 
             {/* Pagination */}
             {pagination.total_pages > 1 && (
-              <div className="mt-8 flex justify-center">
-                <nav className="flex items-center space-x-2">
+              <div className="mt-12 flex justify-center">
+                <nav className="flex items-center space-x-3">
                   <Button
                     variant="outline"
                     size="sm"
@@ -337,25 +404,53 @@ function MarketplacePage() {
                     onClick={() =>
                       handlePageChange(pagination.current_page - 1)
                     }
+                    className="group"
                   >
+                    <ArrowRight className="w-4 h-4 mr-2 rotate-180 group-hover:-translate-x-1 transition-transform duration-200" />
                     Previous
                   </Button>
 
-                  {Array.from(
-                    { length: pagination.total_pages },
-                    (_, i) => i + 1
-                  ).map((page) => (
-                    <Button
-                      key={page}
-                      variant={
-                        page === pagination.current_page ? "primary" : "outline"
+                  <div className="flex items-center space-x-2">
+                    {Array.from(
+                      { length: Math.min(5, pagination.total_pages) },
+                      (_, i) => {
+                        const page = i + 1;
+                        return (
+                          <Button
+                            key={page}
+                            variant={
+                              page === pagination.current_page
+                                ? "primary"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => handlePageChange(page)}
+                            className={
+                              page === pagination.current_page
+                                ? "gradient glow"
+                                : ""
+                            }
+                          >
+                            {page}
+                          </Button>
+                        );
                       }
-                      size="sm"
-                      onClick={() => handlePageChange(page)}
-                    >
-                      {page}
-                    </Button>
-                  ))}
+                    )}
+                    {pagination.total_pages > 5 && (
+                      <>
+                        <span className="text-gray-400">...</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            handlePageChange(pagination.total_pages)
+                          }
+                        >
+                          {pagination.total_pages}
+                        </Button>
+                      </>
+                    )}
+                  </div>
 
                   <Button
                     variant="outline"
@@ -366,8 +461,10 @@ function MarketplacePage() {
                     onClick={() =>
                       handlePageChange(pagination.current_page + 1)
                     }
+                    className="group"
                   >
                     Next
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </nav>
               </div>

@@ -1,6 +1,13 @@
 import axios from "axios";
 import config from "../config/env.js";
 
+// Global session handler
+let sessionExpiredHandler = null;
+
+export const setSessionExpiredHandler = (handler) => {
+  sessionExpiredHandler = handler;
+};
+
 const API_BASE_URL = config.API_URL;
 
 // Create axios instance
@@ -31,7 +38,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Skip refresh for refresh token endpoint to prevent infinite loop
+    const isRefreshEndpoint = originalRequest.url?.includes("/auth/refresh");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isRefreshEndpoint
+    ) {
       originalRequest._retry = true;
 
       try {
@@ -47,12 +61,19 @@ api.interceptors.response.use(
           throw new Error("Refresh token failed");
         }
       } catch (refreshError) {
-        // Refresh failed, redirect to login
+        // Refresh failed, show session expired modal
         localStorage.removeItem("token");
-        // Only redirect if not already on login page
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
+
+        // Show session expired modal if handler is available
+        if (sessionExpiredHandler) {
+          sessionExpiredHandler();
+        } else {
+          // Fallback: redirect to login if no handler
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
         }
+
         return Promise.reject(refreshError);
       }
     }
@@ -124,12 +145,19 @@ export const adminAPI = {
   updateVendorStatus: (id, statusData) =>
     api.put(`${config.ENDPOINTS.ADMIN.VENDORS}/${id}/status`, statusData),
   getOrders: (params) => api.get(config.ENDPOINTS.ADMIN.ORDERS, { params }),
+  getOrderDetail: (id) => api.get(`${config.ENDPOINTS.ADMIN.ORDERS}/${id}`),
+  updateOrderStatus: (id, statusData) =>
+    api.put(`${config.ENDPOINTS.ADMIN.ORDERS}/${id}/status`, statusData),
+  processRefund: (id, refundData) =>
+    api.post(`${config.ENDPOINTS.ADMIN.ORDERS}/${id}/refund`, refundData),
   getModuleSettings: () => api.get(config.ENDPOINTS.ADMIN.MODULE_SETTINGS),
   updateModuleSetting: (module, settingData) =>
     api.put(`${config.ENDPOINTS.ADMIN.MODULE_SETTINGS}/${module}`, settingData),
   getSystemSettings: () => api.get(config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS),
   updateSystemSetting: (key, settingData) =>
     api.put(`${config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS}/${key}`, settingData),
+  bulkUpdateSystemSettings: (settings) =>
+    api.put(config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS, { settings }),
 };
 
 export const userAPI = {

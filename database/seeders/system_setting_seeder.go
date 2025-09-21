@@ -16,85 +16,261 @@ func (s *SystemSettingSeeder) Signature() string {
 // Run executes the seeder logic.
 func (s *SystemSettingSeeder) Run() error {
 	settings := []models.SystemSetting{
+		// General Settings
 		{
 			Key:   "site_name",
-			Value: "Wedding Commerce",
+			Value: "Wedding Dream",
 			Type:  "string",
 		},
 		{
 			Key:   "site_description",
-			Value: "Platform marketplace jasa pernikahan terlengkap di Indonesia",
+			Value: "Platform pernikahan terpercaya",
 			Type:  "string",
 		},
 		{
+			Key:   "site_url",
+			Value: "https://weddingcommerce.com",
+			Type:  "string",
+		},
+		{
+			Key:   "admin_email",
+			Value: "admin@weddingcommerce.com",
+			Type:  "string",
+		},
+		{
+			Key:   "support_email",
+			Value: "support@weddingcommerce.com",
+			Type:  "string",
+		},
+		
+		// Commission Settings
+		{
 			Key:   "commission_rate",
-			Value: "0.05",
+			Value: "5.00",
 			Type:  "number",
 		},
 		{
-			Key:   "min_order_amount",
-			Value: "100000",
+			Key:   "minimum_commission",
+			Value: "10000",
 			Type:  "number",
 		},
 		{
-			Key:   "max_order_amount",
-			Value: "100000000",
+			Key:   "maximum_commission",
+			Value: "1000000",
+			Type:  "number",
+		},
+		
+		// Payment Settings
+		{
+			Key:   "payment_timeout",
+			Value: "24",
 			Type:  "number",
 		},
 		{
-			Key:   "escrow_duration_days",
+			Key:   "refund_period",
 			Value: "7",
 			Type:  "number",
 		},
 		{
-			Key:   "auto_approve_vendor",
-			Value: "false",
-			Type:  "boolean",
+			Key:   "escrow_period",
+			Value: "3",
+			Type:  "number",
+		},
+		
+		// Subscription Settings
+		{
+			Key:   "free_plan_limit",
+			Value: "5",
+			Type:  "number",
 		},
 		{
-			Key:   "require_vendor_verification",
+			Key:   "premium_plan_price",
+			Value: "500000",
+			Type:  "number",
+		},
+		{
+			Key:   "enterprise_plan_price",
+			Value: "1500000",
+			Type:  "number",
+		},
+		
+		// Email Settings
+		{
+			Key:   "smtp_host",
+			Value: "",
+			Type:  "string",
+		},
+		{
+			Key:   "smtp_port",
+			Value: "587",
+			Type:  "number",
+		},
+		{
+			Key:   "smtp_username",
+			Value: "",
+			Type:  "string",
+		},
+		{
+			Key:   "smtp_password",
+			Value: "",
+			Type:  "string",
+		},
+		{
+			Key:   "smtp_encryption",
+			Value: "tls",
+			Type:  "string",
+		},
+		
+		// SEO Settings
+		{
+			Key:   "meta_title",
+			Value: "Wedding Dream - Platform Pernikahan Terpercaya",
+			Type:  "string",
+		},
+		{
+			Key:   "meta_description",
+			Value: "Temukan vendor pernikahan terbaik dengan harga terjangkau",
+			Type:  "string",
+		},
+		{
+			Key:   "meta_keywords",
+			Value: "wedding, pernikahan, vendor, venue, fotografer, makeup",
+			Type:  "string",
+		},
+		
+		// Security Settings
+		{
+			Key:   "max_login_attempts",
+			Value: "5",
+			Type:  "number",
+		},
+		{
+			Key:   "lockout_duration",
+			Value: "30",
+			Type:  "number",
+		},
+		{
+			Key:   "session_timeout",
+			Value: "120",
+			Type:  "number",
+		},
+		{
+			Key:   "require_email_verification",
+			Value: "true",
+			Type:  "boolean",
+		},
+		
+		// Notification Settings
+		{
+			Key:   "email_notifications",
 			Value: "true",
 			Type:  "boolean",
 		},
 		{
-			Key:   "max_upload_size_mb",
-			Value: "10",
-			Type:  "number",
-		},
-		{
-			Key:   "allowed_file_types",
-			Value: `["jpg", "jpeg", "png", "gif", "mp4", "mov", "pdf", "doc", "docx"]`,
-			Type:  "json",
-		},
-		{
-			Key:   "contact_email",
-			Value: "support@weddingcommerce.com",
-			Type:  "string",
-		},
-		{
-			Key:   "contact_phone",
-			Value: "+6281234567890",
-			Type:  "string",
-		},
-		{
-			Key:   "contact_address",
-			Value: "Jakarta, Indonesia",
-			Type:  "string",
-		},
-		{
-			Key:   "social_media",
-			Value: `{"instagram": "@weddingcommerce", "facebook": "WeddingCommerce", "twitter": "@weddingcommerce"}`,
-			Type:  "json",
-		},
-		{
-			Key:   "maintenance_mode",
+			Key:   "sms_notifications",
 			Value: "false",
 			Type:  "boolean",
 		},
 		{
-			Key:   "maintenance_message",
-			Value: "Website sedang dalam perawatan. Mohon maaf atas ketidaknyamanan ini.",
-			Type:  "string",
+			Key:   "push_notifications",
+			Value: "true",
+			Type:  "boolean",
+		},
+		
+		// Feature Flags
+		{
+			Key:   "enable_registration",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_vendor_registration",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_reviews",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_wishlist",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_chat",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_blog",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_faq",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_ai_chatbot",
+			Value: "false",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_vendor_collaboration",
+			Value: "false",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_dp_cicilan",
+			Value: "false",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_promo_voucher",
+			Value: "false",
+			Type:  "boolean",
+		},
+		
+		// Payment Gateways
+		{
+			Key:   "enable_xendit",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_midtrans",
+			Value: "false",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_manual_transfer",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_cod",
+			Value: "false",
+			Type:  "boolean",
+		},
+		
+		// SEO Modules
+		{
+			Key:   "enable_seo_basic",
+			Value: "true",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_seo_advanced",
+			Value: "false",
+			Type:  "boolean",
+		},
+		{
+			Key:   "enable_seo_automation",
+			Value: "false",
+			Type:  "boolean",
 		},
 	}
 

@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Card, CardBody } from "../../components/UI/Card";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../../components/UI/Card";
+import Button from "../../components/UI/Button";
 import {
   Users,
   Store,
@@ -16,6 +23,20 @@ import {
   ToggleLeft,
   ToggleRight,
   LogOut,
+  ArrowRight,
+  Shield,
+  Activity,
+  Zap,
+  Globe,
+  CreditCard,
+  MessageSquare,
+  Heart,
+  Gift,
+  Bot,
+  FileText,
+  Star,
+  Search,
+  Plus,
 } from "lucide-react";
 
 function AdminDashboard() {
@@ -224,118 +245,140 @@ function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium">Memuat dashboard...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="px-6 py-6">
+      <div className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200/50">
+        <div className="px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Dashboard Super User
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Selamat datang, {user?.name || "Super User"}
-              </p>
+            <div className="flex items-center space-x-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Dashboard Super User
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Selamat datang, {user?.name || "Super User"}
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-700">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-semibold text-gray-700">
                   {user?.name}
                 </p>
                 <p className="text-xs text-gray-500 capitalize">
                   {user?.role?.replace("_", " ")}
                 </p>
               </div>
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                title="Logout"
+                className="group"
               >
-                <LogOut className="h-5 w-5" />
-              </button>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-6 py-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Users className="h-6 w-6 text-blue-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <Users className="w-7 h-7 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium">
                     Total Users
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {stats.totalUsers}
                   </p>
+                  <div className="flex items-center text-xs text-success-600 mt-1">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +5 dari bulan lalu
+                  </div>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Store className="h-6 w-6 text-green-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-success-500 to-success-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <Store className="w-7 h-7 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium">
                     Total Vendors
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {stats.totalVendors}
                   </p>
+                  <div className="flex items-center text-xs text-success-600 mt-1">
+                    <Store className="w-3 h-3 mr-1" />
+                    Active vendors
+                  </div>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <ShoppingBag className="h-6 w-6 text-purple-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <ShoppingBag className="w-7 h-7 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium">
                     Total Orders
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {stats.totalOrders}
                   </p>
+                  <div className="flex items-center text-xs text-accent-600 mt-1">
+                    <Activity className="w-3 h-3 mr-1" />
+                    All time orders
+                  </div>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-yellow-600" />
+                <div className="w-14 h-14 bg-gradient-to-br from-warning-500 to-warning-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <DollarSign className="w-7 h-7 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium">
                     Total Revenue
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {formatCurrency(stats.totalRevenue)}
                   </p>
+                  <div className="flex items-center text-xs text-warning-600 mt-1">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +15% growth
+                  </div>
                 </div>
               </div>
             </CardBody>
@@ -344,50 +387,68 @@ function AdminDashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
                     Pending Vendors
                   </p>
-                  <p className="text-2xl font-bold text-orange-600">
+                  <p className="text-3xl font-bold text-warning-600">
                     {stats.pendingVendors}
                   </p>
+                  <div className="flex items-center text-xs text-warning-600 mt-1">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    Needs review
+                  </div>
                 </div>
-                <AlertCircle className="h-8 w-8 text-orange-500" />
+                <div className="w-12 h-12 bg-gradient-to-br from-warning-500 to-warning-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <AlertCircle className="w-6 h-6 text-white" />
+                </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
                     Active Orders
                   </p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-3xl font-bold text-primary-600">
                     {stats.activeOrders}
                   </p>
+                  <div className="flex items-center text-xs text-primary-600 mt-1">
+                    <Clock className="w-3 h-3 mr-1" />
+                    In progress
+                  </div>
                 </div>
-                <Clock className="h-8 w-8 text-blue-500" />
+                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card>
+          <Card hover glow>
             <CardBody className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
                     Completed Orders
                   </p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-3xl font-bold text-success-600">
                     {stats.completedOrders}
                   </p>
+                  <div className="flex items-center text-xs text-success-600 mt-1">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Successfully done
+                  </div>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-500" />
+                <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <CheckCircle className="w-6 h-6 text-white" />
+                </div>
               </div>
             </CardBody>
           </Card>
@@ -395,75 +456,136 @@ function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Module Control */}
-          <Card>
-            <CardBody className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Module Control
-                </h3>
-                <Settings className="h-5 w-5 text-gray-400" />
-              </div>
+          <Card hover>
+            <CardHeader>
+              <CardTitle>Module Control</CardTitle>
+              <CardDescription>Kelola fitur-fitur platform</CardDescription>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-4">
-                {Object.entries(moduleSettings).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      {key
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^./, (str) => str.toUpperCase())}
-                    </span>
-                    <button
-                      onClick={() => toggleModule(key)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        value ? "bg-primary-600" : "bg-gray-200"
-                      }`}
+                {Object.entries(moduleSettings).map(([key, value]) => {
+                  const getModuleIcon = (moduleKey) => {
+                    const iconMap = {
+                      subscriptionVendor: Store,
+                      vendorCollaboration: Users,
+                      chatSystem: MessageSquare,
+                      wishlist: Heart,
+                      dpCicilan: CreditCard,
+                      promoVoucher: Gift,
+                      aiChatbot: Bot,
+                      blogFaq: FileText,
+                      ratingReview: Star,
+                      paymentXendit: CreditCard,
+                      paymentMidtrans: CreditCard,
+                      paymentManual: CreditCard,
+                      paymentCod: CreditCard,
+                      seoBasic: Search,
+                      seoAdvanced: Search,
+                      seoAutomation: Search,
+                    };
+                    return iconMap[moduleKey] || Settings;
+                  };
+
+                  const getModuleName = (moduleKey) => {
+                    const nameMap = {
+                      subscriptionVendor: "Vendor Subscription",
+                      vendorCollaboration: "Vendor Collaboration",
+                      chatSystem: "Chat System",
+                      wishlist: "Wishlist",
+                      dpCicilan: "Down Payment Installment",
+                      promoVoucher: "Promo & Voucher",
+                      aiChatbot: "AI Chatbot",
+                      blogFaq: "Blog & FAQ",
+                      ratingReview: "Rating & Review",
+                      paymentXendit: "Xendit Payment",
+                      paymentMidtrans: "Midtrans Payment",
+                      paymentManual: "Manual Payment",
+                      paymentCod: "Cash on Delivery",
+                      seoBasic: "Basic SEO",
+                      seoAdvanced: "Advanced SEO",
+                      seoAutomation: "SEO Automation",
+                    };
+                    return nameMap[moduleKey] || moduleKey;
+                  };
+
+                  const IconComponent = getModuleIcon(key);
+
+                  return (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
                     >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          value ? "translate-x-6" : "translate-x-1"
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            value ? "bg-primary-500" : "bg-gray-400"
+                          }`}
+                        >
+                          {React.createElement(IconComponent, {
+                            className: "w-4 h-4 text-white",
+                          })}
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700">
+                          {getModuleName(key)}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => toggleModule(key)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          value ? "bg-primary-600" : "bg-gray-200"
                         }`}
-                      />
-                    </button>
-                  </div>
-                ))}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            value ? "translate-x-6" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </CardBody>
           </Card>
 
           {/* Recent Orders */}
-          <Card>
-            <CardBody className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Recent Orders
-                </h3>
-                <Eye className="h-5 w-5 text-gray-400" />
-              </div>
+          <Card hover>
+            <CardHeader>
+              <CardTitle>Recent Orders</CardTitle>
+              <CardDescription>Pesanan terbaru dari customer</CardDescription>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-4">
                 {recentOrders.length > 0 ? (
                   recentOrders.map((order) => (
                     <div
                       key={order.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
                     >
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          Order #{order.id}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {formatDate(order.created_at)}
-                        </p>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center">
+                          <ShoppingBag className="w-5 h-5 text-primary-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            Order #{order.id}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatDate(order.created_at)}
+                          </p>
+                        </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-gray-900">
+                        <p className="text-sm font-bold text-gray-900">
                           {formatCurrency(order.total_amount)}
                         </p>
                         <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                             order.status === "completed"
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-success-100 text-success-800"
                               : order.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
+                              ? "bg-warning-100 text-warning-800"
+                              : "bg-danger-100 text-danger-800"
                           }`}
                         >
                           {order.status}
@@ -472,9 +594,12 @@ function AdminDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 text-center py-4">
-                    No recent orders
-                  </p>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <ShoppingBag className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500">No recent orders</p>
+                  </div>
                 )}
               </div>
             </CardBody>
@@ -482,55 +607,61 @@ function AdminDashboard() {
         </div>
 
         {/* Recent Vendors */}
-        <Card className="mt-8">
-          <CardBody className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Recent Vendors
-              </h3>
-              <Store className="h-5 w-5 text-gray-400" />
-            </div>
+        <Card hover className="mt-8">
+          <CardHeader>
+            <CardTitle>Recent Vendors</CardTitle>
+            <CardDescription>Vendor terbaru yang bergabung</CardDescription>
+          </CardHeader>
+          <CardBody>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Vendor
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Business Type
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Joined
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-100">
                   {recentVendors.length > 0 ? (
                     recentVendors.map((vendor) => (
-                      <tr key={vendor.id}>
+                      <tr
+                        key={vendor.id}
+                        className="hover:bg-gray-50/50 transition-colors duration-200"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {vendor.business_name}
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-success-100 to-success-200 rounded-xl flex items-center justify-center">
+                              <Store className="w-5 h-5 text-success-600" />
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {vendor.user?.email}
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                {vendor.business_name}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {vendor.user?.email}
+                              </div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                           {vendor.business_type?.replace("_", " ")}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                               vendor.is_verified
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
+                                ? "bg-success-100 text-success-800"
+                                : "bg-warning-100 text-warning-800"
                             }`}
                           >
                             {vendor.is_verified ? "Verified" : "Pending"}
@@ -543,11 +674,13 @@ function AdminDashboard() {
                     ))
                   ) : (
                     <tr>
-                      <td
-                        colSpan="4"
-                        className="px-6 py-4 text-center text-gray-500"
-                      >
-                        No recent vendors
+                      <td colSpan="4" className="px-6 py-12 text-center">
+                        <div className="flex flex-col items-center">
+                          <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <Store className="w-8 h-8 text-gray-400" />
+                          </div>
+                          <p className="text-gray-500">No recent vendors</p>
+                        </div>
                       </td>
                     </tr>
                   )}

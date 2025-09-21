@@ -354,7 +354,7 @@ func (c *OrderController) UpdateOrder(ctx http.Context) http.Response {
 	}
 
 	// Update order items if provided
-	if request.Items != nil && len(request.Items) > 0 {
+	if len(request.Items) > 0 {
 		// Delete existing order items
 		if _, err := facades.Orm().Query().Where("order_id", order.ID).Delete(&models.OrderItem{}); err != nil {
 			return ctx.Response().Status(500).Json(http.Json{
@@ -821,7 +821,14 @@ func (c *OrderController) GetAdminOrders(ctx http.Context) http.Response {
 
 // GetAdminOrderDetail returns order detail for admin
 func (c *OrderController) GetAdminOrderDetail(ctx http.Context) http.Response {
-	orderID := ctx.Request().Route("id")
+	orderIDStr := ctx.Request().Route("id")
+	orderID, err := strconv.Atoi(orderIDStr)
+	if err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid order ID",
+		})
+	}
 
 	var order models.Order
 	if err := facades.Orm().Query().Where("id", orderID).First(&order); err != nil {
@@ -846,7 +853,14 @@ func (c *OrderController) GetAdminOrderDetail(ctx http.Context) http.Response {
 
 // UpdateAdminOrderStatus updates order status (for admin)
 func (c *OrderController) UpdateAdminOrderStatus(ctx http.Context) http.Response {
-	orderID := ctx.Request().Route("id")
+	orderIDStr := ctx.Request().Route("id")
+	orderID, err := strconv.Atoi(orderIDStr)
+	if err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid order ID",
+		})
+	}
 
 	var order models.Order
 	if err := facades.Orm().Query().Where("id", orderID).First(&order); err != nil {
@@ -996,6 +1010,81 @@ func (c *OrderController) GetAdminOrderStatistics(ctx http.Context) http.Respons
 			"total_commission": totalCommission,
 			"pending_revenue":  pendingRevenue,
 			"top_vendors":      topVendors,
+		},
+	})
+}
+
+// ProcessRefund processes order refund (for admin)
+func (c *OrderController) ProcessRefund(ctx http.Context) http.Response {
+	orderIDStr := ctx.Request().Route("id")
+	orderID, err := strconv.Atoi(orderIDStr)
+	if err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid order ID",
+		})
+	}
+
+	var order models.Order
+	if err := facades.Orm().Query().Where("id", orderID).First(&order); err != nil {
+		return ctx.Response().Status(404).Json(http.Json{
+			"success": false,
+			"message": "Order not found",
+		})
+	}
+
+	var request struct {
+		Reason string `json:"reason" validate:"required"`
+		Amount *float64 `json:"amount"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Check if order can be refunded
+	if order.Status != "completed" && order.Status != "accepted" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Order cannot be refunded in current status",
+		})
+	}
+
+	// Set refund amount (default to total amount if not specified)
+	refundAmount := order.TotalAmount
+	if request.Amount != nil {
+		refundAmount = *request.Amount
+	}
+
+	// Update order status to refunded
+	order.Status = "refunded"
+	order.Notes = fmt.Sprintf("Refund processed: %s", request.Reason)
+
+	if err := facades.Orm().Query().Save(&order); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Failed to process refund",
+		})
+	}
+
+	// Load order with relations
+	facades.Orm().Query().Where("id", order.ID).First(&order)
+	facades.Orm().Query().Where("id", order.CustomerID).First(&order.Customer)
+	facades.Orm().Query().Where("id", order.VendorID).First(&order.Vendor)
+	facades.Orm().Query().Where("id", order.Vendor.UserID).First(&order.Vendor.User)
+	facades.Orm().Query().Where("order_id", order.ID).Get(&order.Items)
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "Refund processed successfully",
+		"data": http.Json{
+			"order":        order,
+			"refund_amount": refundAmount,
+			"reason":       request.Reason,
 		},
 	})
 }

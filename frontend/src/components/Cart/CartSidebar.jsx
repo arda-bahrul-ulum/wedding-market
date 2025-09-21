@@ -88,7 +88,7 @@ function CartSidebar({ isOpen, onClose }) {
                                     navigate("/marketplace");
                                   }}
                                 >
-                                  Jelajahi Marketplace
+                                  Booking Vendor
                                 </Button>
                               </div>
                             </div>
@@ -229,4 +229,3 @@ function CartSidebar({ isOpen, onClose }) {
 }
 
 export default CartSidebar;
-

@@ -2,15 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
 @layer base {
   html {
-    font-family: "Poppins", system-ui, sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900 antialiased;
+    font-feature-settings: "cv11", "ss01";
+    font-variation-settings: "opsz" 32;
   }
 
   h1,
@@ -19,110 +22,267 @@
   h4,
   h5,
   h6 {
-    font-family: "Poppins", system-ui, sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  * {
+    @apply border-gray-200;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    @apply transition-all duration-200;
+  }
+
+  button {
+    @apply transition-all duration-200;
   }
 }
 
 @layer components {
+  /* Modern Button Styles */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95;
   }
 
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    @apply btn bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 focus:ring-primary-500 shadow-lg hover:shadow-xl;
   }
 
   .btn-secondary {
-    @apply btn bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500;
+    @apply btn bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-500 shadow-sm hover:shadow-md;
   }
 
   .btn-outline {
-    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500;
+    @apply btn border-2 border-primary-500 bg-transparent text-primary-600 hover:bg-primary-500 hover:text-white focus:ring-primary-500;
   }
 
   .btn-danger {
-    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+    @apply btn bg-gradient-to-r from-danger-500 to-danger-600 text-white hover:from-danger-600 hover:to-danger-700 focus:ring-danger-500 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-success {
+    @apply btn bg-gradient-to-r from-success-500 to-success-600 text-white hover:from-success-600 hover:to-success-700 focus:ring-success-500 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-warning {
+    @apply btn bg-gradient-to-r from-warning-500 to-warning-600 text-white hover:from-warning-600 hover:to-warning-700 focus:ring-warning-500 shadow-lg hover:shadow-xl;
   }
 
   .btn-sm {
-    @apply px-3 py-1.5 text-xs;
+    @apply px-4 py-2 text-xs rounded-lg;
   }
 
   .btn-lg {
-    @apply px-6 py-3 text-base;
+    @apply px-8 py-4 text-base rounded-2xl;
   }
 
+  .btn-xl {
+    @apply px-10 py-5 text-lg rounded-2xl;
+  }
+
+  /* Modern Input Styles */
   .input {
-    @apply block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+    @apply block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-all duration-200 bg-white/80 backdrop-blur-sm;
   }
 
   .input-error {
-    @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+    @apply border-danger-300 focus:border-danger-500 focus:ring-danger-500;
+  }
+
+  .input-group {
+    @apply relative;
+  }
+
+  .input-icon {
+    @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400;
+  }
+
+  .input-with-icon {
+    @apply pl-10;
   }
 
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-sm font-semibold text-gray-700 mb-2;
   }
 
+  .label-required::after {
+    @apply text-danger-500 ml-1;
+    content: "*";
+  }
+
+  /* Modern Card Styles */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-soft border border-white/20 hover:shadow-medium transition-all duration-300;
   }
 
   .card-header {
-    @apply px-6 py-4 border-b border-gray-200;
+    @apply px-8 py-6 border-b border-gray-100;
   }
 
   .card-body {
-    @apply px-6 py-4;
+    @apply px-8 py-6;
   }
 
   .card-footer {
-    @apply px-6 py-4 border-t border-gray-200 bg-gray-50;
+    @apply px-8 py-6 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl;
   }
 
+  .card-hover {
+    @apply hover:shadow-large hover:-translate-y-1 transition-all duration-300;
+  }
+
+  /* Modern Badge Styles */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
   }
 
   .badge-primary {
-    @apply badge bg-primary-100 text-primary-800;
+    @apply badge bg-primary-100 text-primary-800 border border-primary-200;
   }
 
   .badge-success {
-    @apply badge bg-green-100 text-green-800;
+    @apply badge bg-success-100 text-success-800 border border-success-200;
   }
 
   .badge-warning {
-    @apply badge bg-yellow-100 text-yellow-800;
+    @apply badge bg-warning-100 text-warning-800 border border-warning-200;
   }
 
   .badge-danger {
-    @apply badge bg-red-100 text-red-800;
+    @apply badge bg-danger-100 text-danger-800 border border-danger-200;
   }
 
   .badge-gray {
-    @apply badge bg-gray-100 text-gray-800;
+    @apply badge bg-gray-100 text-gray-800 border border-gray-200;
   }
 
+  .badge-accent {
+    @apply badge bg-accent-100 text-accent-800 border border-accent-200;
+  }
+
+  /* Layout Components */
   .container-custom {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
   .section-padding {
-    @apply py-12 sm:py-16 lg:py-20;
+    @apply py-16 sm:py-20 lg:py-24;
   }
 
+  .section-padding-sm {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+
+  /* Text Styles */
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary-600 via-accent-600 to-primary-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient;
   }
 
+  .text-gradient-secondary {
+    @apply bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent;
+  }
+
+  .heading-xl {
+    @apply text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight;
+  }
+
+  .heading-lg {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight;
+  }
+
+  .heading-md {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight;
+  }
+
+  .heading-sm {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight;
+  }
+
+  /* Background Patterns */
   .hero-pattern {
     background-image: radial-gradient(
       circle at 1px 1px,
-      rgba(255, 255, 255, 0.15) 1px,
+      rgba(59, 130, 246, 0.15) 1px,
       transparent 0
     );
     background-size: 20px 20px;
+  }
+
+  .grid-pattern {
+    background-image: linear-gradient(
+        rgba(59, 130, 246, 0.1) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .dot-pattern {
+    background-image: radial-gradient(
+      circle,
+      rgba(59, 130, 246, 0.2) 1px,
+      transparent 1px
+    );
+    background-size: 20px 20px;
+  }
+
+  /* Glass Effect */
+  .glass {
+    @apply bg-white/20 backdrop-blur-md border border-white/30;
+  }
+
+  .glass-dark {
+    @apply bg-gray-900/20 backdrop-blur-md border border-gray-700/30;
+  }
+
+  /* Animation Classes */
+  .animate-fade-in-up {
+    @apply animate-fade-in;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .animate-fade-in-down {
+    @apply animate-fade-in;
+    animation: fadeInDown 0.6s ease-out;
+  }
+
+  .animate-fade-in-left {
+    @apply animate-fade-in;
+    animation: fadeInLeft 0.6s ease-out;
+  }
+
+  .animate-fade-in-right {
+    @apply animate-fade-in;
+    animation: fadeInRight 0.6s ease-out;
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-large;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-glow;
+  }
+
+  .hover-scale {
+    @apply transition-all duration-300 hover:scale-105;
+  }
+
+  /* Focus States */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .focus-ring-inset {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset;
   }
 }
 
@@ -140,17 +300,40 @@
     text-wrap: balance;
   }
 
+  /* Custom Scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(203 213 225);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(148 163 184);
+  }
+
   /* React Select Styles */
   .react-select-container {
     @apply w-full;
   }
 
   .react-select__control {
-    @apply min-h-[38px] border border-gray-300 rounded-lg shadow-sm;
+    @apply min-h-[48px] border border-gray-300 rounded-xl shadow-sm bg-white/80 backdrop-blur-sm transition-all duration-200;
   }
 
   .react-select__control--is-focused {
-    @apply border-primary-500 ring-1 ring-primary-500;
+    @apply border-primary-500 ring-2 ring-primary-500/20 shadow-glow;
   }
 
   .react-select__control--is-disabled {
@@ -158,27 +341,27 @@
   }
 
   .react-select__value-container {
-    @apply px-3 py-0;
+    @apply px-4 py-2;
   }
 
   .react-select__placeholder {
-    @apply text-gray-400 text-sm;
+    @apply text-gray-400 text-sm font-medium;
   }
 
   .react-select__single-value {
-    @apply text-gray-900 text-sm;
+    @apply text-gray-900 text-sm font-medium;
   }
 
   .react-select__multi-value {
-    @apply bg-gray-100 rounded-md;
+    @apply bg-primary-100 rounded-lg border border-primary-200;
   }
 
   .react-select__multi-value__label {
-    @apply text-gray-700 text-sm px-2 py-1;
+    @apply text-primary-800 text-sm px-2 py-1 font-medium;
   }
 
   .react-select__multi-value__remove {
-    @apply text-gray-500 hover:bg-red-500 hover:text-white rounded-r-md px-1;
+    @apply text-primary-600 hover:bg-primary-200 hover:text-primary-800 rounded-r-lg px-1 transition-colors duration-200;
   }
 
   .react-select__indicator-separator {
@@ -186,27 +369,27 @@
   }
 
   .react-select__dropdown-indicator {
-    @apply text-gray-400 hover:text-gray-600;
+    @apply text-gray-400 hover:text-gray-600 transition-colors duration-200;
   }
 
   .react-select__clear-indicator {
-    @apply text-gray-400 hover:text-gray-600;
+    @apply text-gray-400 hover:text-gray-600 transition-colors duration-200;
   }
 
   .react-select__menu {
-    @apply z-50 mt-1 border border-gray-300 rounded-lg shadow-lg;
+    @apply z-50 mt-2 border border-gray-200 rounded-xl shadow-large bg-white/95 backdrop-blur-sm;
   }
 
   .react-select__menu-list {
-    @apply py-1;
+    @apply py-2;
   }
 
   .react-select__option {
-    @apply px-3 py-2 text-sm cursor-pointer;
+    @apply px-4 py-3 text-sm cursor-pointer font-medium transition-colors duration-200;
   }
 
   .react-select__option--is-focused {
-    @apply bg-gray-100;
+    @apply bg-primary-50 text-primary-900;
   }
 
   .react-select__option--is-selected {
@@ -218,15 +401,99 @@
   }
 
   .react-select__no-options-message {
-    @apply px-3 py-2 text-sm text-gray-500;
+    @apply px-4 py-3 text-sm text-gray-500 font-medium;
   }
 
   .react-select__loading-message {
-    @apply px-3 py-2 text-sm text-gray-500;
+    @apply px-4 py-3 text-sm text-gray-500 font-medium;
   }
 
   .react-select__loading-indicator {
-    @apply text-gray-500;
+    @apply text-primary-500;
+  }
+
+  /* Custom Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Utility Classes */
+  .backdrop-blur-xs {
+    backdrop-filter: blur(2px);
+  }
+
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+
+  .backdrop-blur-md {
+    backdrop-filter: blur(8px);
+  }
+
+  .backdrop-blur-lg {
+    backdrop-filter: blur(16px);
+  }
+
+  .backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+  }
+
+  .backdrop-blur-2xl {
+    backdrop-filter: blur(40px);
+  }
+
+  .backdrop-blur-3xl {
+    backdrop-filter: blur(64px);
   }
 }
 

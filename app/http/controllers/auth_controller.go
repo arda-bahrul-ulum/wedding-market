@@ -337,7 +337,22 @@ func (c *AuthController) Logout(ctx http.Context) http.Response {
 
 // Me returns current user information
 func (c *AuthController) Me(ctx http.Context) http.Response {
-	user := ctx.Value("user").(models.User)
+	// Check if user exists in context (from auth middleware)
+	userInterface := ctx.Value("user")
+	if userInterface == nil {
+		return ctx.Response().Status(401).Json(http.Json{
+			"success": false,
+			"message": "Unauthorized - user not found in context",
+		})
+	}
+
+	user, ok := userInterface.(models.User)
+	if !ok {
+		return ctx.Response().Status(401).Json(http.Json{
+			"success": false,
+			"message": "Unauthorized - invalid user data",
+		})
+	}
 
 	// Load vendor profile if user is vendor
 	if user.Role == "vendor" {

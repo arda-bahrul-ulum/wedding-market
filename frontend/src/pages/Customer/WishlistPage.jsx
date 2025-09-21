@@ -100,7 +100,7 @@ function WishlistPage() {
                   ? "Coba ubah kata kunci pencarian Anda"
                   : "Mulai tambahkan item ke wishlist Anda"}
               </p>
-              <Button>Jelajahi Marketplace</Button>
+              <Button>Booking Vendor</Button>
             </CardBody>
           </Card>
         ) : (
@@ -196,4 +196,3 @@ function WishlistPage() {
 }
 
 export default WishlistPage;
-
