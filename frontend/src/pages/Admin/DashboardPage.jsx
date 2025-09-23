@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
+import BottomNavigation from "../../components/Layout/BottomNavigation";
 import {
   Users,
   Store,
@@ -690,6 +691,9 @@ function AdminDashboard() {
           </CardBody>
         </Card>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

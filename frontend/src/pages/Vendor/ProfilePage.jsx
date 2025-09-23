@@ -1,62 +1,114 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useQuery } from "react-query";
-import { vendorAPI } from "../../services/api";
+import { useAuth } from "../../contexts/AuthContext";
+import { userAPI } from "../../services/api";
 import {
-  Building,
+  Building2,
+  Mail,
+  Phone,
   MapPin,
   Globe,
   Instagram,
   MessageCircle,
-  Camera,
+  Edit3,
   Save,
+  X,
+  Camera,
   Upload,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { formatDate } from "../../utils/format";
+import LoadingSpinner from "../../components/UI/LoadingSpinner";
 import Card, { CardBody, CardHeader } from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
+import toast from "react-hot-toast";
 
 function ProfilePage() {
+  const { user, updateUser, isLoading: authLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { data: profileData, isLoading } = useQuery(
-    "vendor-profile",
-    vendorAPI.getProfile
-  );
-
-  const profile = profileData?.data;
+  const [profile, setProfile] = useState(null);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting: formSubmitting },
     reset,
-  } = useForm({
-    defaultValues: {
-      business_name: profile?.business_name || "",
-      business_type: profile?.business_type || "",
-      description: profile?.description || "",
-      address: profile?.address || "",
-      city: profile?.city || "",
-      province: profile?.province || "",
-      postal_code: profile?.postal_code || "",
-      website: profile?.website || "",
-      instagram: profile?.instagram || "",
-      whatsapp: profile?.whatsapp || "",
-    },
-  });
+  } = useForm();
+
+  useEffect(() => {
+    if (user) {
+      // Set profile data if exists, otherwise create empty profile
+      const profileData = user.vendor_profile || {
+        business_name: user.name || "",
+        business_type: "",
+        description: "",
+        address: "",
+        city: "",
+        province: "",
+        postal_code: "",
+        website: "",
+        instagram: "",
+        whatsapp: "",
+        is_verified: false,
+        is_active: true,
+        subscription_plan: "Free",
+      };
+
+      setProfile(profileData);
+      reset({
+        business_name: profileData.business_name || "",
+        business_type: profileData.business_type || "",
+        description: profileData.description || "",
+        address: profileData.address || "",
+        city: profileData.city || "",
+        province: profileData.province || "",
+        postal_code: profileData.postal_code || "",
+        website: profileData.website || "",
+        instagram: profileData.instagram || "",
+        whatsapp: profileData.whatsapp || "",
+      });
+    }
+  }, [user, reset]);
+
+  // Show loading while auth is loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="text-gray-600 font-medium mt-4">
+            Memuat profil vendor...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      await vendorAPI.updateProfile(data);
-      setIsEditing(false);
-      alert("Profil berhasil diperbarui!");
+      const response = await userAPI.updateProfile({
+        ...data,
+        profile_type: "vendor",
+      });
+
+      if (response.data.success) {
+        const updatedProfile =
+          response.data.data.vendor_profile || response.data.data;
+        setProfile(updatedProfile);
+        updateUser({
+          ...user,
+          vendor_profile: updatedProfile,
+        });
+        setIsEditing(false);
+        toast.success("Profil vendor berhasil diperbarui!");
+      }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Terjadi kesalahan saat memperbarui profil. Silakan coba lagi.");
+      console.error("Update profile error:", error);
+      toast.error("Gagal memperbarui profil vendor");
     } finally {
       setIsSubmitting(false);
     }
@@ -67,99 +119,229 @@ function ProfilePage() {
     setIsEditing(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="container-custom py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
             Profil Vendor
           </h1>
-          <p className="text-gray-600">
+          <p className="text-lg text-gray-600">
             Kelola informasi bisnis dan profil vendor Anda
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Form */}
+          {/* Profile Info */}
+          <div className="lg:col-span-1">
+            <Card hover>
+              <CardHeader>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Informasi Bisnis
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Data bisnis dan verifikasi Anda
+                </p>
+              </CardHeader>
+              <CardBody>
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Building2 className="w-12 h-12 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    {profile?.business_name ||
+                      user?.name ||
+                      "Nama bisnis belum diisi"}
+                  </h3>
+                  <p className="text-gray-600 mb-4">{user?.email}</p>
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="inline-block px-3 py-1 text-xs font-semibold bg-primary-100 text-primary-800 rounded-full">
+                      Vendor
+                    </span>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
+                        profile?.is_verified
+                          ? "bg-success-100 text-success-800"
+                          : "bg-warning-100 text-warning-800"
+                      }`}
+                    >
+                      {profile?.is_verified ? (
+                        <>
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Terverifikasi
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="w-3 h-3 mr-1" />
+                          Belum Terverifikasi
+                        </>
+                      )}
+                    </span>
+                    <span
+                      className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                        profile?.is_active !== false
+                          ? "bg-success-100 text-success-800"
+                          : "bg-danger-100 text-danger-800"
+                      }`}
+                    >
+                      {profile?.is_active !== false ? "Aktif" : "Nonaktif"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Mail className="w-4 h-4 mr-3 text-primary-500" />
+                    <span>{user?.email}</span>
+                  </div>
+                  {profile?.phone && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Phone className="w-4 h-4 mr-3 text-primary-500" />
+                      <span>{profile.phone}</span>
+                    </div>
+                  )}
+                  {profile?.city && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <MapPin className="w-4 h-4 mr-3 text-primary-500" />
+                      <span>
+                        {profile.city}
+                        {profile.province && `, ${profile.province}`}
+                      </span>
+                    </div>
+                  )}
+                  {profile?.website && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Globe className="w-4 h-4 mr-3 text-primary-500" />
+                      <a
+                        href={profile.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:text-primary-700"
+                      >
+                        {profile.website}
+                      </a>
+                    </div>
+                  )}
+                  {profile?.instagram && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Instagram className="w-4 h-4 mr-3 text-primary-500" />
+                      <a
+                        href={`https://instagram.com/${profile.instagram}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:text-primary-700"
+                      >
+                        @{profile.instagram}
+                      </a>
+                    </div>
+                  )}
+                  {profile?.whatsapp && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <MessageCircle className="w-4 h-4 mr-3 text-primary-500" />
+                      <a
+                        href={`https://wa.me/${profile.whatsapp}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:text-primary-700"
+                      >
+                        {profile.whatsapp}
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-6 p-4 bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                    Paket Berlangganan
+                  </h4>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-primary-600 capitalize">
+                      {profile?.subscription_plan || "Free"}
+                    </span>
+                    {profile?.subscription_expires_at && (
+                      <span className="text-xs text-gray-500">
+                        Berakhir: {formatDate(profile.subscription_expires_at)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
+          {/* Edit Form */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card hover>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Informasi Bisnis
-                  </h2>
-                  {!isEditing && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      Edit Profil
-                    </Button>
-                  )}
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Edit Profil Vendor
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      Perbarui informasi bisnis Anda
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    {!isEditing ? (
+                      <Button onClick={() => setIsEditing(true)} size="sm">
+                        <Edit3 className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={handleCancel}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Batal
+                        </Button>
+                        <Button
+                          onClick={handleSubmit(onSubmit)}
+                          size="sm"
+                          isLoading={formSubmitting || isSubmitting}
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          Simpan
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardBody>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Business Logo */}
-                  <div className="flex items-center space-x-6 mb-6">
-                    <div className="relative">
-                      <div className="w-24 h-24 bg-primary-100 rounded-xl flex items-center justify-center">
-                        <Building className="w-12 h-12 text-primary-600" />
-                      </div>
-                      {isEditing && (
-                        <button
-                          type="button"
-                          className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center hover:bg-primary-700 transition-colors"
-                        >
-                          <Camera className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {profile?.business_name}
-                      </h3>
-                      <p className="text-gray-600 capitalize">
-                        {profile?.business_type?.replace("_", " ")}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Terdaftar sejak {formatDate(profile?.created_at)}
-                      </p>
-                    </div>
-                  </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label="Nama Bisnis"
-                      disabled={!isEditing}
-                      error={errors.business_name?.message}
-                      {...register("business_name", {
-                        required: "Nama bisnis wajib diisi",
-                        minLength: {
-                          value: 3,
-                          message: "Nama bisnis minimal 3 karakter",
-                        },
-                      })}
-                    />
+                    <div>
+                      <Input
+                        label="Nama Bisnis"
+                        placeholder="Masukkan nama bisnis"
+                        disabled={!isEditing}
+                        error={errors.business_name?.message}
+                        {...register("business_name", {
+                          required: "Nama bisnis wajib diisi",
+                          minLength: {
+                            value: 3,
+                            message: "Nama bisnis minimal 3 karakter",
+                          },
+                        })}
+                      />
+                    </div>
 
                     <div>
-                      <label className="label">Tipe Bisnis</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tipe Bisnis
+                      </label>
                       <select
-                        className="input"
-                        disabled={!isEditing}
                         {...register("business_type", {
                           required: "Tipe bisnis wajib dipilih",
                         })}
+                        disabled={!isEditing}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                       >
+                        <option value="">Pilih tipe bisnis</option>
                         <option value="personal">Personal</option>
                         <option value="company">Perusahaan</option>
                         <option value="wedding_organizer">
@@ -167,104 +349,110 @@ function ProfilePage() {
                         </option>
                       </select>
                       {errors.business_type && (
-                        <p className="text-sm text-red-600 mt-1">
+                        <p className="text-red-500 text-sm mt-1">
                           {errors.business_type.message}
                         </p>
                       )}
                     </div>
+
+                    <div>
+                      <Input
+                        label="Kota"
+                        placeholder="Masukkan kota"
+                        disabled={!isEditing}
+                        error={errors.city?.message}
+                        {...register("city")}
+                      />
+                    </div>
+
+                    <div>
+                      <Input
+                        label="Provinsi"
+                        placeholder="Masukkan provinsi"
+                        disabled={!isEditing}
+                        error={errors.province?.message}
+                        {...register("province")}
+                      />
+                    </div>
+
+                    <div>
+                      <Input
+                        label="Kode Pos"
+                        placeholder="12345"
+                        disabled={!isEditing}
+                        error={errors.postal_code?.message}
+                        {...register("postal_code", {
+                          pattern: {
+                            value: /^\d{5}$/,
+                            message: "Kode pos harus 5 digit",
+                          },
+                        })}
+                      />
+                    </div>
+
+                    <div>
+                      <Input
+                        label="Website"
+                        placeholder="https://example.com"
+                        disabled={!isEditing}
+                        error={errors.website?.message}
+                        {...register("website", {
+                          pattern: {
+                            value: /^https?:\/\/.+/,
+                            message: "Format website tidak valid",
+                          },
+                        })}
+                      />
+                    </div>
+
+                    <div>
+                      <Input
+                        label="Instagram"
+                        placeholder="username (tanpa @)"
+                        disabled={!isEditing}
+                        error={errors.instagram?.message}
+                        {...register("instagram")}
+                      />
+                    </div>
+
+                    <div>
+                      <Input
+                        label="WhatsApp"
+                        placeholder="628xxxxxxxxxx"
+                        disabled={!isEditing}
+                        error={errors.whatsapp?.message}
+                        {...register("whatsapp", {
+                          pattern: {
+                            value: /^62\d{9,13}$/,
+                            message: "Format WhatsApp tidak valid",
+                          },
+                        })}
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <label className="label">Deskripsi Bisnis</label>
-                    <textarea
-                      className="input min-h-[120px] resize-none"
-                      placeholder="Deskripsikan bisnis Anda..."
-                      disabled={!isEditing}
-                      {...register("description")}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
-                      label="Alamat"
+                      label="Alamat Lengkap"
+                      placeholder="Masukkan alamat lengkap"
                       disabled={!isEditing}
                       error={errors.address?.message}
                       {...register("address")}
                     />
-                    <Input
-                      label="Kota"
-                      disabled={!isEditing}
-                      error={errors.city?.message}
-                      {...register("city")}
-                    />
-                    <Input
-                      label="Provinsi"
-                      disabled={!isEditing}
-                      error={errors.province?.message}
-                      {...register("province")}
-                    />
-                    <Input
-                      label="Kode Pos"
-                      disabled={!isEditing}
-                      error={errors.postal_code?.message}
-                      {...register("postal_code")}
-                    />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Input
-                      label="Website"
-                      placeholder="https://example.com"
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Deskripsi Bisnis
+                    </label>
+                    <textarea
+                      {...register("description")}
                       disabled={!isEditing}
-                      error={errors.website?.message}
-                      {...register("website", {
-                        pattern: {
-                          value: /^https?:\/\/.+/,
-                          message: "Format website tidak valid",
-                        },
-                      })}
-                    />
-                    <Input
-                      label="Instagram"
-                      placeholder="@username"
-                      disabled={!isEditing}
-                      error={errors.instagram?.message}
-                      {...register("instagram")}
-                    />
-                    <Input
-                      label="WhatsApp"
-                      placeholder="08xxxxxxxxxx"
-                      disabled={!isEditing}
-                      error={errors.whatsapp?.message}
-                      {...register("whatsapp", {
-                        pattern: {
-                          value: /^08\d{8,11}$/,
-                          message: "Format nomor WhatsApp tidak valid",
-                        },
-                      })}
+                      rows={4}
+                      placeholder="Ceritakan tentang bisnis Anda..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
-
-                  {isEditing && (
-                    <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleCancel}
-                        disabled={isSubmitting}
-                      >
-                        Batal
-                      </Button>
-                      <Button
-                        type="submit"
-                        isLoading={isSubmitting}
-                        disabled={isSubmitting}
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        Simpan Perubahan
-                      </Button>
-                    </div>
-                  )}
                 </form>
               </CardBody>
             </Card>
@@ -272,95 +460,111 @@ function ProfilePage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Business Status */}
-            <Card>
-              <CardHeader>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Status Bisnis
-                </h2>
-              </CardHeader>
-              <CardBody className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Status</span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      profile?.is_active
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {profile?.is_active ? "Aktif" : "Nonaktif"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Verifikasi</span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      profile?.is_verified
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {profile?.is_verified
-                      ? "Terverifikasi"
-                      : "Belum Verifikasi"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Plan</span>
-                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {profile?.subscription_plan || "Free"}
-                  </span>
-                </div>
-              </CardBody>
-            </Card>
-
             {/* Business Stats */}
-            <Card>
+            <Card hover>
               <CardHeader>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Statistik Bisnis
                 </h2>
+                <p className="text-sm text-gray-600">
+                  Ringkasan aktivitas bisnis Anda
+                </p>
               </CardHeader>
               <CardBody className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Jasa</span>
-                  <span className="font-semibold">8</span>
+                  <span className="text-gray-600">Total Pesanan</span>
+                  <span className="font-semibold text-primary-600">24</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Pesanan</span>
-                  <span className="font-semibold">24</span>
+                  <span className="text-gray-600">Pesanan Selesai</span>
+                  <span className="font-semibold text-success-600">18</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Layanan Aktif</span>
+                  <span className="font-semibold text-warning-600">8</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Rating Rata-rata</span>
-                  <span className="font-semibold">4.8</span>
+                  <span className="font-semibold text-info-600">4.8</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Review</span>
-                  <span className="font-semibold">156</span>
+                  <span className="text-gray-600">Portfolio</span>
+                  <span className="font-semibold text-purple-600">12</span>
                 </div>
               </CardBody>
             </Card>
 
-            {/* Quick Actions */}
-            <Card>
+            {/* Business Preferences */}
+            <Card hover>
               <CardHeader>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Aksi Cepat
+                  Preferensi Bisnis
                 </h2>
+                <p className="text-sm text-gray-600">
+                  Pengaturan notifikasi dan bisnis
+                </p>
+              </CardHeader>
+              <CardBody className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Notifikasi Pesanan</span>
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Notifikasi Review</span>
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Newsletter Bisnis</span>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Tampilkan di Pencarian</span>
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* Business Tools */}
+            <Card hover>
+              <CardHeader>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Tools Bisnis
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Kelola bisnis dan layanan Anda
+                </p>
               </CardHeader>
               <CardBody className="space-y-3">
                 <Button variant="outline" className="w-full justify-start">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Portfolio
+                  <Building2 className="w-4 h-4 mr-2" />
+                  Kelola Layanan
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <Globe className="w-4 h-4 mr-2" />
-                  Preview Profil
+                  Kelola Portfolio
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  Chat Support
+                  Kelola Pesanan
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Instagram className="w-4 h-4 mr-2" />
+                  Verifikasi Akun
                 </Button>
               </CardBody>
             </Card>

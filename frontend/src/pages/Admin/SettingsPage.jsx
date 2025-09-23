@@ -9,6 +9,7 @@ import {
 } from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
+import BottomNavigation from "../../components/Layout/BottomNavigation";
 import { adminAPI } from "../../services/api";
 import {
   confirmResetSettings,
@@ -1569,6 +1570,9 @@ function AdminSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

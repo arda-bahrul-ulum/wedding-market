@@ -26,6 +26,7 @@ const config = {
       ME: "/auth/me",
       REFRESH: "/auth/refresh",
       CHECK_ROLE: "/auth/check-role",
+      SUPERADMIN_LOGIN: "/auth/superadmin/login",
     },
     MARKETPLACE: {
       CATEGORIES: "/categories",

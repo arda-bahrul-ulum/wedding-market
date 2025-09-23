@@ -1,8 +1,6 @@
 package seeders
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"time"
 
 	"goravel/app/models"
@@ -26,10 +24,8 @@ func (s *SuperUserSeeder) Run() error {
 		return nil // Super user already exists
 	}
 
-	// Generate random password
-	passwordBytes := make([]byte, 16)
-	rand.Read(passwordBytes)
-	password := hex.EncodeToString(passwordBytes)
+	// Use a default password for testing (should be changed in production)
+	password := "SuperAdmin123!"
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -40,7 +36,7 @@ func (s *SuperUserSeeder) Run() error {
 	now := time.Now()
 	superUser := models.User{
 		Name:             "Super Admin",
-		Email:            "admin@weddingcommerce.com",
+		Email:            "superadmin@mail.com",
 		Password:         string(hashedPassword),
 		Role:             "super_user",
 		IsActive:         true,
@@ -52,7 +48,7 @@ func (s *SuperUserSeeder) Run() error {
 	}
 
 	// Log the password for initial setup
-	facades.Log().Info("Super User created with email: admin@weddingcommerce.com")
+	facades.Log().Info("Super User created with email: superadmin@mail.com")
 	facades.Log().Info("Initial password: " + password)
 	facades.Log().Info("Please change the password after first login!")
 

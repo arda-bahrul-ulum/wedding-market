@@ -104,7 +104,6 @@ function LoginPage() {
         const detectedRole = response.data.data.role;
         setUserRole(detectedRole);
         setEmailEntered(true);
-        console.log("User role found:", detectedRole);
 
         // Show immediate feedback if role doesn't match selected tab
         if (detectedRole !== loginType) {
@@ -164,7 +163,6 @@ function LoginPage() {
         return;
       }
 
-      console.log("Attempting login with role:", loginType);
       const result = await login(loginData);
       if (result.success) {
         navigate(from, { replace: true });

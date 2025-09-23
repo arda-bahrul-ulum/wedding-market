@@ -90,6 +90,8 @@ export const authAPI = {
   getMe: () => api.get(config.ENDPOINTS.AUTH.ME),
   refreshToken: () => api.post(config.ENDPOINTS.AUTH.REFRESH),
   checkRole: (email) => api.post(config.ENDPOINTS.AUTH.CHECK_ROLE, { email }),
+  superAdminLogin: (credentials) =>
+    api.post(config.ENDPOINTS.AUTH.SUPERADMIN_LOGIN, credentials),
 };
 
 export const marketplaceAPI = {

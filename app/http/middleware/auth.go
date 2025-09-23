@@ -105,3 +105,41 @@ func Role(roles ...string) http.Middleware {
 		ctx.Request().Next()
 	}
 }
+
+// SuperAdmin middleware specifically for superadmin access
+func SuperAdmin() http.Middleware {
+	return func(ctx http.Context) {
+		// Check if user exists in context (auth middleware should have set it)
+		userInterface := ctx.Value("user")
+		if userInterface == nil {
+			ctx.Response().Status(401).Json(http.Json{
+				"success": false,
+				"message": "User tidak terautentikasi",
+			})
+			return
+		}
+
+		user := userInterface.(models.User)
+
+		// Check if user is superadmin
+		if user.Role != "super_user" {
+			facades.Log().Info("Superadmin access denied for user: " + user.Email + " with role: " + user.Role)
+			ctx.Response().Status(403).Json(http.Json{
+				"success": false,
+				"message": "Akses ditolak. Hanya superadmin yang dapat mengakses halaman ini",
+			})
+			return
+		}
+
+		// Check if user is active
+		if !user.IsActive {
+			ctx.Response().Status(403).Json(http.Json{
+				"success": false,
+				"message": "Akun tidak aktif",
+			})
+			return
+		}
+
+		ctx.Request().Next()
+	}
+}

@@ -6,21 +6,16 @@ import {
   Search,
   ShoppingCart,
   User,
-  Menu,
-  X,
   Heart,
   Bell,
   Settings,
   LogOut,
-  ChevronDown,
 } from "lucide-react";
 
 function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { itemCount, toggleCart } = useCart();
@@ -67,13 +62,7 @@ function Header() {
     navigate("/");
   };
 
-  const handleSearchFocus = () => {
-    setIsSearchFocused(true);
-  };
-
-  const handleSearchBlur = () => {
-    setIsSearchFocused(false);
-  };
+  // Removed unused search focus handlers
 
   const openSearchModal = () => {
     setIsSearchModalOpen(true);
@@ -232,11 +221,6 @@ function Header() {
                       {user?.role}
                     </p>
                   </div>
-                  <ChevronDown
-                    className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
-                      isProfileOpen ? "rotate-180" : ""
-                    }`}
-                  />
                 </button>
 
                 {/* Profile Dropdown */}
@@ -350,42 +334,10 @@ function Header() {
                 </Link>
               </div>
             )}
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-3 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-all duration-300"
-            >
-              {isMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md">
-            <nav className="flex flex-col space-y-3 px-6">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`px-5 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
-                    location.pathname === item.href
-                      ? "text-primary-600 bg-primary-50 shadow-sm"
-                      : "text-gray-700 hover:text-primary-600 hover:bg-gray-50"
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
+        {/* Mobile Menu removed - using BottomNavigation instead */}
       </div>
 
       {/* Search Modal */}

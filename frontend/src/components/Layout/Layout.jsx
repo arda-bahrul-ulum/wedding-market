@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
+import BottomNavigation from "./BottomNavigation";
 import CartSidebar from "../Cart/CartSidebar";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -25,11 +26,14 @@ function Layout() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header />
 
-      <main className="flex-1">
+      <main className="flex-1 pb-20 lg:pb-0">
         <Outlet />
       </main>
 
       <Footer />
+
+      {/* Bottom Navigation for Mobile */}
+      <BottomNavigation />
 
       {/* Cart Sidebar */}
       <CartSidebar isOpen={isOpen} onClose={() => setCartOpen(false)} />

@@ -15,11 +15,14 @@ import {
 } from "lucide-react";
 import { useQuery } from "react-query";
 import { marketplaceAPI } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 import Button from "../components/UI/Button";
 import Card, { CardBody } from "../components/UI/Card";
 
 function HomePage() {
+  const { user, isAuthenticated } = useAuth();
+
   const { data: categoriesData, isLoading: categoriesLoading } = useQuery(
     "categories",
     marketplaceAPI.getCategories
@@ -100,22 +103,32 @@ function HomePage() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/marketplace">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    <Search className="w-5 h-5 mr-2" />
-                    Booking Vendor
-                  </Button>
-                </Link>
-                <Link to="/register?tab=vendor">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto"
-                  >
-                    Daftar sebagai Vendor
-                  </Button>
-                </Link>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link to="/marketplace">
+                    <Button size="lg" className="w-full sm:w-auto">
+                      <Search className="w-5 h-5 mr-2" />
+                      Booking Vendor
+                    </Button>
+                  </Link>
+                  {/* Only show "Daftar sebagai Vendor" button if user is not logged in or not a customer */}
+                  {(!isAuthenticated || user?.role !== "customer") && (
+                    <Link to="/register?tab=vendor">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full sm:w-auto"
+                      >
+                        Daftar sebagai Vendor
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500 max-w-md">
+                  {isAuthenticated && user?.role === "customer"
+                    ? "Mulai jelajahi vendor terbaik untuk pernikahan impian Anda"
+                    : "Temukan vendor terpercaya atau bergabunglah sebagai vendor"}
+                </p>
               </div>
 
               <div className="flex items-center space-x-8 text-sm text-gray-600">
@@ -359,25 +372,35 @@ function HomePage() {
             <p className="text-xl text-primary-100 mb-8">
               Bergabunglah dengan ribuan pasangan yang telah mempercayai kami
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register?tab=customer">
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="w-full sm:w-auto"
-                >
-                  Daftar Sekarang
-                </Button>
-              </Link>
-              <Link to="/marketplace">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto border-white text-white"
-                >
-                  Booking Vendor
-                </Button>
-              </Link>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {/* Only show "Daftar Sekarang" button if user is not logged in */}
+                {!isAuthenticated && (
+                  <Link to="/register?tab=customer">
+                    <Button
+                      size="lg"
+                      variant="secondary"
+                      className="w-full sm:w-auto"
+                    >
+                      Daftar Sekarang
+                    </Button>
+                  </Link>
+                )}
+                <Link to="/marketplace">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-auto border-white text-white"
+                  >
+                    Booking Vendor
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-sm text-primary-100 text-center max-w-md mx-auto">
+                {isAuthenticated
+                  ? "Jelajahi ribuan vendor terpercaya untuk pernikahan Anda"
+                  : "Bergabunglah dengan ribuan pasangan yang telah mempercayai kami"}
+              </p>
             </div>
           </div>
         </div>

@@ -9,11 +9,13 @@ import Layout from "./components/Layout/Layout";
 import AdminLayout from "./components/Layout/AdminLayout";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import RoleRoute from "./components/Auth/RoleRoute";
+import SuperAdminRoute from "./components/Auth/SuperAdminRoute";
 
 // Public Pages
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
+import SuperAdminLoginPage from "./pages/Auth/SuperAdminLoginPage";
 import MarketplacePage from "./pages/Marketplace/MarketplacePage";
 import VendorDetailPage from "./pages/Marketplace/VendorDetailPage";
 import ServiceDetailPage from "./pages/Marketplace/ServiceDetailPage";
@@ -26,11 +28,11 @@ import ContactPage from "./pages/ContactPage";
 import CustomerDashboard from "./pages/Customer/DashboardPage";
 import CustomerOrders from "./pages/Customer/OrdersPage";
 import CustomerWishlist from "./pages/Customer/WishlistPage";
-import CustomerProfilePage from "./pages/Customer/CustomerProfilePage";
+import ProfilePage from "./pages/Customer/ProfilePage";
 
 // Vendor Pages
 import VendorDashboard from "./pages/Vendor/DashboardPage";
-import VendorProfilePage from "./pages/Vendor/VendorProfilePage";
+import VendorProfilePage from "./pages/Vendor/ProfilePage";
 import VendorServices from "./pages/Vendor/ServicesPage";
 import VendorPackages from "./pages/Vendor/PackagesPage";
 import VendorOrders from "./pages/Vendor/OrdersPage";
@@ -75,6 +77,7 @@ function AppContent() {
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
+        <Route path="superadmin/login" element={<SuperAdminLoginPage />} />
         <Route path="marketplace" element={<MarketplacePage />} />
         <Route path="vendor/:id" element={<VendorDetailPage />} />
         <Route path="service/:id" element={<ServiceDetailPage />} />
@@ -83,7 +86,7 @@ function AppContent() {
         <Route path="about" element={<AboutPage />} />
         <Route path="contact" element={<ContactPage />} />
 
-        {/* Customer Routes */}
+        {/* Customer Dashboard without sidebar */}
         <Route
           path="customer"
           element={
@@ -94,6 +97,8 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
+        {/* Customer Pages without sidebar */}
         <Route
           path="customer/orders"
           element={
@@ -104,6 +109,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="customer/wishlist"
           element={
@@ -114,18 +120,19 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="customer/profile"
           element={
             <ProtectedRoute>
               <RoleRoute allowedRoles={["customer"]}>
-                <CustomerProfilePage />
+                <ProfilePage />
               </RoleRoute>
             </ProtectedRoute>
           }
         />
 
-        {/* Vendor Routes */}
+        {/* Vendor Dashboard without sidebar */}
         <Route
           path="vendor"
           element={
@@ -136,6 +143,8 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
+        {/* Vendor Pages without sidebar */}
         <Route
           path="vendor/profile"
           element={
@@ -146,6 +155,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="vendor/services"
           element={
@@ -156,6 +166,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="vendor/packages"
           element={
@@ -166,6 +177,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="vendor/orders"
           element={
@@ -176,6 +188,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="vendor/portfolio"
           element={
@@ -186,6 +199,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="vendor/availability"
           element={
@@ -196,6 +210,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="vendor/collaboration"
           element={
@@ -216,62 +231,19 @@ function AppContent() {
         path="admin"
         element={
           <ProtectedRoute>
-            <RoleRoute allowedRoles={["super_user"]}>
-              <AdminLayout>
-                <AdminDashboard />
-              </AdminLayout>
-            </RoleRoute>
+            <SuperAdminRoute>
+              <AdminLayout />
+            </SuperAdminRoute>
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="admin/users"
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["super_user"]}>
-              <AdminLayout>
-                <AdminUsers />
-              </AdminLayout>
-            </RoleRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="admin/vendors"
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["super_user"]}>
-              <AdminLayout>
-                <AdminVendors />
-              </AdminLayout>
-            </RoleRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="admin/orders"
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["super_user"]}>
-              <AdminLayout>
-                <AdminOrders />
-              </AdminLayout>
-            </RoleRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="admin/settings"
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["super_user"]}>
-              <AdminLayout>
-                <AdminSettings />
-              </AdminLayout>
-            </RoleRoute>
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="vendors" element={<AdminVendors />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="settings" element={<AdminSettings />} />
+      </Route>
     </Routes>
   );
 }

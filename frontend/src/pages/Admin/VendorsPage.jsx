@@ -10,6 +10,7 @@ import {
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import Select from "../../components/UI/Select";
+import BottomNavigation from "../../components/Layout/BottomNavigation";
 import { adminAPI } from "../../services/api";
 import {
   confirmDelete,
@@ -992,6 +993,9 @@ function AdminVendorsPage() {
           </div>
         </div>
       )}
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

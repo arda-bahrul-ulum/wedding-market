@@ -495,3 +495,113 @@ func (c *AuthController) RefreshToken(ctx http.Context) http.Response {
 		},
 	})
 }
+
+// SuperAdminLogin handles superadmin login
+func (c *AuthController) SuperAdminLogin(ctx http.Context) http.Response {
+	var request struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := ctx.Request().Bind(&request); err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Invalid request data",
+			"errors":  err.Error(),
+		})
+	}
+
+	// Validate required fields
+	if strings.TrimSpace(request.Email) == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Email wajib diisi",
+		})
+	}
+
+	if strings.TrimSpace(request.Password) == "" {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Password wajib diisi",
+		})
+	}
+
+	if !c.validateEmail(request.Email) {
+		return ctx.Response().Status(400).Json(http.Json{
+			"success": false,
+			"message": "Format email tidak valid",
+		})
+	}
+
+	// Find user
+	var user models.User
+	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
+	
+	err := facades.Orm().Query().Where("email", emailToCheck).First(&user)
+	if err != nil || user.ID == 0 {
+		facades.Log().Info("Superadmin login attempt - User not found for email: " + emailToCheck)
+		return ctx.Response().Status(401).Json(http.Json{
+			"success": false,
+			"message": "Email atau password salah",
+		})
+	}
+
+	// Check if user is superadmin
+	if user.Role != "super_user" {
+		facades.Log().Info("Superadmin login attempt - User is not superadmin. Role: " + user.Role)
+		return ctx.Response().Status(403).Json(http.Json{
+			"success": false,
+			"message": "Akses ditolak. Hanya superadmin yang dapat mengakses halaman ini",
+		})
+	}
+
+	// Check password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+		facades.Log().Info("Superadmin login attempt - Invalid password for email: " + emailToCheck)
+		return ctx.Response().Status(401).Json(http.Json{
+			"success": false,
+			"message": "Email atau password salah",
+		})
+	}
+
+	// Check if user is active
+	if !user.IsActive {
+		return ctx.Response().Status(401).Json(http.Json{
+			"success": false,
+			"message": "Akun tidak aktif",
+		})
+	}
+
+	// Update last login
+	now := time.Now()
+	user.LastLoginAt = &now
+	if err := facades.Orm().Query().Save(&user); err != nil {
+		facades.Log().Error("Failed to update last login: " + err.Error())
+	}
+
+	// Generate JWT token
+	token, err := facades.Auth(ctx).LoginUsingID(user.ID)
+	if err != nil {
+		facades.Log().Error("Failed to generate token: " + err.Error())
+		return ctx.Response().Status(500).Json(http.Json{
+			"success": false,
+			"message": "Gagal membuat token",
+		})
+	}
+
+	facades.Log().Info("Superadmin login successful for email: " + emailToCheck)
+
+	return ctx.Response().Status(200).Json(http.Json{
+		"success": true,
+		"message": "Login superadmin berhasil",
+		"data": http.Json{
+			"token": token,
+			"user": http.Json{
+				"id":    user.ID,
+				"name":  user.Name,
+				"email": user.Email,
+				"role":  user.Role,
+			},
+		},
+	})
+}

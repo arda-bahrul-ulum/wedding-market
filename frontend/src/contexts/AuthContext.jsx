@@ -72,7 +72,16 @@ export function AuthProvider({ children }) {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const response = await authAPI.getMe();
+          // Add timeout to prevent infinite loading
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), 5000)
+          );
+
+          const response = await Promise.race([
+            authAPI.getMe(),
+            timeoutPromise,
+          ]);
+
           if (response.data.success) {
             dispatch({
               type: "AUTH_SUCCESS",
@@ -87,7 +96,27 @@ export function AuthProvider({ children }) {
           }
         } catch (error) {
           console.error("Auth check failed:", error);
+          // If it's a timeout or network error, try to use cached user data
+          if (error.message === "Timeout" || error.code === "NETWORK_ERROR") {
+            const cachedUser = localStorage.getItem("user");
+            if (cachedUser) {
+              try {
+                const userData = JSON.parse(cachedUser);
+                dispatch({
+                  type: "AUTH_SUCCESS",
+                  payload: {
+                    user: userData,
+                    token: token,
+                  },
+                });
+                return;
+              } catch (parseError) {
+                console.error("Failed to parse cached user:", parseError);
+              }
+            }
+          }
           localStorage.removeItem("token");
+          localStorage.removeItem("user");
           dispatch({ type: "LOGOUT" });
         }
       } else {
@@ -105,6 +134,41 @@ export function AuthProvider({ children }) {
       if (response.data.success) {
         const { token, user } = response.data.data;
         localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        dispatch({
+          type: "AUTH_SUCCESS",
+          payload: { user, token },
+        });
+        toast.success("Login berhasil!");
+        return { success: true };
+      } else {
+        dispatch({
+          type: "AUTH_FAILURE",
+          payload: response.data.message,
+        });
+        toast.error(response.data.message);
+        return { success: false, message: response.data.message };
+      }
+    } catch (error) {
+      const message =
+        error.response?.data?.message || "Terjadi kesalahan saat login";
+      dispatch({
+        type: "AUTH_FAILURE",
+        payload: message,
+      });
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
+  const superAdminLogin = async (credentials) => {
+    dispatch({ type: "AUTH_START" });
+    try {
+      const response = await authAPI.superAdminLogin(credentials);
+      if (response.data.success) {
+        const { token, user } = response.data.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
         dispatch({
           type: "AUTH_SUCCESS",
           payload: { user, token },
@@ -168,6 +232,7 @@ export function AuthProvider({ children }) {
       console.error("Logout error:", error);
     } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       dispatch({ type: "LOGOUT" });
       toast.success("Logout berhasil!");
     }
@@ -197,6 +262,7 @@ export function AuthProvider({ children }) {
   const value = {
     ...state,
     login,
+    superAdminLogin,
     register,
     logout,
     updateUser,

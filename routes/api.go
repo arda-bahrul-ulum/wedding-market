@@ -26,6 +26,7 @@ func Api() {
 	api.Post("/auth/login", authController.Login)
 	api.Post("/auth/check-role", authController.CheckUserRole)
 	api.Post("/auth/refresh", authController.RefreshToken)
+	api.Post("/auth/superadmin/login", authController.SuperAdminLogin)
 
 	// Marketplace routes (public)
 	api.Get("/categories", marketplaceController.GetCategories)
