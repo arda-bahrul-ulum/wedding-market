@@ -190,7 +190,7 @@ function Header() {
               >
                 <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
+                  <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
                     {itemCount}
                   </span>
                 )}
@@ -212,7 +212,7 @@ function Header() {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center space-x-3 p-2 text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-all duration-300 group"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
                     <User className="w-5 h-5 text-white" />
                   </div>
                   <div className="hidden sm:block text-left">
@@ -228,7 +228,7 @@ function Header() {
                   <div className="absolute right-0 mt-4 w-72 bg-white/95 backdrop-blur-md rounded-2xl shadow-large border border-gray-200/50 py-3 z-50 animate-slideDown">
                     <div className="px-6 py-5 border-b border-gray-100">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg">
                           <User className="w-6 h-6 text-white" />
                         </div>
                         <div>

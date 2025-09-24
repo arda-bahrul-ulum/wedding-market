@@ -88,7 +88,7 @@ function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-50 via-white to-accent-50 hero-pattern">
+      <section className="relative bg-white hero-pattern">
         <div className="container-custom section-padding">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -220,13 +220,13 @@ function HomePage() {
             {features.map((feature, index) => (
               <div key={index} className="text-center group stagger-animation">
                 <Card
-                  variant="gradient"
+                  variant="elevated"
                   hover
                   className="card-hover-effect group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-300"
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
                   <CardBody className="p-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-accent-500 rounded-3xl flex items-center justify-center mx-auto mb-6 icon-bounce group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                    <div className="w-20 h-20 bg-primary-500 rounded-3xl flex items-center justify-center mx-auto mb-6 icon-bounce group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
                       <feature.icon className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
@@ -244,7 +244,7 @@ function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="section-padding bg-gradient-to-br from-gray-50 to-gray-100">
+      <section className="section-padding bg-gray-50">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
@@ -363,7 +363,7 @@ function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="section-padding bg-gradient-to-r from-primary-600 to-accent-600">
+      <section className="section-padding bg-primary-600">
         <div className="container-custom text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">

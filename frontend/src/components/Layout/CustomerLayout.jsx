@@ -46,7 +46,7 @@ function CustomerLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Mobile menu button removed - using BottomNavigation instead */}
 
       {/* Mobile Menu removed - using BottomNavigation instead */}

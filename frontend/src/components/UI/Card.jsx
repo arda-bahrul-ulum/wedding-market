@@ -18,8 +18,7 @@ const Card = forwardRef(
       elevated: "bg-white rounded-2xl shadow-xl border border-gray-100/50",
       glass:
         "bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20",
-      gradient:
-        "bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-gray-100/50",
+      gradient: "bg-gray-50 rounded-2xl shadow-lg border border-gray-100/50",
     };
 
     return (
@@ -49,7 +48,7 @@ const CardHeader = forwardRef(
         ref={ref}
         className={clsx(
           "px-6 py-5 border-b border-gray-100/50",
-          gradient && "bg-gradient-to-r from-primary-50 to-accent-50",
+          gradient && "bg-primary-50",
           className
         )}
         {...props}
@@ -93,7 +92,7 @@ const CardFooter = forwardRef(
         ref={ref}
         className={clsx(
           "px-8 py-6 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl",
-          gradient && "bg-gradient-to-r from-gray-50 to-gray-100",
+          gradient && "bg-gray-100",
           className
         )}
         {...props}

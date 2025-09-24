@@ -1,8 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
 @layer base {
   html {
@@ -11,7 +11,7 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900 antialiased;
+    @apply bg-gray-50 text-gray-900 antialiased;
     font-feature-settings: "cv11", "ss01";
     font-variation-settings: "opsz" 32;
   }
@@ -52,7 +52,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 focus:ring-primary-500 shadow-lg hover:shadow-xl;
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-lg hover:shadow-xl;
   }
 
   .btn-secondary {
@@ -64,15 +64,15 @@
   }
 
   .btn-danger {
-    @apply btn bg-gradient-to-r from-danger-500 to-danger-600 text-white hover:from-danger-600 hover:to-danger-700 focus:ring-danger-500 shadow-lg hover:shadow-xl;
+    @apply btn bg-danger-500 text-white hover:bg-danger-600 focus:ring-danger-500 shadow-lg hover:shadow-xl;
   }
 
   .btn-success {
-    @apply btn bg-gradient-to-r from-success-500 to-success-600 text-white hover:from-success-600 hover:to-success-700 focus:ring-success-500 shadow-lg hover:shadow-xl;
+    @apply btn bg-success-500 text-white hover:bg-success-600 focus:ring-success-500 shadow-lg hover:shadow-xl;
   }
 
   .btn-warning {
-    @apply btn bg-gradient-to-r from-warning-500 to-warning-600 text-white hover:from-warning-600 hover:to-warning-700 focus:ring-warning-500 shadow-lg hover:shadow-xl;
+    @apply btn bg-warning-500 text-white hover:bg-warning-600 focus:ring-warning-500 shadow-lg hover:shadow-xl;
   }
 
   .btn-sm {
@@ -182,11 +182,11 @@
 
   /* Text Styles */
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-600 via-accent-600 to-primary-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient;
+    @apply text-primary-600;
   }
 
   .text-gradient-secondary {
-    @apply bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent;
+    @apply text-gray-700;
   }
 
   .heading-xl {

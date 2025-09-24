@@ -23,22 +23,18 @@ const Button = forwardRef(
       "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95";
 
     const variants = {
-      primary: gradient
-        ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 focus:ring-primary-500 shadow-lg hover:shadow-xl"
-        : "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-lg hover:shadow-xl",
+      primary:
+        "bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-lg hover:shadow-xl",
       secondary:
         "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-500 shadow-sm hover:shadow-md",
       outline:
         "border-2 border-primary-500 bg-transparent text-primary-600 hover:bg-primary-500 hover:text-white focus:ring-primary-500",
-      danger: gradient
-        ? "bg-gradient-to-r from-danger-500 to-danger-600 text-white hover:from-danger-600 hover:to-danger-700 focus:ring-danger-500 shadow-lg hover:shadow-xl"
-        : "bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500 shadow-lg hover:shadow-xl",
-      success: gradient
-        ? "bg-gradient-to-r from-success-500 to-success-600 text-white hover:from-success-600 hover:to-success-700 focus:ring-success-500 shadow-lg hover:shadow-xl"
-        : "bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 shadow-lg hover:shadow-xl",
-      warning: gradient
-        ? "bg-gradient-to-r from-warning-500 to-warning-600 text-white hover:from-warning-600 hover:to-warning-700 focus:ring-warning-500 shadow-lg hover:shadow-xl"
-        : "bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500 shadow-lg hover:shadow-xl",
+      danger:
+        "bg-danger-500 text-white hover:bg-danger-600 focus:ring-danger-500 shadow-lg hover:shadow-xl",
+      success:
+        "bg-success-500 text-white hover:bg-success-600 focus:ring-success-500 shadow-lg hover:shadow-xl",
+      warning:
+        "bg-warning-500 text-white hover:bg-warning-600 focus:ring-warning-500 shadow-lg hover:shadow-xl",
       ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
       link: "text-primary-600 hover:text-primary-700 underline-offset-4 hover:underline focus:ring-primary-500",
     };

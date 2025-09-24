@@ -64,7 +64,7 @@ function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar removed - using BottomNavigation instead */}
 
       {/* Desktop sidebar - Fixed */}
@@ -127,7 +127,7 @@ function AdminLayout() {
         {/* Mobile Menu removed - using BottomNavigation instead */}
 
         {/* Page content */}
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <main className="min-h-screen bg-gray-50">
           <Outlet />
         </main>
       </div>

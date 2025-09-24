@@ -85,7 +85,7 @@ function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="container-custom py-8">
         {/* Header */}
         <div className="mb-8">
@@ -100,7 +100,7 @@ function DashboardPage() {
           <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                   <Package className="w-7 h-7 text-white" />
                 </div>
                 <div>
@@ -120,7 +120,7 @@ function DashboardPage() {
           <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-14 h-14 bg-gradient-to-br from-success-500 to-success-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-14 h-14 bg-success-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                   <CheckCircle className="w-7 h-7 text-white" />
                 </div>
                 <div>
@@ -140,7 +140,7 @@ function DashboardPage() {
           <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-14 h-14 bg-gradient-to-br from-warning-500 to-warning-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-14 h-14 bg-warning-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                   <Clock className="w-7 h-7 text-white" />
                 </div>
                 <div>
@@ -160,7 +160,7 @@ function DashboardPage() {
           <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
-                <div className="w-14 h-14 bg-gradient-to-br from-danger-500 to-danger-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-14 h-14 bg-danger-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                   <Heart className="w-7 h-7 text-white" />
                 </div>
                 <div>
@@ -203,7 +203,7 @@ function DashboardPage() {
                   </div>
                 ) : orders.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 bg-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <Package className="w-10 h-10 text-gray-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -226,7 +226,7 @@ function DashboardPage() {
                       >
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center">
+                            <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
                               {getStatusIcon(order.status)}
                             </div>
                             <div>
@@ -351,7 +351,7 @@ function DashboardPage() {
               </CardHeader>
               <CardBody>
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-4 p-3 bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl">
+                  <div className="flex items-center space-x-4 p-3 bg-primary-50 rounded-xl">
                     <div className="w-3 h-3 bg-primary-600 rounded-full animate-pulse"></div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900">
@@ -361,7 +361,7 @@ function DashboardPage() {
                     </div>
                     <Calendar className="w-4 h-4 text-primary-600" />
                   </div>
-                  <div className="flex items-center space-x-4 p-3 bg-gradient-to-r from-accent-50 to-accent-100 rounded-xl">
+                  <div className="flex items-center space-x-4 p-3 bg-accent-50 rounded-xl">
                     <div className="w-3 h-3 bg-accent-600 rounded-full animate-pulse"></div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900">
@@ -371,7 +371,7 @@ function DashboardPage() {
                     </div>
                     <Calendar className="w-4 h-4 text-accent-600" />
                   </div>
-                  <div className="flex items-center space-x-4 p-3 bg-gradient-to-r from-success-50 to-success-100 rounded-xl">
+                  <div className="flex items-center space-x-4 p-3 bg-success-50 rounded-xl">
                     <div className="w-3 h-3 bg-success-600 rounded-full animate-pulse"></div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900">
@@ -395,7 +395,7 @@ function DashboardPage() {
               </CardHeader>
               <CardBody>
                 <div className="space-y-4">
-                  <div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl border border-primary-200">
+                  <div className="p-4 bg-primary-50 rounded-xl border border-primary-200">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Lightbulb className="w-4 h-4 text-white" />
@@ -406,7 +406,7 @@ function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-r from-success-50 to-success-100 rounded-xl border border-success-200">
+                  <div className="p-4 bg-success-50 rounded-xl border border-success-200">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-success-500 rounded-lg flex items-center justify-center flex-shrink-0">
                         <CheckCircle className="w-4 h-4 text-white" />
@@ -416,7 +416,7 @@ function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-r from-warning-50 to-warning-100 rounded-xl border border-warning-200">
+                  <div className="p-4 bg-warning-50 rounded-xl border border-warning-200">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-warning-500 rounded-lg flex items-center justify-center flex-shrink-0">
                         <AlertCircle className="w-4 h-4 text-white" />

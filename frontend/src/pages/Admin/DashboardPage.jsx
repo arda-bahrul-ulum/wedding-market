@@ -246,7 +246,7 @@ function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-600 font-medium">Memuat dashboard...</p>
         </div>
@@ -255,7 +255,7 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
       <div className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200/50">
         <div className="px-4 sm:px-6 py-6 sm:py-8">

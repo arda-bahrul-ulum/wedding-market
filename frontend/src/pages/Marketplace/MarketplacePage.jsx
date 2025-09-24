@@ -88,7 +88,7 @@ function MarketplacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 hero-pattern opacity-5"></div>
