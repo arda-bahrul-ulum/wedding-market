@@ -212,6 +212,7 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		customerProfile := models.CustomerProfile{
 			UserID:   user.ID,
 			FullName: user.Name,
+			Phone: &user.Phone,
 			IsActive: true,
 		}
 		if err := facades.Orm().Query().Create(&customerProfile); err != nil {

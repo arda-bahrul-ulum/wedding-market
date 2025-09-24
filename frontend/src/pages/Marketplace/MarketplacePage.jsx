@@ -327,7 +327,10 @@ function MarketplacePage() {
                       <Card className="group hover hover:scale-105 transition-all duration-300 overflow-hidden">
                         <div className="relative">
                           <img
-                            src="/api/placeholder/400/300"
+                            src={
+                              vendor.featured_portfolio?.image_url ||
+                              "https://picsum.photos/400/300"
+                            }
                             alt={vendor.business_name}
                             className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-110"
                           />
@@ -346,7 +349,7 @@ function MarketplacePage() {
                             <div className="flex items-center space-x-1 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
                               <Star className="w-4 h-4 text-yellow-400 fill-current" />
                               <span className="text-sm font-semibold text-gray-700">
-                                {formatRating(vendor.average_rating || 4.8)}
+                                {formatRating(vendor.average_rating || 0)}
                               </span>
                             </div>
                           </div>
@@ -378,7 +381,7 @@ function MarketplacePage() {
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-2xl font-bold text-primary-600">
-                                Mulai dari {formatCurrency(2500000)}
+                                {vendor.services_count || 0} Jasa Tersedia
                               </span>
                             </div>
                             <Button size="sm" className="group/btn">

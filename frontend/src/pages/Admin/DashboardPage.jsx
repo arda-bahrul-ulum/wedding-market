@@ -297,7 +297,7 @@ function AdminDashboard() {
       <div className="px-4 sm:px-6 py-6 sm:py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -319,7 +319,7 @@ function AdminDashboard() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-success-500 to-success-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -341,7 +341,7 @@ function AdminDashboard() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -363,7 +363,7 @@ function AdminDashboard() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-warning-500 to-warning-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -388,7 +388,7 @@ function AdminDashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -410,7 +410,7 @@ function AdminDashboard() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -432,7 +432,7 @@ function AdminDashboard() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -457,7 +457,7 @@ function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Module Control */}
-          <Card hover>
+          <Card>
             <CardHeader>
               <CardTitle>Module Control</CardTitle>
               <CardDescription>Kelola fitur-fitur platform</CardDescription>
@@ -550,7 +550,7 @@ function AdminDashboard() {
           </Card>
 
           {/* Recent Orders */}
-          <Card hover>
+          <Card>
             <CardHeader>
               <CardTitle>Recent Orders</CardTitle>
               <CardDescription>Pesanan terbaru dari customer</CardDescription>
@@ -608,7 +608,7 @@ function AdminDashboard() {
         </div>
 
         {/* Recent Vendors */}
-        <Card hover className="mt-8">
+        <Card className="mt-8">
           <CardHeader>
             <CardTitle>Recent Vendors</CardTitle>
             <CardDescription>Vendor terbaru yang bergabung</CardDescription>

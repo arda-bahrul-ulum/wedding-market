@@ -125,7 +125,7 @@ function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Info */}
           <div className="lg:col-span-1">
-            <Card hover>
+            <Card>
               <CardHeader>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Informasi Profil
@@ -192,7 +192,7 @@ function ProfilePage() {
 
           {/* Edit Form */}
           <div className="lg:col-span-2">
-            <Card hover>
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -358,7 +358,7 @@ function ProfilePage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Account Stats */}
-            <Card hover>
+            <Card>
               <CardHeader>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Statistik Akun
@@ -388,7 +388,7 @@ function ProfilePage() {
             </Card>
 
             {/* Preferences */}
-            <Card hover>
+            <Card>
               <CardHeader>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Preferensi
@@ -423,7 +423,7 @@ function ProfilePage() {
             </Card>
 
             {/* Security */}
-            <Card hover>
+            <Card>
               <CardHeader>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Keamanan

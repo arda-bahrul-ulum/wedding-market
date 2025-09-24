@@ -97,7 +97,7 @@ function DashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -117,7 +117,7 @@ function DashboardPage() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-success-500 to-success-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -137,7 +137,7 @@ function DashboardPage() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-warning-500 to-warning-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -157,7 +157,7 @@ function DashboardPage() {
             </CardBody>
           </Card>
 
-          <Card hover glow>
+          <Card>
             <CardBody className="p-6">
               <div className="flex items-center">
                 <div className="w-14 h-14 bg-gradient-to-br from-danger-500 to-danger-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
@@ -179,7 +179,7 @@ function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Orders */}
           <div className="lg:col-span-2">
-            <Card hover>
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -312,7 +312,7 @@ function DashboardPage() {
           {/* Quick Actions & Info */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card hover>
+            <Card>
               <CardHeader>
                 <CardTitle>Aksi Cepat</CardTitle>
                 <CardDescription>
@@ -344,7 +344,7 @@ function DashboardPage() {
             </Card>
 
             {/* Upcoming Events */}
-            <Card hover>
+            <Card>
               <CardHeader>
                 <CardTitle>Event Mendatang</CardTitle>
                 <CardDescription>Jadwal pernikahan Anda</CardDescription>
@@ -386,7 +386,7 @@ function DashboardPage() {
             </Card>
 
             {/* Tips */}
-            <Card hover>
+            <Card>
               <CardHeader>
                 <CardTitle>Tips & Saran</CardTitle>
                 <CardDescription>

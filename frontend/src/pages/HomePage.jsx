@@ -390,7 +390,7 @@ function HomePage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full sm:w-auto border-white text-white"
+                    className="w-full sm:w-64 border-white text-white"
                   >
                     Booking Vendor
                   </Button>

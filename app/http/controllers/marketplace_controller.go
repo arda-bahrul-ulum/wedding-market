@@ -34,6 +34,12 @@ func (c *MarketplaceController) GetCategories(ctx http.Context) http.Response {
 
 // GetVendors returns paginated list of vendors with filters
 func (c *MarketplaceController) GetVendors(ctx http.Context) http.Response {
+	// Debug: First check if there are any vendors at all
+	totalVendors, _ := facades.Orm().Query().Model(&models.VendorProfile{}).Count()
+	facades.Log().Info("Total vendors in database: " + strconv.FormatInt(totalVendors, 10))
+	
+	activeVendors, _ := facades.Orm().Query().Model(&models.VendorProfile{}).Where("is_active", true).Count()
+	facades.Log().Info("Active vendors: " + strconv.FormatInt(activeVendors, 10))
 	// Get query parameters
 	page, _ := strconv.Atoi(ctx.Request().Query("page", "1"))
 	limit, _ := strconv.Atoi(ctx.Request().Query("limit", "12"))
@@ -46,10 +52,12 @@ func (c *MarketplaceController) GetVendors(ctx http.Context) http.Response {
 	sortBy := ctx.Request().Query("sort_by", "created_at")
 	sortOrder := ctx.Request().Query("sort_order", "desc")
 
-	// Build query
+	// Build query - Show all active vendors regardless of verification status
 	query := facades.Orm().Query().Model(&models.VendorProfile{}).
-		Where("is_active", true).
-		Where("is_verified", true)
+		Where("is_active", true)
+	
+	// Debug: Log the query being built
+	facades.Log().Info("Building query for vendors with is_active=true")
 
 	// Apply filters
 	if categoryID != "" {
@@ -112,25 +120,44 @@ func (c *MarketplaceController) GetVendors(ctx http.Context) http.Response {
 		})
 	}
 
+	// Debug: Log the number of vendors found
+	facades.Log().Info("Found vendors: " + strconv.Itoa(len(vendors)))
+	facades.Log().Info("Total count: " + strconv.FormatInt(total, 10))
+	facades.Log().Info("Query filters: category=" + categoryID + ", city=" + city + ", province=" + province + ", search=" + search)
+
 	// Load related data for each vendor
 	for i := range vendors {
 		// Load user data
 		facades.Orm().Query().Where("id", vendors[i].UserID).First(&vendors[i].User)
 
 		// Load services count
-		_, _ = facades.Orm().Query().Model(&models.Service{}).Where("vendor_id", vendors[i].ID).Where("is_active", true).Count()	
+		servicesCount, _ := facades.Orm().Query().Model(&models.Service{}).Where("vendor_id", vendors[i].ID).Where("is_active", true).Count()
+		vendors[i].ServicesCount = int(servicesCount)
 
 		// Load average rating
 		var avgRating float64
 		facades.Orm().Query().Model(&models.Review{}).Where("vendor_id", vendors[i].ID).Select("AVG(rating)").Scan(&avgRating)
+		vendors[i].AverageRating = avgRating
+
+		// Load total reviews count
+		totalReviews, _ := facades.Orm().Query().Model(&models.Review{}).Where("vendor_id", vendors[i].ID).Count()
+		vendors[i].TotalReviews = int(totalReviews)
 
 		// Load featured portfolio
 		var portfolio models.Portfolio
 		facades.Orm().Query().Where("vendor_id", vendors[i].ID).Where("is_featured", true).First(&portfolio)
+		vendors[i].FeaturedPortfolio = &portfolio
 	}
 
+	// Debug: Return debug info
 	return ctx.Response().Status(200).Json(http.Json{
 		"success": true,
+		"debug": http.Json{
+			"total_vendors": totalVendors,
+			"active_vendors": activeVendors,
+			"query_total": total,
+			"vendors_found": len(vendors),
+		},
 		"data": http.Json{
 			"vendors":     vendors,
 			"pagination": http.Json{

@@ -18,7 +18,7 @@ import {
   Eye,
   Filter,
 } from "lucide-react";
-import { formatCurrency, formatRating } from "../../utils/format";
+import { formatCurrency, formatRating, formatDate } from "../../utils/format";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
 import Card, { CardBody, CardHeader } from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
@@ -229,7 +229,11 @@ function VendorDetailPage() {
                       >
                         <div className="aspect-w-16 aspect-h-9">
                           <img
-                            src="/api/placeholder/300/200"
+                            src={
+                              service.images
+                                ? JSON.parse(service.images)[0]
+                                : "https://picsum.photos/300/200"
+                            }
                             alt={service.name}
                             className="w-full h-40 object-cover rounded-t-lg"
                           />
@@ -291,7 +295,11 @@ function VendorDetailPage() {
                       >
                         <div className="aspect-w-16 aspect-h-9">
                           <img
-                            src="/api/placeholder/400/250"
+                            src={
+                              pkg.images
+                                ? JSON.parse(pkg.images)[0]
+                                : "https://picsum.photos/400/250"
+                            }
                             alt={pkg.name}
                             className="w-full h-48 object-cover rounded-t-lg"
                           />
@@ -349,7 +357,9 @@ function VendorDetailPage() {
                       <div key={item.id} className="group cursor-pointer">
                         <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
                           <img
-                            src="/api/placeholder/300/300"
+                            src={
+                              item.image_url || "https://picsum.photos/300/300"
+                            }
                             alt={item.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
