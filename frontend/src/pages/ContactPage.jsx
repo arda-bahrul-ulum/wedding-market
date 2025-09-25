@@ -96,7 +96,7 @@ function ContactPage() {
       <section className="bg-gradient-to-br from-primary-50 via-white to-accent-50">
         <div className="container-custom section-padding">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6">
               Hubungi <span className="text-gradient">Kami</span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed mb-8">
@@ -303,30 +303,6 @@ function ContactPage() {
           </div>
         </div>
       </div>
-
-      {/* Map Section */}
-      <section className="bg-gray-50 py-12">
-        <div className="container-custom">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Lokasi Kantor Kami
-            </h2>
-            <p className="text-gray-600">
-              Kunjungi kantor kami di Jakarta Selatan
-            </p>
-          </div>
-
-          <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-600">Peta akan ditampilkan di sini</p>
-              <p className="text-sm text-gray-500">
-                Jl. Sudirman No. 123, Jakarta Selatan
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

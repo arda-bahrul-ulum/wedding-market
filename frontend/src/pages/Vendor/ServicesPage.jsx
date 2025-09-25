@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
 import { vendorAPI, marketplaceAPI } from "../../services/api";
 import {
   Plus,
@@ -33,8 +34,12 @@ function ServicesPage() {
     () => vendorAPI.getServices(filters)
   );
 
-  const categories = categoriesData?.data || [];
-  const services = servicesData?.data?.services || [];
+  const categories = Array.isArray(categoriesData?.data)
+    ? categoriesData.data
+    : [];
+  const services = Array.isArray(servicesData?.data?.services)
+    ? servicesData.data.services
+    : [];
   const pagination = servicesData?.data?.pagination || {};
 
   const handleSearch = (e) => {
@@ -67,10 +72,12 @@ function ServicesPage() {
                 Kelola semua jasa yang Anda tawarkan
               </p>
             </div>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Tambah Jasa Baru
-            </Button>
+            <Link to="/vendor/services/create">
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Jasa Baru
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -134,7 +141,9 @@ function ServicesPage() {
               <p className="text-gray-600 mb-4">
                 Mulai tambahkan jasa pertama Anda
               </p>
-              <Button>Tambah Jasa Baru</Button>
+              <Link to="/vendor/services/create">
+                <Button>Tambah Jasa Baru</Button>
+              </Link>
             </CardBody>
           </Card>
         ) : (

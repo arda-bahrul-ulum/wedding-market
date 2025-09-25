@@ -153,14 +153,6 @@ export const adminAPI = {
     api.put(`${config.ENDPOINTS.ADMIN.ORDERS}/${id}/status`, statusData),
   processRefund: (id, refundData) =>
     api.post(`${config.ENDPOINTS.ADMIN.ORDERS}/${id}/refund`, refundData),
-  getModuleSettings: () => api.get(config.ENDPOINTS.ADMIN.MODULE_SETTINGS),
-  updateModuleSetting: (module, settingData) =>
-    api.put(`${config.ENDPOINTS.ADMIN.MODULE_SETTINGS}/${module}`, settingData),
-  getSystemSettings: () => api.get(config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS),
-  updateSystemSetting: (key, settingData) =>
-    api.put(`${config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS}/${key}`, settingData),
-  bulkUpdateSystemSettings: (settings) =>
-    api.put(config.ENDPOINTS.ADMIN.SYSTEM_SETTINGS, { settings }),
 };
 
 export const userAPI = {

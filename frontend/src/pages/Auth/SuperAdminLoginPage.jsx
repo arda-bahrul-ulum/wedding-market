@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
 import { authAPI } from "../../services/api";
-import { Shield, AlertTriangle, ArrowRight } from "lucide-react";
+import { UserCheck, AlertTriangle, ArrowRight } from "lucide-react";
 import Button from "../../components/UI/Button";
 import Input from "../../components/UI/Input";
 import Card, {
@@ -163,7 +163,7 @@ const SuperAdminLoginPage = () => {
         <div className="text-center mb-6">
           <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
             <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-red-500" />
+              <UserCheck className="w-4 h-4 text-red-500" />
               <span>Super Admin Only</span>
             </div>
             <div className="flex items-center space-x-2">
@@ -177,7 +177,7 @@ const SuperAdminLoginPage = () => {
             <CardHeader gradient>
               <div className="text-center">
                 <div className="mx-auto h-12 w-12 bg-red-600 rounded-full flex items-center justify-center mb-4">
-                  <Shield className="h-6 w-6 text-white" />
+                  <UserCheck className="h-6 w-6 text-white" />
                 </div>
                 <CardTitle size="lg" className="text-center text-red-600">
                   Super Admin Login

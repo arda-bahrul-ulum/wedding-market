@@ -9,7 +9,7 @@ import {
   Twitter,
   Youtube,
   ArrowRight,
-  Shield,
+  UserCheck,
   Award,
   Users,
 } from "lucide-react";
@@ -42,60 +42,6 @@ function Footer() {
               Temukan vendor terbaik untuk pernikahan impian Anda dengan
               kepercayaan penuh.
             </p>
-
-            {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-4 pt-4">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-success-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <Shield className="w-6 h-6 text-success-600" />
-                </div>
-                <p className="text-xs text-gray-400 font-semibold">
-                  Terpercaya
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-warning-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <Award className="w-6 h-6 text-warning-600" />
-                </div>
-                <p className="text-xs text-gray-400 font-semibold">
-                  Berkualitas
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <Users className="w-6 h-6 text-primary-600" />
-                </div>
-                <p className="text-xs text-gray-400 font-semibold">Komunitas</p>
-              </div>
-            </div>
-
-            {/* Social Media */}
-            <div className="flex space-x-4 pt-4">
-              <a
-                href="#"
-                className="w-10 h-10 bg-gray-700 hover:bg-primary-600 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-gray-700 hover:bg-primary-600 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-gray-700 hover:bg-primary-600 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-gray-700 hover:bg-primary-600 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -219,8 +165,8 @@ function Footer() {
               </div>
 
               <div className="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-2xl hover:bg-gray-700/50 transition-all duration-300">
-                <div className="w-10 h-10 bg-success-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-5 h-5 text-success-600" />
+                <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-5 h-5 text-primary-600" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Telepon</p>
@@ -229,8 +175,8 @@ function Footer() {
               </div>
 
               <div className="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-2xl hover:bg-gray-700/50 transition-all duration-300">
-                <div className="w-10 h-10 bg-warning-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-warning-600" />
+                <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5 text-primary-600" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Alamat</p>
@@ -245,40 +191,12 @@ function Footer() {
           </div>
         </div>
 
-        {/* Newsletter Section */}
-        <div className="py-12 border-t border-gray-700">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Dapatkan Update Terbaru
-            </h3>
-            <p className="text-gray-300 mb-8">
-              Berlangganan newsletter kami untuk mendapatkan tips pernikahan dan
-              penawaran khusus.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Masukkan email Anda"
-                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-              <button className="btn btn-primary px-8 py-3 whitespace-nowrap">
-                Berlangganan
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="text-center">
             <p className="text-gray-400 text-sm">
               © {currentYear} Wedding Dream. Semua hak dilindungi.
             </p>
-            <div className="flex items-center space-x-2 text-sm text-gray-400">
-              <span>Dibuat dengan</span>
-              <Heart className="w-4 h-4 text-red-500 animate-pulse" />
-              <span>di Indonesia</span>
-            </div>
           </div>
         </div>
       </div>

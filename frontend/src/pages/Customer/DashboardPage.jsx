@@ -1,5 +1,6 @@
 import { useAuth } from "../../contexts/AuthContext";
 import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
 import { orderAPI } from "../../services/api";
 import {
   Package,
@@ -35,7 +36,9 @@ function DashboardPage() {
     () => orderAPI.getOrders({ limit: 5 })
   );
 
-  const orders = ordersData?.data?.orders || [];
+  const orders = Array.isArray(ordersData?.data?.orders)
+    ? ordersData.data.orders
+    : [];
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -186,10 +189,12 @@ function DashboardPage() {
                     <CardTitle>Pesanan Terbaru</CardTitle>
                     <CardDescription>Riwayat pesanan Anda</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" className="group">
-                    Lihat Semua
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  </Button>
+                  <Link to="/customer/orders">
+                    <Button variant="outline" size="sm" className="group">
+                      Lihat Semua
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardBody className="p-0">
@@ -212,10 +217,12 @@ function DashboardPage() {
                     <p className="text-gray-600 mb-6">
                       Mulai pesan layanan pernikahan impian Anda
                     </p>
-                    <Button gradient glow>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Mulai Pesan
-                    </Button>
+                    <Link to="/marketplace">
+                      <Button gradient glow>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Mulai Pesan
+                      </Button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100">
@@ -319,27 +326,33 @@ function DashboardPage() {
                   Menu utama untuk aktivitas Anda
                 </CardDescription>
               </CardHeader>
-              <CardBody className="space-y-3">
-                <Button className="w-full justify-start" gradient glow>
-                  <Package className="w-4 h-4 mr-3" />
-                  Buat Pesanan Baru
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start group"
-                >
-                  <Heart className="w-4 h-4 mr-3" />
-                  Lihat Wishlist
-                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start group"
-                >
-                  <Star className="w-4 h-4 mr-3" />
-                  Beri Review
-                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
-                </Button>
+              <CardBody className="space-y-4">
+                <Link to="/marketplace">
+                  <Button className="w-full justify-start" gradient glow>
+                    <Package className="w-4 h-4 mr-3" />
+                    Buat Pesanan Baru
+                  </Button>
+                </Link>
+                <Link to="/customer/wishlist">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start group"
+                  >
+                    <Heart className="w-4 h-4 mr-3" />
+                    Lihat Wishlist
+                    <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
+                  </Button>
+                </Link>
+                <Link to="/customer/orders">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start group"
+                  >
+                    <Star className="w-4 h-4 mr-3" />
+                    Beri Review
+                    <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
+                  </Button>
+                </Link>
               </CardBody>
             </Card>
 

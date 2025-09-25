@@ -9,7 +9,7 @@ import {
   Mail,
   Lock,
   ArrowRight,
-  Shield,
+  UserCheck,
   CheckCircle,
   User,
   Store,
@@ -204,7 +204,7 @@ function LoginPage() {
         <div className="text-center mb-6">
           <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
             <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-success-500" />
+              <UserCheck className="w-4 h-4 text-success-500" />
               <span>100% Aman</span>
             </div>
             <div className="flex items-center space-x-2">

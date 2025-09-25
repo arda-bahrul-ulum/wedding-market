@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Heart, Search, Trash2, ShoppingCart, Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Heart, Search, Trash2, ShoppingCart, Star, Plus } from "lucide-react";
+import { useCart } from "../../contexts/CartContext";
 import { formatCurrency, formatRating } from "../../utils/format";
 import Card, { CardBody } from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
@@ -7,9 +9,7 @@ import Input from "../../components/UI/Input";
 
 function WishlistPage() {
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Mock data - replace with actual API call
-  const wishlistItems = [
+  const [wishlistItems, setWishlistItems] = useState([
     {
       id: 1,
       type: "service",
@@ -43,7 +43,8 @@ function WishlistPage() {
       image: "/api/placeholder/300/200",
       location: "Bandung",
     },
-  ];
+  ]);
+  const { addToCart } = useCart();
 
   const filteredItems = wishlistItems.filter(
     (item) =>
@@ -52,13 +53,28 @@ function WishlistPage() {
   );
 
   const handleRemoveFromWishlist = (id, type) => {
-    // Implement remove from wishlist logic
-    console.log("Remove from wishlist:", id, type);
+    setWishlistItems((prev) =>
+      prev.filter((item) => !(item.id === id && item.type === type))
+    );
   };
 
   const handleAddToCart = (item) => {
-    // Implement add to cart logic
-    console.log("Add to cart:", item);
+    addToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      vendor_name: item.vendor_name,
+      type: item.type,
+    });
+  };
+
+  const handleAddAllToCart = () => {
+    filteredItems.forEach((item) => handleAddToCart(item));
+  };
+
+  const handleRemoveAll = () => {
+    setWishlistItems([]);
   };
 
   return (
@@ -100,7 +116,12 @@ function WishlistPage() {
                   ? "Coba ubah kata kunci pencarian Anda"
                   : "Mulai tambahkan item ke wishlist Anda"}
               </p>
-              <Button>Booking Vendor</Button>
+              <Link to="/marketplace">
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Booking Vendor
+                </Button>
+              </Link>
             </CardBody>
           </Card>
         ) : (
@@ -185,8 +206,14 @@ function WishlistPage() {
               {filteredItems.length} item di wishlist
             </p>
             <div className="flex space-x-2">
-              <Button variant="outline">Tambah Semua ke Cart</Button>
-              <Button variant="danger">Hapus Semua</Button>
+              <Button variant="outline" onClick={handleAddAllToCart}>
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Tambah Semua ke Cart
+              </Button>
+              <Button variant="danger" onClick={handleRemoveAll}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Hapus Semua
+              </Button>
             </div>
           </div>
         )}

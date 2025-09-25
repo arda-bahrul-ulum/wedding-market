@@ -34,10 +34,18 @@ function VendorDetailPage() {
   );
 
   const vendor = vendorData?.data?.vendor;
-  const services = vendorData?.data?.services || [];
-  const packages = vendorData?.data?.packages || [];
-  const portfolios = vendorData?.data?.portfolios || [];
-  const reviews = vendorData?.data?.reviews || [];
+  const services = Array.isArray(vendorData?.data?.services)
+    ? vendorData.data.services
+    : [];
+  const packages = Array.isArray(vendorData?.data?.packages)
+    ? vendorData.data.packages
+    : [];
+  const portfolios = Array.isArray(vendorData?.data?.portfolios)
+    ? vendorData.data.portfolios
+    : [];
+  const reviews = Array.isArray(vendorData?.data?.reviews)
+    ? vendorData.data.reviews
+    : [];
   const reviewStats = vendorData?.data?.review_stats || {};
 
   const handleAddToCart = (item, type) => {

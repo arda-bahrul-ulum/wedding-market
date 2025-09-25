@@ -19,14 +19,6 @@ func (s *DatabaseSeeder) Run() error {
 		return err
 	}
 	
-	if err := facades.Seeder().Call([]seeder.Seeder{&ModuleSettingSeeder{}}); err != nil {
-		return err
-	}
-	
-	if err := facades.Seeder().Call([]seeder.Seeder{&SystemSettingSeeder{}}); err != nil {
-		return err
-	}
-	
 	if err := facades.Seeder().Call([]seeder.Seeder{&SuperUserSeeder{}}); err != nil {
 		return err
 	}

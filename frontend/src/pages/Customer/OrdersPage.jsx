@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
 import { orderAPI } from "../../services/api";
 import {
   Package,
@@ -10,6 +11,7 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  Plus,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "../../utils/format";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
@@ -29,7 +31,9 @@ function OrdersPage() {
     () => orderAPI.getOrders(filters)
   );
 
-  const orders = ordersData?.data?.orders || [];
+  const orders = Array.isArray(ordersData?.data?.orders)
+    ? ordersData.data.orders
+    : [];
   const pagination = ordersData?.data?.pagination || {};
 
   const getStatusIcon = (status) => {
@@ -83,10 +87,22 @@ function OrdersPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container-custom py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Pesanan Saya
-          </h1>
-          <p className="text-gray-600">Kelola dan pantau semua pesanan Anda</p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Pesanan Saya
+              </h1>
+              <p className="text-gray-600">
+                Kelola dan pantau semua pesanan Anda
+              </p>
+            </div>
+            <Link to="/marketplace">
+              <Button className="w-full sm:w-auto">
+                <Plus className="w-4 h-4 mr-2" />
+                Booking Vendor
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Filters */}
@@ -120,9 +136,20 @@ function OrdersPage() {
                 <option value="rejected">Ditolak</option>
               </select>
 
-              <Button variant="outline" className="w-full md:w-auto">
+              <Button
+                variant="outline"
+                className="w-full md:w-auto"
+                onClick={() => {
+                  // Reset filters
+                  setFilters({
+                    search: "",
+                    status: "",
+                    page: 1,
+                  });
+                }}
+              >
                 <Filter className="w-4 h-4 mr-2" />
-                Filter
+                Reset Filter
               </Button>
             </div>
           </CardBody>
@@ -143,7 +170,12 @@ function OrdersPage() {
               <p className="text-gray-600 mb-4">
                 Mulai pesan jasa pernikahan impian Anda
               </p>
-              <Button>Booking Vendor</Button>
+              <Link to="/marketplace">
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Booking Vendor
+                </Button>
+              </Link>
             </CardBody>
           </Card>
         ) : (

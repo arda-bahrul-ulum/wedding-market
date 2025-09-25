@@ -3,7 +3,7 @@ import {
   Search,
   Star,
   Users,
-  Shield,
+  UserCheck,
   Heart,
   Camera,
   Palette,
@@ -38,12 +38,16 @@ function HomePage() {
       })
   );
 
-  const categories = categoriesData?.data || [];
-  const vendors = vendorsData?.data?.vendors || [];
+  const categories = Array.isArray(categoriesData?.data)
+    ? categoriesData.data
+    : [];
+  const vendors = Array.isArray(vendorsData?.data?.vendors)
+    ? vendorsData.data.vendors
+    : [];
 
   const features = [
     {
-      icon: Shield,
+      icon: UserCheck,
       title: "Sistem Escrow Aman",
       description: "Pembayaran terlindungi hingga pesanan selesai",
     },
@@ -64,26 +68,38 @@ function HomePage() {
     },
   ];
 
-  const serviceCategories = [
-    { icon: Camera, name: "Fotografer", color: "bg-blue-100 text-blue-600" },
-    {
-      icon: Palette,
-      name: "Make Up Artist",
-      color: "bg-pink-100 text-pink-600",
-    },
-    { icon: Utensils, name: "Catering", color: "bg-green-100 text-green-600" },
-    {
-      icon: Music,
-      name: "Entertainment",
-      color: "bg-purple-100 text-purple-600",
-    },
-    { icon: Car, name: "Transportasi", color: "bg-orange-100 text-orange-600" },
-    {
-      icon: Calendar,
-      name: "Wedding Organizer",
-      color: "bg-indigo-100 text-indigo-600",
-    },
-  ];
+  // Dynamic service categories from database
+  const getCategoryIcon = (categoryName) => {
+    const iconMap = {
+      Fotografer: Camera,
+      "Make Up Artist": Palette,
+      Catering: Utensils,
+      Entertainment: Music,
+      Transportasi: Car,
+      "Wedding Organizer": Calendar,
+      Venue: Calendar,
+      Dekorasi: Palette,
+      "Sound System": Music,
+      MC: Users,
+    };
+    return iconMap[categoryName] || Camera;
+  };
+
+  const getCategoryColor = (index) => {
+    const colors = [
+      "bg-blue-100 text-blue-600",
+      "bg-pink-100 text-pink-600",
+      "bg-green-100 text-green-600",
+      "bg-purple-100 text-purple-600",
+      "bg-orange-100 text-orange-600",
+      "bg-indigo-100 text-indigo-600",
+      "bg-red-100 text-red-600",
+      "bg-yellow-100 text-yellow-600",
+      "bg-teal-100 text-teal-600",
+      "bg-cyan-100 text-cyan-600",
+    ];
+    return colors[index % colors.length];
+  };
 
   return (
     <div className="min-h-screen">
@@ -105,29 +121,62 @@ function HomePage() {
 
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Link to="/marketplace">
-                    <Button size="lg" className="w-full sm:w-auto">
-                      <Search className="w-5 h-5 mr-2" />
-                      Booking Vendor
-                    </Button>
-                  </Link>
-                  {/* Only show "Daftar sebagai Vendor" button if user is not logged in or not a customer */}
-                  {(!isAuthenticated || user?.role !== "customer") && (
-                    <Link to="/register?tab=vendor">
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        className="w-full sm:w-auto"
-                      >
-                        Daftar sebagai Vendor
+                  {!isAuthenticated ? (
+                    // Jika tidak login: Booking Vendor dan Daftar sebagai Vendor
+                    <>
+                      <Link to="/marketplace">
+                        <Button size="lg" className="w-full sm:w-auto">
+                          <Search className="w-5 h-5 mr-2" />
+                          Booking Vendor
+                        </Button>
+                      </Link>
+                      <Link to="/register?tab=vendor">
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Daftar sebagai Vendor
+                        </Button>
+                      </Link>
+                    </>
+                  ) : user?.role === "customer" ? (
+                    // Jika customer: Booking Vendor
+                    <Link to="/marketplace">
+                      <Button size="lg" className="w-full sm:w-auto">
+                        <Search className="w-5 h-5 mr-2" />
+                        Booking Vendor
                       </Button>
                     </Link>
-                  )}
+                  ) : user?.role === "vendor" ? (
+                    // Jika vendor: Cari Customer dan Ajak Kerjasama
+                    <>
+                      <Link to="/marketplace">
+                        <Button size="lg" className="w-full sm:w-auto">
+                          <Search className="w-5 h-5 mr-2" />
+                          Cari Customer
+                        </Button>
+                      </Link>
+                      <Link to="/vendor/collaboration">
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Ajak Kerjasama
+                        </Button>
+                      </Link>
+                    </>
+                  ) : null}
                 </div>
                 <p className="text-sm text-gray-500 max-w-md">
-                  {isAuthenticated && user?.role === "customer"
+                  {!isAuthenticated
+                    ? "Temukan vendor terpercaya atau bergabunglah sebagai vendor"
+                    : user?.role === "customer"
                     ? "Mulai jelajahi vendor terbaik untuk pernikahan impian Anda"
-                    : "Temukan vendor terpercaya atau bergabunglah sebagai vendor"}
+                    : user?.role === "vendor"
+                    ? "Temukan customer potensial dan bangun jaringan kerjasama"
+                    : "Mulai jelajahi vendor terbaik untuk pernikahan impian Anda"}
                 </p>
               </div>
 
@@ -255,33 +304,48 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {serviceCategories.map((category, index) => (
-              <Link
-                key={index}
-                to="/marketplace"
-                className="group stagger-animation"
-              >
-                <Card
-                  variant="elevated"
-                  hover
-                  className="text-center card-hover-effect group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-300"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <CardBody className="p-6">
-                    <div
-                      className={`w-16 h-16 ${category.color} rounded-2xl flex items-center justify-center mx-auto mb-4 icon-bounce group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}
+          {categoriesLoading ? (
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="lg" />
+            </div>
+          ) : !Array.isArray(categories) || categories.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Tidak ada kategori tersedia</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+              {categories.map((category, index) => {
+                const IconComponent = getCategoryIcon(category.name);
+                return (
+                  <Link
+                    key={category.id}
+                    to="/marketplace"
+                    className="group stagger-animation"
+                  >
+                    <Card
+                      variant="elevated"
+                      hover
+                      className="text-center card-hover-effect group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-300"
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <category.icon className="w-8 h-8" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors text-sm">
-                      {category.name}
-                    </h3>
-                  </CardBody>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                      <CardBody className="p-6">
+                        <div
+                          className={`w-16 h-16 ${getCategoryColor(
+                            index
+                          )} rounded-2xl flex items-center justify-center mx-auto mb-4 icon-bounce group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}
+                        >
+                          <IconComponent className="w-8 h-8" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors text-sm">
+                          {category.name}
+                        </h3>
+                      </CardBody>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -305,6 +369,10 @@ function HomePage() {
           {vendorsLoading ? (
             <div className="flex justify-center py-12">
               <LoadingSpinner size="lg" />
+            </div>
+          ) : !Array.isArray(vendors) || vendors.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Tidak ada vendor tersedia</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -374,32 +442,74 @@ function HomePage() {
             </p>
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {/* Only show "Daftar Sekarang" button if user is not logged in */}
-                {!isAuthenticated && (
-                  <Link to="/register?tab=customer">
+                {!isAuthenticated ? (
+                  // Jika tidak login: Booking Vendor dan Daftar sebagai Vendor
+                  <>
+                    <Link to="/marketplace">
+                      <Button
+                        size="lg"
+                        variant="secondary"
+                        className="w-full sm:w-auto"
+                      >
+                        <Search className="w-5 h-5 mr-2" />
+                        Booking Vendor
+                      </Button>
+                    </Link>
+                    <Link to="/register?tab=vendor">
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="w-full sm:w-auto border-white text-white"
+                      >
+                        Daftar sebagai Vendor
+                      </Button>
+                    </Link>
+                  </>
+                ) : user?.role === "customer" ? (
+                  // Jika customer: Booking Vendor
+                  <Link to="/marketplace">
                     <Button
                       size="lg"
                       variant="secondary"
                       className="w-full sm:w-auto"
                     >
-                      Daftar Sekarang
+                      <Search className="w-5 h-5 mr-2" />
+                      Booking Vendor
                     </Button>
                   </Link>
-                )}
-                <Link to="/marketplace">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full sm:w-64 border-white text-white"
-                  >
-                    Booking Vendor
-                  </Button>
-                </Link>
+                ) : user?.role === "vendor" ? (
+                  // Jika vendor: Cari Customer dan Ajak Kerjasama
+                  <>
+                    <Link to="/marketplace">
+                      <Button
+                        size="lg"
+                        variant="secondary"
+                        className="w-full sm:w-auto"
+                      >
+                        <Search className="w-5 h-5 mr-2" />
+                        Cari Customer
+                      </Button>
+                    </Link>
+                    <Link to="/vendor/collaboration">
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="w-full sm:w-auto border-white text-white"
+                      >
+                        Ajak Kerjasama
+                      </Button>
+                    </Link>
+                  </>
+                ) : null}
               </div>
               <p className="text-sm text-primary-100 text-center max-w-md mx-auto">
-                {isAuthenticated
+                {!isAuthenticated
+                  ? "Bergabunglah dengan ribuan pasangan yang telah mempercayai kami"
+                  : user?.role === "customer"
                   ? "Jelajahi ribuan vendor terpercaya untuk pernikahan Anda"
-                  : "Bergabunglah dengan ribuan pasangan yang telah mempercayai kami"}
+                  : user?.role === "vendor"
+                  ? "Temukan customer potensial dan bangun jaringan kerjasama"
+                  : "Jelajahi ribuan vendor terpercaya untuk pernikahan Anda"}
               </p>
             </div>
           </div>

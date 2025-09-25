@@ -17,6 +17,8 @@ import {
   Plus,
   BarChart3,
   Settings,
+  Search,
+  UserPlus,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "../../utils/format";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
@@ -27,6 +29,7 @@ import Card, {
   CardDescription,
 } from "../../components/UI/Card";
 import Button from "../../components/UI/Button";
+import { Link } from "react-router-dom";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -47,8 +50,12 @@ function DashboardPage() {
   );
 
   const profile = profileData?.data;
-  const orders = ordersData?.data?.orders || [];
-  const services = servicesData?.data?.services || [];
+  const orders = Array.isArray(ordersData?.data?.orders)
+    ? ordersData.data.orders
+    : [];
+  const services = Array.isArray(servicesData?.data?.services)
+    ? servicesData.data.services
+    : [];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -205,10 +212,12 @@ function DashboardPage() {
                       Kelola pesanan dari customer
                     </CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" className="group">
-                    Lihat Semua
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  </Button>
+                  <Link to="/vendor/orders">
+                    <Button variant="outline" size="sm" className="group">
+                      Lihat Semua
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardBody className="p-0">
@@ -231,10 +240,12 @@ function DashboardPage() {
                     <p className="text-gray-600 mb-6">
                       Pesanan akan muncul di sini
                     </p>
-                    <Button gradient glow>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Tambah Jasa
-                    </Button>
+                    <Link to="/vendor/services">
+                      <Button gradient glow>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Tambah Jasa
+                      </Button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100">
@@ -324,35 +335,43 @@ function DashboardPage() {
                   Menu utama untuk aktivitas vendor
                 </CardDescription>
               </CardHeader>
-              <CardBody className="space-y-3">
-                <Button className="w-full justify-start" gradient glow>
-                  <Plus className="w-4 h-4 mr-3" />
-                  Tambah Jasa Baru
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start group"
-                >
-                  <Users className="w-4 h-4 mr-3" />
-                  Kelola Pesanan
-                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start group"
-                >
-                  <Calendar className="w-4 h-4 mr-3" />
-                  Atur Ketersediaan
-                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start group"
-                >
-                  <BarChart3 className="w-4 h-4 mr-3" />
-                  Lihat Analitik
-                  <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
-                </Button>
+              <CardBody className="space-y-4">
+                <Link to="/vendor/services">
+                  <Button className="w-full justify-start" gradient glow>
+                    <Plus className="w-4 h-4 mr-3" />
+                    Tambah Jasa Baru
+                  </Button>
+                </Link>
+                <Link to="/vendor/orders">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start group"
+                  >
+                    <Users className="w-4 h-4 mr-3" />
+                    Kelola Pesanan
+                    <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
+                  </Button>
+                </Link>
+                <Link to="/vendor/availability">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start group"
+                  >
+                    <Calendar className="w-4 h-4 mr-3" />
+                    Atur Ketersediaan
+                    <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
+                  </Button>
+                </Link>
+                <Link to="/vendor/analytics">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start group"
+                  >
+                    <BarChart3 className="w-4 h-4 mr-3" />
+                    Lihat Analitik
+                    <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform duration-200" />
+                  </Button>
+                </Link>
               </CardBody>
             </Card>
 
@@ -377,10 +396,12 @@ function DashboardPage() {
                       <Package className="w-8 h-8 text-gray-400" />
                     </div>
                     <p className="text-gray-600 text-sm mb-4">Belum ada jasa</p>
-                    <Button size="sm" gradient>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Tambah Jasa
-                    </Button>
+                    <Link to="/vendor/services">
+                      <Button size="sm" gradient>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Tambah Jasa
+                      </Button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="space-y-4">

@@ -6,7 +6,7 @@ import {
   Heart,
   CheckCircle,
   Star,
-  Shield,
+  UserCheck,
   Clock,
 } from "lucide-react";
 import Button from "../components/UI/Button";
@@ -28,7 +28,7 @@ function AboutPage() {
         "Kami memahami bahwa pernikahan adalah momen terpenting dalam hidup Anda, dan kami berkomitmen untuk membuatnya sempurna.",
     },
     {
-      icon: Shield,
+      icon: UserCheck,
       title: "Keamanan & Kepercayaan",
       description:
         "Sistem escrow kami memastikan pembayaran aman dan vendor terpercaya untuk memberikan ketenangan pikiran.",
@@ -84,7 +84,7 @@ function AboutPage() {
       <section className="bg-gradient-to-br from-primary-50 via-white to-accent-50">
         <div className="container-custom section-padding">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6">
               Tentang <span className="text-gradient">Wedding Dream</span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed mb-8">
@@ -145,8 +145,8 @@ function AboutPage() {
 
             <Card>
               <CardBody className="p-8">
-                <div className="w-16 h-16 bg-accent-100 rounded-2xl flex items-center justify-center mb-6">
-                  <Award className="w-8 h-8 text-accent-600" />
+                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6">
+                  <Award className="w-8 h-8 text-primary-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   Visi Kami
@@ -185,8 +185,8 @@ function AboutPage() {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <CardBody className="p-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-accent-500 rounded-3xl flex items-center justify-center mx-auto mb-6 icon-bounce group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
-                      <value.icon className="w-10 h-10 text-white" />
+                    <div className="w-20 h-20 bg-primary-100 rounded-3xl flex items-center justify-center mx-auto mb-6 icon-bounce group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                      <value.icon className="w-10 h-10 text-primary-600" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
                       {value.title}
@@ -291,7 +291,7 @@ function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="section-padding bg-gradient-to-r from-primary-600 to-accent-600">
+      <section className="section-padding bg-gradient-to-r from-primary-600 via-primary-700 to-accent-600">
         <div className="container-custom text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">

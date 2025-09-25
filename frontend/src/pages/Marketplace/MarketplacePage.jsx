@@ -17,6 +17,10 @@ import {
 } from "lucide-react";
 import { marketplaceAPI } from "../../services/api";
 import { formatCurrency, formatRating } from "../../utils/format";
+import {
+  provinces,
+  getCitiesByProvince,
+} from "../../utils/indonesia-locations";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
 import Button from "../../components/UI/Button";
 import Card, {
@@ -47,14 +51,21 @@ function MarketplacePage() {
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useQuery("categories", marketplaceAPI.getCategories);
+
   const { data: vendorsData, isLoading: vendorsLoading } = useQuery(
     ["vendors", filters],
     () => marketplaceAPI.getVendors(filters),
     { keepPreviousData: true }
   );
 
-  const categories = categoriesData?.data || [];
-  const vendors = vendorsData?.data?.vendors || [];
+  const categories = Array.isArray(categoriesData?.data)
+    ? categoriesData.data
+    : [];
+
+  const vendors = Array.isArray(vendorsData?.data?.vendors)
+    ? vendorsData.data.vendors
+    : [];
+
   const pagination = vendorsData?.data?.pagination || {};
 
   const handleFilterChange = (key, value) => {
@@ -175,21 +186,34 @@ function MarketplacePage() {
                 <div>
                   <label className="label">Lokasi</label>
                   <div className="space-y-3">
-                    <Input
-                      placeholder="Masukkan kota"
-                      value={filters.city}
-                      onChange={(e) =>
-                        handleFilterChange("city", e.target.value)
-                      }
-                      icon={<MapPin className="w-4 h-4" />}
-                    />
-                    <Input
-                      placeholder="Masukkan provinsi"
+                    <Select
+                      options={[
+                        { value: "", label: "Semua Provinsi" },
+                        ...provinces,
+                      ]}
                       value={filters.province}
-                      onChange={(e) =>
-                        handleFilterChange("province", e.target.value)
+                      onChange={(option) => {
+                        handleFilterChange("province", option?.value || "");
+                        handleFilterChange("city", ""); // Reset city when province changes
+                      }}
+                      placeholder="Pilih Provinsi"
+                    />
+                    <Select
+                      options={[
+                        { value: "", label: "Semua Kota" },
+                        ...getCitiesByProvince(filters.province).map(
+                          (city) => ({
+                            value: city,
+                            label: city,
+                          })
+                        ),
+                      ]}
+                      value={filters.city}
+                      onChange={(option) =>
+                        handleFilterChange("city", option?.value || "")
                       }
-                      icon={<MapPin className="w-4 h-4" />}
+                      placeholder="Pilih Kota"
+                      disabled={!filters.province}
                     />
                   </div>
                 </div>
@@ -217,28 +241,35 @@ function MarketplacePage() {
                   </div>
                 </div>
 
-                {/* Clear Filters */}
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setFilters({
-                      search: "",
-                      category_id: "",
-                      city: "",
-                      province: "",
-                      min_price: "",
-                      max_price: "",
-                      sort_by: "created_at",
-                      sort_order: "desc",
-                      page: 1,
-                    });
-                    setSearchParams({});
-                  }}
-                  className="w-full"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Reset Filter
-                </Button>
+                {/* Clear Filters - Only show when filters are applied */}
+                {(filters.search ||
+                  filters.category_id ||
+                  filters.city ||
+                  filters.province ||
+                  filters.min_price ||
+                  filters.max_price) && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setFilters({
+                        search: "",
+                        category_id: "",
+                        city: "",
+                        province: "",
+                        min_price: "",
+                        max_price: "",
+                        sort_by: "created_at",
+                        sort_order: "desc",
+                        page: 1,
+                      });
+                      setSearchParams({});
+                    }}
+                    className="w-full"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Reset Filter
+                  </Button>
+                )}
               </CardBody>
             </Card>
           </div>

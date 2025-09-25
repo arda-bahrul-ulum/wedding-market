@@ -55,7 +55,9 @@ function VendorCollaborationPage() {
     marketplaceAPI.getCategories
   );
 
-  const vendors = vendorsData?.data?.vendors || [];
+  const vendors = Array.isArray(vendorsData?.data?.vendors)
+    ? vendorsData.data.vendors
+    : [];
   const categories = Array.isArray(categoriesData?.data)
     ? categoriesData.data
     : [];

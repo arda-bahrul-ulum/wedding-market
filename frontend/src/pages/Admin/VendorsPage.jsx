@@ -442,7 +442,7 @@ function AdminVendorsPage() {
       {/* Main Content */}
       <div className="px-4 sm:px-6 py-6 sm:py-8">
         {/* Filters */}
-        <Card hover className="mb-6">
+        <Card className="mb-6">
           <CardBody>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="lg:col-span-1">
@@ -531,7 +531,7 @@ function AdminVendorsPage() {
         </Card>
 
         {/* Vendors Table */}
-        <Card hover>
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <TrendingUp className="w-5 h-5 mr-2 text-primary-600" />

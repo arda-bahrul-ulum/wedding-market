@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
+import NotificationDropdown from "../UI/NotificationDropdown";
 import {
   Search,
   ShoppingCart,
@@ -14,6 +15,7 @@ import {
 
 function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -87,8 +89,8 @@ function Header() {
       return [
         { name: "Beranda", href: "/" },
         { name: "Booking Vendor", href: "/marketplace" },
-        { name: "Pesanan", href: "/customer/orders" },
         { name: "Wishlist", href: "/customer/wishlist" },
+        { name: "Pesanan", href: "/customer/orders" },
       ];
     } else if (user?.role === "vendor") {
       return [
@@ -132,9 +134,6 @@ function Header() {
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-gradient">
                   Wedding Dream
-                </span>
-                <span className="text-xs text-gray-500 -mt-1">
-                  Platform Terpercaya
                 </span>
               </div>
             </div>
@@ -199,10 +198,19 @@ function Header() {
 
             {/* Notifications */}
             {isAuthenticated && (
-              <button className="relative p-3 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-all duration-300 group">
-                <Bell className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  className="relative p-3 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-all duration-300 group"
+                >
+                  <Bell className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                </button>
+                <NotificationDropdown
+                  isOpen={isNotificationOpen}
+                  onClose={() => setIsNotificationOpen(false)}
+                />
+              </div>
             )}
 
             {/* Profile Menu */}

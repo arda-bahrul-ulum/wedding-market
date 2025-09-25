@@ -6,7 +6,6 @@ import {
   Users,
   Store,
   ShoppingBag,
-  Settings,
   LogOut,
   Bell,
   Search,
@@ -45,12 +44,6 @@ function AdminLayout() {
       href: "/admin/orders",
       icon: ShoppingBag,
       color: "text-orange-500",
-    },
-    {
-      name: "Settings",
-      href: "/admin/settings",
-      icon: Settings,
-      color: "text-gray-500",
     },
   ];
 

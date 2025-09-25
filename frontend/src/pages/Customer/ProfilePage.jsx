@@ -12,6 +12,10 @@ import {
   Calendar,
   Edit3,
   X,
+  Lock,
+  UserCheck,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { formatDate } from "../../utils/format";
 import Card, { CardBody, CardHeader } from "../../components/UI/Card";
@@ -25,6 +29,16 @@ function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showLoginActivity, setShowLoginActivity] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [stats, setStats] = useState({
+    total_orders: 0,
+    completed_orders: 0,
+    wishlist_items: 0,
+    reviews_given: 0,
+  });
 
   const {
     register,
@@ -63,8 +77,25 @@ function ProfilePage() {
         gender: profileData.gender || "",
         bio: profileData.bio || "",
       });
+
+      // Load user statistics
+      loadUserStats();
     }
   }, [user, reset]);
+
+  const loadUserStats = async () => {
+    try {
+      // Mock data for now - in real app, this would come from API
+      setStats({
+        total_orders: 12,
+        completed_orders: 8,
+        wishlist_items: 5,
+        reviews_given: 3,
+      });
+    } catch (error) {
+      console.error("Error loading user stats:", error);
+    }
+  };
 
   // Show loading while auth is loading
   if (authLoading) {
@@ -108,6 +139,26 @@ function ProfilePage() {
   const handleCancel = () => {
     reset();
     setIsEditing(false);
+  };
+
+  const handleChangeEmail = async (data) => {
+    try {
+      // Mock implementation - in real app, this would call API
+      toast.success("Email berhasil diubah!");
+      setShowChangeEmail(false);
+    } catch (error) {
+      toast.error("Gagal mengubah email");
+    }
+  };
+
+  const handleChangePassword = async (data) => {
+    try {
+      // Mock implementation - in real app, this would call API
+      toast.success("Password berhasil diubah!");
+      setShowChangePassword(false);
+    } catch (error) {
+      toast.error("Gagal mengubah password");
+    }
   };
 
   return (
@@ -370,54 +421,27 @@ function ProfilePage() {
               <CardBody className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total Pesanan</span>
-                  <span className="font-semibold text-primary-600">12</span>
+                  <span className="font-semibold text-primary-600">
+                    {stats.total_orders}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Pesanan Selesai</span>
-                  <span className="font-semibold text-success-600">8</span>
+                  <span className="font-semibold text-success-600">
+                    {stats.completed_orders}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Item di Wishlist</span>
-                  <span className="font-semibold text-warning-600">5</span>
+                  <span className="font-semibold text-warning-600">
+                    {stats.wishlist_items}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Review Diberikan</span>
-                  <span className="font-semibold text-info-600">3</span>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Preferences */}
-            <Card>
-              <CardHeader>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Preferensi
-                </h2>
-                <p className="text-sm text-gray-600">Pengaturan notifikasi</p>
-              </CardHeader>
-              <CardBody className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Notifikasi Email</span>
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Notifikasi SMS</span>
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Newsletter</span>
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  />
+                  <span className="font-semibold text-info-600">
+                    {stats.reviews_given}
+                  </span>
                 </div>
               </CardBody>
             </Card>
@@ -431,16 +455,28 @@ function ProfilePage() {
                 <p className="text-sm text-gray-600">Kelola keamanan akun</p>
               </CardHeader>
               <CardBody className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setShowChangeEmail(true)}
+                >
                   <Mail className="w-4 h-4 mr-2" />
                   Ubah Email
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Phone className="w-4 h-4 mr-2" />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setShowChangePassword(true)}
+                >
+                  <Lock className="w-4 h-4 mr-2" />
                   Ubah Password
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <MapPin className="w-4 h-4 mr-2" />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setShowLoginActivity(true)}
+                >
+                  <UserCheck className="w-4 h-4 mr-2" />
                   Aktivitas Login
                 </Button>
               </CardBody>
@@ -448,6 +484,201 @@ function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Change Email Modal */}
+      {showChangeEmail && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Ubah Email
+            </h3>
+            <form
+              onSubmit={handleSubmit(handleChangeEmail)}
+              className="space-y-4"
+            >
+              <Input
+                label="Email Baru"
+                type="email"
+                placeholder="Masukkan email baru"
+                {...register("new_email", {
+                  required: "Email baru wajib diisi",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Format email tidak valid",
+                  },
+                })}
+                error={errors.new_email?.message}
+              />
+              <div className="flex space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowChangeEmail(false)}
+                >
+                  Batal
+                </Button>
+                <Button type="submit" className="flex-1">
+                  Simpan
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Ubah Password
+            </h3>
+            <form
+              onSubmit={handleSubmit(handleChangePassword)}
+              className="space-y-4"
+            >
+              <div>
+                <Input
+                  label="Password Lama"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Masukkan password lama"
+                  {...register("old_password", {
+                    required: "Password lama wajib diisi",
+                  })}
+                  error={errors.old_password?.message}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Password Baru"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Masukkan password baru"
+                  {...register("new_password", {
+                    required: "Password baru wajib diisi",
+                    minLength: {
+                      value: 8,
+                      message: "Password minimal 8 karakter",
+                    },
+                  })}
+                  error={errors.new_password?.message}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Konfirmasi Password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Konfirmasi password baru"
+                  {...register("confirm_password", {
+                    required: "Konfirmasi password wajib diisi",
+                    validate: (value) => {
+                      const newPassword = document.querySelector(
+                        'input[name="new_password"]'
+                      ).value;
+                      return value === newPassword || "Password tidak cocok";
+                    },
+                  })}
+                  error={errors.confirm_password?.message}
+                />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="showPassword"
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(e.target.checked)}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mr-2"
+                />
+                <label htmlFor="showPassword" className="text-sm text-gray-600">
+                  Tampilkan password
+                </label>
+              </div>
+              <div className="flex space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowChangePassword(false)}
+                >
+                  Batal
+                </Button>
+                <Button type="submit" className="flex-1">
+                  Simpan
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Login Activity Modal */}
+      {showLoginActivity && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-96 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Aktivitas Login
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowLoginActivity(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Login Berhasil
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Chrome di Windows 10
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-900">Sekarang</p>
+                  <p className="text-xs text-gray-500">192.168.1.1</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Login Berhasil
+                    </p>
+                    <p className="text-xs text-gray-500">Safari di iPhone</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-900">2 jam yang lalu</p>
+                  <p className="text-xs text-gray-500">192.168.1.2</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Login Gagal
+                    </p>
+                    <p className="text-xs text-gray-500">Password salah</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-900">1 hari yang lalu</p>
+                  <p className="text-xs text-gray-500">192.168.1.3</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

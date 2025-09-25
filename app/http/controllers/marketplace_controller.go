@@ -34,6 +34,8 @@ func (c *MarketplaceController) GetCategories(ctx http.Context) http.Response {
 
 // GetVendors returns paginated list of vendors with filters
 func (c *MarketplaceController) GetVendors(ctx http.Context) http.Response {
+	facades.Log().Info("Getting vendors")
+	
 	// Debug: First check if there are any vendors at all
 	totalVendors, _ := facades.Orm().Query().Model(&models.VendorProfile{}).Count()
 	facades.Log().Info("Total vendors in database: " + strconv.FormatInt(totalVendors, 10))

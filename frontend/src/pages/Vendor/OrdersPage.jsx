@@ -29,7 +29,9 @@ function OrdersPage() {
     () => vendorAPI.getOrders(filters)
   );
 
-  const orders = ordersData?.data?.orders || [];
+  const orders = Array.isArray(ordersData?.data?.orders)
+    ? ordersData.data.orders
+    : [];
   const pagination = ordersData?.data?.pagination || {};
 
   const getStatusIcon = (status) => {

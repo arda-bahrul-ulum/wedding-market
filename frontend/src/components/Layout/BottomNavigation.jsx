@@ -9,7 +9,6 @@ import {
   Package,
   Store,
   Users,
-  Settings,
   Calendar,
   Contact,
 } from "lucide-react";
@@ -48,7 +47,6 @@ function BottomNavigation() {
         { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
         { name: "Pengguna", href: "/admin/users", icon: Users },
         { name: "Vendor", href: "/admin/vendors", icon: Store },
-        { name: "Pengaturan", href: "/admin/settings", icon: Settings },
       ];
     }
 

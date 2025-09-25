@@ -4,6 +4,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { SessionProvider, useSession } from "./contexts/SessionContext";
 import SessionExpiredModal from "./components/UI/SessionExpiredModal";
+import ScrollToTop from "./components/UI/ScrollToTop";
 import { setSessionExpiredHandler } from "./services/api";
 import Layout from "./components/Layout/Layout";
 import AdminLayout from "./components/Layout/AdminLayout";
@@ -45,7 +46,6 @@ import AdminDashboard from "./pages/Admin/DashboardPage";
 import AdminUsers from "./pages/Admin/UsersPage";
 import AdminVendors from "./pages/Admin/VendorsPage";
 import AdminOrders from "./pages/Admin/OrdersPage";
-import AdminSettings from "./pages/Admin/SettingsPage";
 
 // Error Pages
 import NotFoundPage from "./pages/Error/NotFoundPage";
@@ -71,180 +71,182 @@ function SessionHandler() {
 // Main App Content Component
 function AppContent() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Layout />}>
-        <Route index element={<HomePage />} />
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="superadmin/login" element={<SuperAdminLoginPage />} />
-        <Route path="marketplace" element={<MarketplacePage />} />
-        <Route path="vendor/:id" element={<VendorDetailPage />} />
-        <Route path="service/:id" element={<ServiceDetailPage />} />
-        <Route path="package/:id" element={<PackageDetailPage />} />
-        <Route path="search" element={<SearchPage />} />
-        <Route path="about" element={<AboutPage />} />
-        <Route path="contact" element={<ContactPage />} />
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="superadmin/login" element={<SuperAdminLoginPage />} />
+          <Route path="marketplace" element={<MarketplacePage />} />
+          <Route path="vendor/:id" element={<VendorDetailPage />} />
+          <Route path="service/:id" element={<ServiceDetailPage />} />
+          <Route path="package/:id" element={<PackageDetailPage />} />
+          <Route path="search" element={<SearchPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="contact" element={<ContactPage />} />
 
-        {/* Customer Dashboard without sidebar */}
+          {/* Customer Dashboard without sidebar */}
+          <Route
+            path="customer"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["customer"]}>
+                  <CustomerDashboard />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Customer Pages without sidebar */}
+          <Route
+            path="customer/orders"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["customer"]}>
+                  <CustomerOrders />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="customer/wishlist"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["customer"]}>
+                  <CustomerWishlist />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="customer/profile"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["customer"]}>
+                  <ProfilePage />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Vendor Dashboard without sidebar */}
+          <Route
+            path="vendor"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorDashboard />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Vendor Pages without sidebar */}
+          <Route
+            path="vendor/profile"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorProfilePage />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="vendor/services"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorServices />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="vendor/packages"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorPackages />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="vendor/orders"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorOrders />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="vendor/portfolio"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorPortfolio />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="vendor/availability"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorAvailability />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="vendor/collaboration"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["vendor"]}>
+                  <VendorCollaborationPage />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Error Routes */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+
+        {/* Admin Routes - Inside AuthProvider but outside Layout wrapper */}
         <Route
-          path="customer"
+          path="admin"
           element={
             <ProtectedRoute>
-              <RoleRoute allowedRoles={["customer"]}>
-                <CustomerDashboard />
-              </RoleRoute>
+              <SuperAdminRoute>
+                <AdminLayout />
+              </SuperAdminRoute>
             </ProtectedRoute>
           }
-        />
-
-        {/* Customer Pages without sidebar */}
-        <Route
-          path="customer/orders"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["customer"]}>
-                <CustomerOrders />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="customer/wishlist"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["customer"]}>
-                <CustomerWishlist />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="customer/profile"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["customer"]}>
-                <ProfilePage />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Vendor Dashboard without sidebar */}
-        <Route
-          path="vendor"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorDashboard />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Vendor Pages without sidebar */}
-        <Route
-          path="vendor/profile"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorProfilePage />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="vendor/services"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorServices />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="vendor/packages"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorPackages />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="vendor/orders"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorOrders />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="vendor/portfolio"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorPortfolio />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="vendor/availability"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorAvailability />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="vendor/collaboration"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["vendor"]}>
-                <VendorCollaborationPage />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Error Routes */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-
-      {/* Admin Routes - Inside AuthProvider but outside Layout wrapper */}
-      <Route
-        path="admin"
-        element={
-          <ProtectedRoute>
-            <SuperAdminRoute>
-              <AdminLayout />
-            </SuperAdminRoute>
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<AdminDashboard />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="users" element={<AdminUsers />} />
-        <Route path="vendors" element={<AdminVendors />} />
-        <Route path="orders" element={<AdminOrders />} />
-        <Route path="settings" element={<AdminSettings />} />
-      </Route>
-    </Routes>
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="vendors" element={<AdminVendors />} />
+          <Route path="orders" element={<AdminOrders />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 

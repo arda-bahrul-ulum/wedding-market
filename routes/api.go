@@ -40,11 +40,6 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/users/{id}/status", adminController.UpdateUserStatus)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Delete("/admin/users/{id}", adminController.DeleteUser)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/module-settings/{module}", adminController.UpdateModuleSetting)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/{key}", adminController.UpdateSystemSetting)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings", adminController.BulkUpdateSystemSettings)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/system-settings/by-key", adminController.UpdateSystemSettingByKey)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/system-settings/by-key", adminController.GetSystemSettingByKey)
 	
 	// Admin routes - specific routes
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/dashboard", adminController.GetDashboard)
@@ -62,8 +57,6 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/{id}", orderController.GetAdminOrderDetail)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/orders/{id}/status", orderController.UpdateAdminOrderStatus)
 	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/orders/{id}/refund", orderController.ProcessRefund)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/module-settings", adminController.GetModuleSettings)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/system-settings", adminController.GetSystemSettings)
 
 	// Authentication protected routes
 	api.Middleware(middleware.Auth()).Post("/auth/logout", authController.Logout)

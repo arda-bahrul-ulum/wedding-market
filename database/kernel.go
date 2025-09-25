@@ -28,8 +28,6 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20210101000012CreatePortfoliosTable{},
 		&migrations.M20210101000013CreateAvailabilitiesTable{},
 		&migrations.M20210101000014CreateChatsTable{},
-		&migrations.M20210101000015CreateModuleSettingsTable{},
-		&migrations.M20210101000016CreateSystemSettingsTable{},
 		&migrations.M20250921100719CreateCustomerProfilesTable{},
 	}
 }

@@ -213,34 +213,6 @@ export const closeLoading = () => {
   Swal.close();
 };
 
-// SweetAlert untuk konfirmasi reset settings
-export const confirmResetSettings = () => {
-  return Swal.fire({
-    ...defaultConfig,
-    title: "Reset Settings",
-    text: "Apakah Anda yakin ingin mereset semua pengaturan ke nilai default? Tindakan ini tidak dapat dibatalkan.",
-    icon: "warning",
-    confirmButtonText: "Ya, Reset!",
-    cancelButtonText: "Batal",
-    confirmButtonColor: "#f59e0b",
-    cancelButtonColor: "#6b7280",
-  });
-};
-
-// SweetAlert untuk konfirmasi save settings
-export const confirmSaveSettings = () => {
-  return Swal.fire({
-    ...defaultConfig,
-    title: "Simpan Settings",
-    text: "Apakah Anda yakin ingin menyimpan perubahan pengaturan?",
-    icon: "question",
-    confirmButtonText: "Ya, Simpan!",
-    cancelButtonText: "Batal",
-    confirmButtonColor: "#10b981",
-    cancelButtonColor: "#6b7280",
-  });
-};
-
 // SweetAlert untuk konfirmasi keluar dengan perubahan yang belum disimpan
 export const confirmLeaveWithUnsavedChanges = () => {
   return Swal.fire({
