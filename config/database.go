@@ -17,7 +17,7 @@ func init() {
 			"postgres": map[string]any{
 				"host":     config.Env("DB_HOST", "127.0.0.1"),
 				"port":     config.Env("DB_PORT", 5432),
-				"database": config.Env("DB_DATABASE", "forge"),
+				"database": config.Env("DB_DATABASE", "wedding_commerce"),
 				"username": config.Env("DB_USERNAME", ""),
 				"password": config.Env("DB_PASSWORD", ""),
 				"sslmode":  "disable",

@@ -1,6 +1,7 @@
 package seeders
 
 import (
+	"fmt"
 	"goravel/app/models"
 
 	"github.com/goravel/framework/facades"
@@ -98,14 +99,33 @@ func (s *CategorySeeder) Run() error {
 		},
 	}
 
+	// First, check total count
+	count, _ := facades.Orm().Query().Model(&models.Category{}).Count()
+	facades.Log().Info(fmt.Sprintf("Current categories count: %d", count))
+
 	for _, category := range categories {
+		// Generate slug automatically if not set
+		category.GenerateSlug()
+		
 		var existingCategory models.Category
-		if err := facades.Orm().Query().Where("slug", category.Slug).First(&existingCategory); err != nil {
+		err := facades.Orm().Query().Where("slug", category.Slug).First(&existingCategory)
+		
+		if err != nil {
+			// Category doesn't exist, create it
+			facades.Log().Info("Creating category: " + category.Name)
 			if err := facades.Orm().Query().Create(&category); err != nil {
-				return err
+				facades.Log().Error("Failed to create category: " + category.Name + " - " + err.Error())
+				return err	
 			}
+			facades.Log().Info("Successfully created category: " + category.Name)
+		} else {
+			facades.Log().Info("Category already exists: " + category.Name + " (ID: " + fmt.Sprintf("%d", existingCategory.ID) + ")")
 		}
 	}
+
+	// Final count check
+	finalCount, _ := facades.Orm().Query().Model(&models.Category{}).Count()
+	facades.Log().Info(fmt.Sprintf("Final categories count: %d", finalCount))
 
 	return nil
 }

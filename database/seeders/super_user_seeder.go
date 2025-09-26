@@ -20,7 +20,8 @@ func (s *SuperUserSeeder) Signature() string {
 func (s *SuperUserSeeder) Run() error {
 	// Check if super user already exists
 	var existingUser models.User
-	if err := facades.Orm().Query().Where("role", "super_user").First(&existingUser); err == nil {
+	if err := facades.Orm().Query().Where("role", models.RoleSuperUser).First(&existingUser); err == nil {
+		facades.Log().Info("Super User already exists, skipping seeder")
 		return nil // Super user already exists
 	}
 
@@ -35,12 +36,12 @@ func (s *SuperUserSeeder) Run() error {
 
 	now := time.Now()
 	superUser := models.User{
-		Name:             "Super Admin",
-		Email:            "superadmin@mail.com",
-		Password:         string(hashedPassword),
-		Role:             "super_user",
-		IsActive:         true,
-		EmailVerifiedAt:  &now,
+		Name:            "Super Admin",
+		Email:           "superadmin@mail.com",
+		Password:        string(hashedPassword),
+		Role:            models.RoleSuperUser,
+		IsActive:        true,
+		EmailVerifiedAt: &now,
 	}
 
 	if err := facades.Orm().Query().Create(&superUser); err != nil {

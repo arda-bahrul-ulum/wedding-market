@@ -13,5 +13,8 @@ func (kernel Kernel) Middleware() []http.Middleware {
 	return []http.Middleware{
 		// CORS middleware is handled by Goravel framework configuration
 		// See config/cors.go for CORS settings
+		
+		// Add other global middleware here as needed
+		// Example: Logging, Rate Limiting, etc.
 	}
 }

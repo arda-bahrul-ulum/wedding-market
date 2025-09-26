@@ -14,24 +14,24 @@ func (r *M20210101000001CreateUsersTable) Signature() string {
 
 // Up Run the migrations.
 func (r *M20210101000001CreateUsersTable) Up() error {
-	if !facades.Schema().HasTable("users") {
-		if err := facades.Schema().Create("users", func(table schema.Blueprint) {
-			table.ID()
-			table.String("name")
-			table.String("email")
-			table.String("password")
-			table.String("phone").Nullable()
-			table.String("avatar").Nullable()
-			table.String("role").Default("customer")
-			table.Boolean("is_active").Default(true)
-			table.Timestamp("email_verified_at").Nullable()
-			table.Timestamp("last_login_at").Nullable()
-			table.Timestamps()
-		}); err != nil {
-			return err
-		}
-	}
-	return nil
+	return facades.Schema().Create("users", func(table schema.Blueprint) {
+		table.ID()
+		table.String("name", 255)
+		table.String("email", 255)
+		table.String("password", 255)
+		table.String("phone", 20).Nullable()
+		table.String("avatar", 500).Nullable()
+		table.String("role", 20).Default("customer")
+		table.Boolean("is_active").Default(true)
+		table.Timestamp("email_verified_at").Nullable()
+		table.Timestamp("last_login_at").Nullable()
+		table.Timestamps()
+
+		// Add indexes for performance
+		table.Index("email")
+		table.Index("role")
+		table.Index("is_active")
+	})
 }
 
 // Down Reverse the migrations.

@@ -85,16 +85,8 @@ func Role(roles ...string) http.Middleware {
 
 		user := userInterface.(models.User)
 
-		// Check if user role is allowed
-		allowed := false
-		for _, role := range roles {
-			if user.Role == role {
-				allowed = true
-				break
-			}
-		}
-
-		if !allowed {
+		// Check if user role is allowed using model method
+		if !user.HasAnyRole(roles...) {
 			ctx.Response().Status(403).Json(http.Json{
 				"success": false,
 				"message": "Akses ditolak. Role tidak sesuai",
@@ -121,8 +113,8 @@ func SuperAdmin() http.Middleware {
 
 		user := userInterface.(models.User)
 
-		// Check if user is superadmin
-		if user.Role != "super_user" {
+		// Check if user is superadmin using model method
+		if !user.IsSuperUser() {
 			facades.Log().Info("Superadmin access denied for user: " + user.Email + " with role: " + user.Role)
 			ctx.Response().Status(403).Json(http.Json{
 				"success": false,

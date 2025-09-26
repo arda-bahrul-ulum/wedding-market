@@ -14,12 +14,12 @@ func (s *DatabaseSeeder) Signature() string {
 
 // Run executes the seeder logic.
 func (s *DatabaseSeeder) Run() error {
-	// Run other seeders
-	if err := facades.Seeder().Call([]seeder.Seeder{&CategorySeeder{}}); err != nil {
+	// Run other seeders using CallOnce to ensure they run only once
+	if err := facades.Seeder().CallOnce([]seeder.Seeder{&CategorySeeder{}}); err != nil {
 		return err
 	}
 	
-	if err := facades.Seeder().Call([]seeder.Seeder{&SuperUserSeeder{}}); err != nil {
+	if err := facades.Seeder().CallOnce([]seeder.Seeder{&SuperUserSeeder{}}); err != nil {
 		return err
 	}
 	

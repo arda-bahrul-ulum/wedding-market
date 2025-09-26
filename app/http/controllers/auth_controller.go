@@ -1,66 +1,29 @@
 package controllers
 
 import (
-	"regexp"
 	"strings"
-	"time"
 
+	"goravel/app/contracts/services"
 	"goravel/app/models"
 
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type AuthController struct{}
-
-func NewAuthController() *AuthController {
-	return &AuthController{}
+type AuthController struct{
+	authService services.AuthServiceInterface
 }
 
-// validateEmail validates email format
-func (c *AuthController) validateEmail(email string) bool {
-	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	return emailRegex.MatchString(email)
-}
-
-// validatePassword validates password strength
-func (c *AuthController) validatePassword(password string) (bool, string) {
-	if len(password) < 8 {
-		return false, "Password minimal 8 karakter"
+func NewAuthController(authService services.AuthServiceInterface) *AuthController {
+	return &AuthController{
+		authService: authService,
 	}
-	
-	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
-	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
-	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
-	
-	if !hasUpper || !hasLower || !hasNumber {
-		return false, "Password harus mengandung huruf besar, huruf kecil, dan angka"
-	}
-	
-	return true, ""
 }
 
-// validatePhone validates Indonesian phone number
-func (c *AuthController) validatePhone(phone string) bool {
-	if phone == "" {
-		return true // phone is optional
-	}
-	phoneRegex := regexp.MustCompile(`^08\d{8,11}$`)
-	return phoneRegex.MatchString(phone)
-}
 
 // Register handles user registration
 func (c *AuthController) Register(ctx http.Context) http.Response {
-	var request struct {
-		Name            string `json:"name"`
-		Email           string `json:"email"`
-		Password        string `json:"password"`
-		ConfirmPassword string `json:"confirm_password"`
-		Role            string `json:"role"`
-		Phone           string `json:"phone"`
-		AgreeTerms      bool   `json:"agree_terms"`
-	}
+	var request services.RegisterRequest
 
 	if err := ctx.Request().Bind(&request); err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
@@ -70,7 +33,7 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		})
 	}
 
-	// Validate required fields
+	// Basic validation
 	if strings.TrimSpace(request.Name) == "" {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -92,24 +55,10 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		})
 	}
 
-	if !c.validateEmail(request.Email) {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Format email tidak valid",
-		})
-	}
-
 	if strings.TrimSpace(request.Password) == "" {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
 			"message": "Password wajib diisi",
-		})
-	}
-
-	if valid, message := c.validatePassword(request.Password); !valid {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": message,
 		})
 	}
 
@@ -120,17 +69,10 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		})
 	}
 
-	if request.Role != "customer" && request.Role != "vendor" {
+	if request.Role != models.RoleCustomer && request.Role != models.RoleVendor {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
 			"message": "Role harus customer atau vendor",
-		})
-	}
-
-	if !c.validatePhone(request.Phone) {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Format nomor telepon tidak valid (contoh: 08123456789)",
 		})
 	}
 
@@ -141,107 +83,33 @@ func (c *AuthController) Register(ctx http.Context) http.Response {
 		})
 	}
 
-	// Check if email already exists
-	var existingUser models.User
-	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
-	
-	err := facades.Orm().Query().Where("email", emailToCheck).First(&existingUser)
-	if err == nil && existingUser.ID > 0 {
-		// Email found, user already exists
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Email sudah terdaftar",
-		})
-	}
-	
-	// Check if it's a "record not found" error (which is what we want)
-	if err != nil && !strings.Contains(err.Error(), "record not found") && !strings.Contains(err.Error(), "not found") {
-		// It's a different database error
-		facades.Log().Error("Database error while checking email: " + err.Error())
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Gagal memeriksa email",
-		})
-	}
-	
-	// Email is available for registration
-
-	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	// Call service
+	response, err := c.authService.Register(&request)
 	if err != nil {
-		facades.Log().Error("Failed to hash password: " + err.Error())
+		facades.Log().Error("Auth service error: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Gagal memproses password",
+			"message": "Terjadi kesalahan sistem",
 		})
 	}
 
-	// Create user
-	now := time.Now()
-	user := models.User{
-		Name:            strings.TrimSpace(request.Name),
-		Email:           strings.ToLower(strings.TrimSpace(request.Email)),
-		Password:        string(hashedPassword),
-		Role:            request.Role,
-		Phone:           strings.TrimSpace(request.Phone),
-		IsActive:        true,
-		EmailVerifiedAt: &now,
+	// Determine status code based on response
+	statusCode := 201
+	if !response.Success {
+		statusCode = 400
 	}
 
-	if err := facades.Orm().Query().Create(&user); err != nil {
-		facades.Log().Error("Failed to create user: " + err.Error())
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Gagal membuat akun",
-		})
-	}
-
-	// Create profile based on role
-	if request.Role == "vendor" {
-		vendorProfile := models.VendorProfile{
-			UserID:       user.ID,
-			BusinessName: user.Name + " Business",
-			BusinessType: "personal",
-			IsActive:     true,
-		}
-		if err := facades.Orm().Query().Create(&vendorProfile); err != nil {
-			// Log error but don't fail registration
-			facades.Log().Error("Failed to create vendor profile: " + err.Error())
-		}
-	} else if request.Role == "customer" {
-		customerProfile := models.CustomerProfile{
-			UserID:   user.ID,
-			FullName: user.Name,
-			Phone: &user.Phone,
-			IsActive: true,
-		}
-		if err := facades.Orm().Query().Create(&customerProfile); err != nil {
-			// Log error but don't fail registration
-			facades.Log().Error("Failed to create customer profile: " + err.Error())
-		}
-	}
-
-	return ctx.Response().Status(201).Json(http.Json{
-		"success": true,
-		"message": "Akun berhasil dibuat",
-		"data": http.Json{
-			"user": http.Json{
-				"id":    user.ID,
-				"name":  user.Name,
-				"email": user.Email,
-				"role":  user.Role,
-			},
-		},
+	return ctx.Response().Status(statusCode).Json(http.Json{
+		"success": response.Success,
+		"message": response.Message,
+		"data":    response.Data,
+		"errors":  response.Errors,
 	})
 }
 
 // Login handles user login
 func (c *AuthController) Login(ctx http.Context) http.Response {
-	var request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
-	}
+	var request services.LoginRequest
 
 	if err := ctx.Request().Bind(&request); err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
@@ -251,7 +119,7 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 		})
 	}
 
-	// Validate required fields
+	// Basic validation
 	if strings.TrimSpace(request.Email) == "" {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -266,99 +134,34 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 		})
 	}
 
-	if !c.validateEmail(request.Email) {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Format email tidak valid",
-		})
-	}
-
-	// Validate role
-	if request.Role != "customer" && request.Role != "vendor" {
-		facades.Log().Error("Invalid role provided: " + request.Role)
+	if request.Role != models.RoleCustomer && request.Role != models.RoleVendor {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
 			"message": "Role harus customer atau vendor",
 		})
 	}
 
-	// Find user
-	var user models.User
- 	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
-	facades.Log().Info("Login attempt for email: " + emailToCheck + " with role: " + request.Role)
-	
-	err := facades.Orm().Query().Where("email", emailToCheck).First(&user)
-	if err != nil || user.ID == 0 {
-		facades.Log().Info("User not found for email: " + emailToCheck)
-		return ctx.Response().Status(401).Json(http.Json{
-			"success": false,
-			"message": "Email atau password salah",
-		})
-	}
-	
-	facades.Log().Info("User found with role: " + user.Role + ", requested role: " + request.Role)
-
-	// Check password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		return ctx.Response().Status(401).Json(http.Json{
-			"success": false,
-			"message": "Email atau password salah",
-		})
-	}
-
-	// Check if user is active
-	if !user.IsActive {
-		return ctx.Response().Status(401).Json(http.Json{
-			"success": false,
-			"message": "Akun tidak aktif",
-		})
-	}
-
-	// Check if user role matches requested role
-	if user.Role != request.Role {
-		facades.Log().Info("Role mismatch: user role=" + user.Role + ", requested role=" + request.Role)
-		if request.Role == "customer" {
-			return ctx.Response().Status(401).Json(http.Json{
-				"success": false,
-				"message": "Anda belum punya akun customer. Silakan daftar sebagai customer atau login sebagai vendor.",
-			})
-		} else {
-			return ctx.Response().Status(401).Json(http.Json{
-				"success": false,
-				"message": "Anda belum punya akun vendor. Silakan daftar sebagai vendor atau login sebagai customer.",
-			})
-		}
-	}
-
-	// Update last login
-	now := time.Now()
-	user.LastLoginAt = &now
-	if err := facades.Orm().Query().Save(&user); err != nil {
-		facades.Log().Error("Failed to update last login: " + err.Error())
-	}
-
-	// Generate JWT token
-	token, err := facades.Auth(ctx).LoginUsingID(user.ID)
+	// Call service
+	response, err := c.authService.Login(&request)
 	if err != nil {
-		facades.Log().Error("Failed to generate token: " + err.Error())
+		facades.Log().Error("Auth service error: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Gagal membuat token",
+			"message": "Terjadi kesalahan sistem",
 		})
 	}
 
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Login berhasil",
-		"data": http.Json{
-			"token": token,
-			"user": http.Json{
-				"id":    user.ID,
-				"name":  user.Name,
-				"email": user.Email,
-				"role":  user.Role,
-			},
-		},
+	// Determine status code based on response
+	statusCode := 200
+	if !response.Success {
+		statusCode = 401
+	}
+
+	return ctx.Response().Status(statusCode).Json(http.Json{
+		"success": response.Success,
+		"message": response.Message,
+		"data":    response.Data,
+		"errors":  response.Errors,
 	})
 }
 
@@ -398,12 +201,13 @@ func (c *AuthController) Me(ctx http.Context) http.Response {
 	}
 
 	// Load profile based on role
-	if user.Role == "vendor" {
+	switch user.Role {
+	case models.RoleVendor:
 		var vendorProfile models.VendorProfile
 		if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err == nil {
 			user.VendorProfile = &vendorProfile
 		}
-	} else if user.Role == "customer" {
+	case models.RoleCustomer:
 		var customerProfile models.CustomerProfile
 		if err := facades.Orm().Query().Where("user_id", user.ID).First(&customerProfile); err == nil {
 			user.CustomerProfile = &customerProfile
@@ -433,7 +237,7 @@ func (c *AuthController) CheckUserRole(ctx http.Context) http.Response {
 		})
 	}
 
-	// Validate email format
+	// Basic validation
 	if strings.TrimSpace(request.Email) == "" {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -441,39 +245,33 @@ func (c *AuthController) CheckUserRole(ctx http.Context) http.Response {
 		})
 	}
 
-	if !c.validateEmail(request.Email) {
-		return ctx.Response().Status(400).Json(http.Json{
+	// Call service
+	response, err := c.authService.CheckUserRole(request.Email)
+	if err != nil {
+		facades.Log().Error("Auth service error: " + err.Error())
+		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Format email tidak valid",
+			"message": "Terjadi kesalahan sistem",
 		})
 	}
 
-	// Find user by email
-	var user models.User
-	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
-	err := facades.Orm().Query().Where("email", emailToCheck).First(&user)
-	
-	if err != nil || user.ID == 0 {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Email tidak terdaftar",
-		})
+	// Determine status code based on response
+	statusCode := 200
+	if !response.Success {
+		if strings.Contains(response.Message, "tidak terdaftar") {
+			statusCode = 404
+		} else if strings.Contains(response.Message, "tidak aktif") {
+			statusCode = 403
+		} else {
+			statusCode = 400
+		}
 	}
 
-	// Check if user is active
-	if !user.IsActive {
-		return ctx.Response().Status(403).Json(http.Json{
-			"success": false,
-			"message": "Akun tidak aktif",
-		})
-	}
-
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Role user berhasil ditemukan",
-		"data": http.Json{
-			"role": user.Role,
-		},
+	return ctx.Response().Status(statusCode).Json(http.Json{
+		"success": response.Success,
+		"message": response.Message,
+		"data":    response.Data,
+		"errors":  response.Errors,
 	})
 }
 
@@ -499,10 +297,7 @@ func (c *AuthController) RefreshToken(ctx http.Context) http.Response {
 
 // SuperAdminLogin handles superadmin login
 func (c *AuthController) SuperAdminLogin(ctx http.Context) http.Response {
-	var request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var request services.SuperAdminLoginRequest
 
 	if err := ctx.Request().Bind(&request); err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
@@ -512,7 +307,7 @@ func (c *AuthController) SuperAdminLogin(ctx http.Context) http.Response {
 		})
 	}
 
-	// Validate required fields
+	// Basic validation
 	if strings.TrimSpace(request.Email) == "" {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -527,82 +322,30 @@ func (c *AuthController) SuperAdminLogin(ctx http.Context) http.Response {
 		})
 	}
 
-	if !c.validateEmail(request.Email) {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Format email tidak valid",
-		})
-	}
-
-	// Find user
-	var user models.User
-	emailToCheck := strings.ToLower(strings.TrimSpace(request.Email))
-	
-	err := facades.Orm().Query().Where("email", emailToCheck).First(&user)
-	if err != nil || user.ID == 0 {
-		facades.Log().Info("Superadmin login attempt - User not found for email: " + emailToCheck)
-		return ctx.Response().Status(401).Json(http.Json{
-			"success": false,
-			"message": "Email atau password salah",
-		})
-	}
-
-	// Check if user is superadmin
-	if user.Role != "super_user" {
-		facades.Log().Info("Superadmin login attempt - User is not superadmin. Role: " + user.Role)
-		return ctx.Response().Status(403).Json(http.Json{
-			"success": false,
-			"message": "Akses ditolak. Hanya superadmin yang dapat mengakses halaman ini",
-		})
-	}
-
-	// Check password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		facades.Log().Info("Superadmin login attempt - Invalid password for email: " + emailToCheck)
-		return ctx.Response().Status(401).Json(http.Json{
-			"success": false,
-			"message": "Email atau password salah",
-		})
-	}
-
-	// Check if user is active
-	if !user.IsActive {
-		return ctx.Response().Status(401).Json(http.Json{
-			"success": false,
-			"message": "Akun tidak aktif",
-		})
-	}
-
-	// Update last login
-	now := time.Now()
-	user.LastLoginAt = &now
-	if err := facades.Orm().Query().Save(&user); err != nil {
-		facades.Log().Error("Failed to update last login: " + err.Error())
-	}
-
-	// Generate JWT token
-	token, err := facades.Auth(ctx).LoginUsingID(user.ID)
+	// Call service
+	response, err := c.authService.SuperAdminLogin(&request)
 	if err != nil {
-		facades.Log().Error("Failed to generate token: " + err.Error())
+		facades.Log().Error("Auth service error: " + err.Error())
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Gagal membuat token",
+			"message": "Terjadi kesalahan sistem",
 		})
 	}
 
-	facades.Log().Info("Superadmin login successful for email: " + emailToCheck)
+	// Determine status code based on response
+	statusCode := 200
+	if !response.Success {
+		if strings.Contains(response.Message, "Akses ditolak") {
+			statusCode = 403
+		} else {
+			statusCode = 401
+		}
+	}
 
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Login superadmin berhasil",
-		"data": http.Json{
-			"token": token,
-			"user": http.Json{
-				"id":    user.ID,
-				"name":  user.Name,
-				"email": user.Email,
-				"role":  user.Role,
-			},
-		},
+	return ctx.Response().Status(statusCode).Json(http.Json{
+		"success": response.Success,
+		"message": response.Message,
+		"data":    response.Data,
+		"errors":  response.Errors,
 	})
 }

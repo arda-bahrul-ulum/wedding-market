@@ -92,11 +92,12 @@ func (c *MarketplaceController) GetVendors(ctx http.Context) http.Response {
 	}
 
 	// Apply sorting
-	if sortBy == "rating" {
+	switch sortBy {
+	case "rating":
 		query = query.Order("(SELECT AVG(rating) FROM reviews WHERE vendor_id = vendor_profiles.id) " + sortOrder)
-	} else if sortBy == "price" {
+	case "price":
 		query = query.Order("(SELECT MIN(price) FROM services WHERE vendor_id = vendor_profiles.id AND is_active = true) " + sortOrder)
-	} else {
+	default:
 		query = query.Order(sortBy + " " + sortOrder)
 	}
 

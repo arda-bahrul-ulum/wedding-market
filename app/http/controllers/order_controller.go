@@ -66,7 +66,8 @@ func (c *OrderController) CreateOrder(ctx http.Context) http.Response {
 		var itemName string
 		var itemPrice float64
 
-		if item.ItemType == "service" {
+		switch item.ItemType {
+		case "service":
 			var service models.Service
 			if err := facades.Orm().Query().Where("id", item.ItemID).Where("is_active", true).First(&service); err != nil {
 				return ctx.Response().Status(404).Json(http.Json{
@@ -76,7 +77,7 @@ func (c *OrderController) CreateOrder(ctx http.Context) http.Response {
 			}
 			itemName = service.Name
 			itemPrice = service.Price
-		} else if item.ItemType == "package" {
+		case "package":
 			var pkg models.Package
 			if err := facades.Orm().Query().Where("id", item.ItemID).Where("is_active", true).First(&pkg); err != nil {
 				return ctx.Response().Status(404).Json(http.Json{
@@ -113,14 +114,8 @@ func (c *OrderController) CreateOrder(ctx http.Context) http.Response {
 		orderItems = append(orderItems, orderItem)
 	}
 
-	// Get commission rate from system settings
-	var commissionRate float64 = 0.05 // Default 5%
-	var setting models.SystemSetting
-	if err := facades.Orm().Query().Where("key", "commission_rate").First(&setting); err == nil {
-		if rate, err := strconv.ParseFloat(setting.Value, 64); err == nil {
-			commissionRate = rate
-		}
-	}
+	// Use default commission rate (5%)
+	var commissionRate float64 = 0.05
 
 	commission := totalAmount * commissionRate
 	vendorAmount := totalAmount - commission
@@ -371,7 +366,8 @@ func (c *OrderController) UpdateOrder(ctx http.Context) http.Response {
 			var itemName string
 			var itemPrice float64
 
-			if item.ItemType == "service" {
+			switch item.ItemType {
+			case "service":
 				var service models.Service
 				if err := facades.Orm().Query().Where("id", item.ItemID).Where("is_active", true).First(&service); err != nil {
 					return ctx.Response().Status(404).Json(http.Json{
@@ -381,7 +377,7 @@ func (c *OrderController) UpdateOrder(ctx http.Context) http.Response {
 				}
 				itemName = service.Name
 				itemPrice = service.Price
-			} else if item.ItemType == "package" {
+			case "package":
 				var pkg models.Package
 				if err := facades.Orm().Query().Where("id", item.ItemID).Where("is_active", true).First(&pkg); err != nil {
 					return ctx.Response().Status(404).Json(http.Json{
@@ -419,14 +415,8 @@ func (c *OrderController) UpdateOrder(ctx http.Context) http.Response {
 			orderItems = append(orderItems, orderItem)
 		}
 
-		// Get commission rate from system settings
-		var commissionRate float64 = 0.05 // Default 5%
-		var setting models.SystemSetting
-		if err := facades.Orm().Query().Where("key", "commission_rate").First(&setting); err == nil {
-			if rate, err := strconv.ParseFloat(setting.Value, 64); err == nil {
-				commissionRate = rate
-			}
-		}
+		// Use default commission rate (5%)
+		var commissionRate float64 = 0.05
 
 		commission := totalAmount * commissionRate
 		vendorAmount := totalAmount - commission

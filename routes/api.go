@@ -5,11 +5,19 @@ import (
 
 	"goravel/app/http/controllers"
 	"goravel/app/http/middleware"
+	"goravel/app/models"
 )
 
 func Api() {
-	// Initialize controllers
-	authController := controllers.NewAuthController()
+	// Initialize controllers through dependency injection
+	authControllerInterface, err := facades.App().Make("controllers.auth")
+	if err != nil {
+		facades.Log().Error("Failed to make auth controller: " + err.Error())
+		return
+	}
+	authController := authControllerInterface.(*controllers.AuthController)
+	
+	// For now, keep the old way for other controllers until they are refactored
 	marketplaceController := controllers.NewMarketplaceController()
 	orderController := controllers.NewOrderController()
 	vendorController := controllers.NewVendorController()
@@ -36,61 +44,61 @@ func Api() {
 	api.Get("/packages", marketplaceController.GetPackages)
 
 	// Admin routes - parameterized routes first to avoid conflicts
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/users/{id}", adminController.UpdateUser)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/users/{id}/status", adminController.UpdateUserStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Delete("/admin/users/{id}", adminController.DeleteUser)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/users/{id}", adminController.UpdateUser)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/users/{id}/status", adminController.UpdateUserStatus)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Delete("/admin/users/{id}", adminController.DeleteUser)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/vendors/{id}/status", adminController.UpdateVendorStatus)
 	
 	// Admin routes - specific routes
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/dashboard", adminController.GetDashboard)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/users", adminController.GetUsers)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/vendors", adminController.GetVendors)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/vendors", adminController.CreateVendor)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/vendors/{id}", adminController.UpdateVendor)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Delete("/admin/vendors/{id}", adminController.DeleteVendor)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders", adminController.GetOrders)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/statistics", adminController.GetOrderStatistics)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/orders/bulk-update-status", adminController.BulkUpdateOrderStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/orders/bulk-delete", adminController.BulkDeleteOrders)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/export", adminController.ExportOrders)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/status-options", adminController.GetOrderStatusOptions)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Get("/admin/orders/{id}", orderController.GetAdminOrderDetail)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Put("/admin/orders/{id}/status", orderController.UpdateAdminOrderStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("admin", "super_user")).Post("/admin/orders/{id}/refund", orderController.ProcessRefund)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/dashboard", adminController.GetDashboard)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/users", adminController.GetUsers)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/vendors", adminController.GetVendors)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Post("/admin/vendors", adminController.CreateVendor)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/vendors/{id}", adminController.UpdateVendor)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Delete("/admin/vendors/{id}", adminController.DeleteVendor)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/orders", adminController.GetOrders)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/orders/statistics", adminController.GetOrderStatistics)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Post("/admin/orders/bulk-update-status", adminController.BulkUpdateOrderStatus)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Post("/admin/orders/bulk-delete", adminController.BulkDeleteOrders)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/orders/export", adminController.ExportOrders)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/orders/status-options", adminController.GetOrderStatusOptions)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/orders/{id}", orderController.GetAdminOrderDetail)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/orders/{id}/status", orderController.UpdateAdminOrderStatus)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Post("/admin/orders/{id}/refund", orderController.ProcessRefund)
 
 	// Authentication protected routes
 	api.Middleware(middleware.Auth()).Post("/auth/logout", authController.Logout)
 	api.Middleware(middleware.Auth()).Get("/auth/me", authController.Me)
 
 	// Customer routes
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Get("/orders", orderController.GetOrders)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Get("/orders/{id}", orderController.GetOrderDetail)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/orders", orderController.CreateOrder)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Put("/orders/{id}", orderController.UpdateOrder)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Delete("/orders/{id}", orderController.DeleteOrder)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Put("/orders/{id}/cancel", orderController.CancelOrder)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Get("/orders", orderController.GetOrders)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Get("/orders/{id}", orderController.GetOrderDetail)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Post("/orders", orderController.CreateOrder)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Put("/orders/{id}", orderController.UpdateOrder)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Delete("/orders/{id}", orderController.DeleteOrder)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Put("/orders/{id}/cancel", orderController.CancelOrder)
 	// Wishlist routes will be implemented later
-	// api.Middleware(middleware.Auth(), middleware.Role("customer")).Get("/wishlist", userController.GetWishlist)
-	// api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/wishlist", userController.AddToWishlist)
-	// api.Middleware(middleware.Auth(), middleware.Role("customer")).Delete("/wishlist/{id}", userController.RemoveFromWishlist)
-	api.Middleware(middleware.Auth(), middleware.Role("customer")).Post("/reviews", reviewController.CreateReview)
+	// api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Get("/wishlist", userController.GetWishlist)
+	// api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Post("/wishlist", userController.AddToWishlist)
+	// api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Delete("/wishlist/{id}", userController.RemoveFromWishlist)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleCustomer)).Post("/reviews", reviewController.CreateReview)
 
 	// Vendor routes
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/profile", vendorController.GetProfile)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Put("/vendor/profile", vendorController.UpdateProfile)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/services", vendorController.GetServices)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Post("/vendor/services", vendorController.CreateService)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Put("/vendor/services/{id}", vendorController.UpdateService)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Delete("/vendor/services/{id}", vendorController.DeleteService)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/orders", orderController.GetVendorOrders)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/orders/{id}", orderController.GetOrderDetail)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Put("/vendor/orders/{id}/status", orderController.UpdateOrderStatus)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/orders/statistics", orderController.GetOrderStatistics)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Get("/vendor/portfolios", portfolioController.GetPortfolios)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Post("/vendor/portfolios", portfolioController.CreatePortfolio)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Put("/vendor/portfolios/{id}", portfolioController.UpdatePortfolio)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Delete("/vendor/portfolios/{id}", portfolioController.DeletePortfolio)
-	api.Middleware(middleware.Auth(), middleware.Role("vendor")).Post("/reviews/{id}/reply", reviewController.ReplyToReview)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Get("/vendor/profile", vendorController.GetProfile)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Put("/vendor/profile", vendorController.UpdateProfile)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Get("/vendor/services", vendorController.GetServices)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Post("/vendor/services", vendorController.CreateService)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Put("/vendor/services/{id}", vendorController.UpdateService)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Delete("/vendor/services/{id}", vendorController.DeleteService)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Get("/vendor/orders", orderController.GetVendorOrders)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Get("/vendor/orders/{id}", orderController.GetOrderDetail)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Put("/vendor/orders/{id}/status", orderController.UpdateOrderStatus)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Get("/vendor/orders/statistics", orderController.GetOrderStatistics)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Get("/vendor/portfolios", portfolioController.GetPortfolios)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Post("/vendor/portfolios", portfolioController.CreatePortfolio)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Put("/vendor/portfolios/{id}", portfolioController.UpdatePortfolio)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Delete("/vendor/portfolios/{id}", portfolioController.DeletePortfolio)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleVendor)).Post("/reviews/{id}/reply", reviewController.ReplyToReview)
 
 	// User profile routes
 	api.Middleware(middleware.Auth()).Put("/profile", userController.UpdateProfile)

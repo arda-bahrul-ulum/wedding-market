@@ -7,11 +7,12 @@ import (
 )
 
 func Boot() {
+	// Create new application instance
 	app := foundation.NewApplication()
 
 	// Bootstrap the application
 	app.Boot()
 
-	// Bootstrap the config.
+	// Bootstrap configuration
 	config.Boot()
 }
