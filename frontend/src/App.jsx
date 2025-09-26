@@ -46,6 +46,7 @@ import AdminDashboard from "./pages/Admin/DashboardPage";
 import AdminUsers from "./pages/Admin/UsersPage";
 import AdminVendors from "./pages/Admin/VendorsPage";
 import AdminOrders from "./pages/Admin/OrdersPage";
+import CategoryManagementPage from "./pages/Admin/CategoryManagementPage";
 
 // Error Pages
 import NotFoundPage from "./pages/Error/NotFoundPage";
@@ -243,6 +244,7 @@ function AppContent() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="vendors" element={<AdminVendors />} />
+          <Route path="categories" element={<CategoryManagementPage />} />
           <Route path="orders" element={<AdminOrders />} />
         </Route>
       </Routes>

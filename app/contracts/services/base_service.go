@@ -35,6 +35,15 @@ func NewServiceResponse(success bool, message string, data interface{}) *Service
 	}
 }
 
+// NewSuccessResponse creates a new success response
+func NewSuccessResponse(message string, data interface{}) *ServiceResponse {
+	return &ServiceResponse{
+		Success: true,
+		Message: message,
+		Data:    data,
+	}
+}
+
 // NewErrorResponse creates a new error response
 func NewErrorResponse(message string, errors interface{}) *ServiceResponse {
 	return &ServiceResponse{

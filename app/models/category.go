@@ -12,6 +12,7 @@ type Category struct {
 	Slug        string `json:"slug" gorm:"not null;uniqueIndex;size:255"`
 	Description string `json:"description" gorm:"type:text"`
 	Icon        string `json:"icon" gorm:"size:255"`
+	Color       string `json:"color" gorm:"size:7;default:'#1976d2'"`
 	IsActive    bool   `json:"is_active" gorm:"default:true"`
 	SortOrder   int    `json:"sort_order" gorm:"default:0"`
 

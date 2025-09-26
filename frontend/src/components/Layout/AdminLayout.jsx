@@ -13,6 +13,7 @@ import {
   ChevronRight,
   BarChart3,
   TrendingUp,
+  Tag,
 } from "lucide-react";
 
 function AdminLayout() {
@@ -38,6 +39,12 @@ function AdminLayout() {
       href: "/admin/vendors",
       icon: Store,
       color: "text-purple-500",
+    },
+    {
+      name: "Categories",
+      href: "/admin/categories",
+      icon: Tag,
+      color: "text-indigo-500",
     },
     {
       name: "Orders",

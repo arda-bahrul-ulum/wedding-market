@@ -226,6 +226,17 @@ func (receiver *ServiceServiceProvider) Register(app foundation.Application) {
 			orderRepo.(repositories.OrderRepositoryInterface),
 		), nil
 	})
+
+	// Register Category Service
+	facades.App().Bind("services.category", func(app foundation.Application) (any, error) {
+		categoryRepo, err := facades.App().Make("repositories.category")
+		if err != nil {
+			return nil, err
+		}
+		return serviceImpl.NewCategoryService(
+			categoryRepo.(repositories.CategoryRepositoryInterface),
+		), nil
+	})
 }
 
 func (receiver *ServiceServiceProvider) Boot(app foundation.Application) {

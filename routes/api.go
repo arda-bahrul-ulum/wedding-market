@@ -19,29 +19,32 @@ func Api() {
 	authController := authControllerInterface.(*controllers.AuthController)
 	
 	// Get service instances
-	serviceServiceInterface, _ := facades.App().Make("services.ServiceServiceInterface")
+	serviceServiceInterface, _ := facades.App().Make("services.service")
 	serviceService := serviceServiceInterface.(services.ServiceServiceInterface)
 	
-	vendorServiceInterface, _ := facades.App().Make("services.VendorServiceInterface")
+	vendorServiceInterface, _ := facades.App().Make("services.vendor")
 	vendorService := vendorServiceInterface.(services.VendorServiceInterface)
 	
-	packageServiceInterface, _ := facades.App().Make("services.PackageServiceInterface")
+	packageServiceInterface, _ := facades.App().Make("services.package")
 	packageService := packageServiceInterface.(services.PackageServiceInterface)
 	
-	orderServiceInterface, _ := facades.App().Make("services.OrderServiceInterface")
+	orderServiceInterface, _ := facades.App().Make("services.order")
 	orderService := orderServiceInterface.(services.OrderServiceInterface)
 	
-	adminServiceInterface, _ := facades.App().Make("services.AdminServiceInterface")
+	adminServiceInterface, _ := facades.App().Make("services.admin")
 	adminService := adminServiceInterface.(services.AdminServiceInterface)
 	
-	userServiceInterface, _ := facades.App().Make("services.UserServiceInterface")
+	userServiceInterface, _ := facades.App().Make("services.user")
 	userService := userServiceInterface.(services.UserServiceInterface)
 	
-	reviewServiceInterface, _ := facades.App().Make("services.ReviewServiceInterface")
+	reviewServiceInterface, _ := facades.App().Make("services.review")
 	reviewService := reviewServiceInterface.(services.ReviewServiceInterface)
 	
-	portfolioServiceInterface, _ := facades.App().Make("services.PortfolioServiceInterface")
+	portfolioServiceInterface, _ := facades.App().Make("services.portfolio")
 	portfolioService := portfolioServiceInterface.(services.PortfolioServiceInterface)
+
+	categoryServiceInterface, _ := facades.App().Make("services.category")
+	categoryService := categoryServiceInterface.(services.CategoryServiceInterface)
 
 	// Initialize controllers with dependencies
 	marketplaceController := controllers.NewMarketplaceController(serviceService, vendorService, packageService)
@@ -51,6 +54,7 @@ func Api() {
 	userController := controllers.NewUserController(userService)
 	reviewController := controllers.NewReviewController(reviewService)
 	portfolioController := controllers.NewPortfolioController(portfolioService)
+	adminCategoryController := controllers.NewAdminCategoryController(categoryService)
 
 	// Public routes
 	api := facades.Route().Prefix("api/v1")
@@ -91,6 +95,16 @@ func Api() {
 	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/orders/{id}", orderController.GetAdminOrderDetail)
 	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/orders/{id}/status", orderController.UpdateAdminOrderStatus)
 	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Post("/admin/orders/{id}/refund", orderController.ProcessRefund)
+	
+	// Admin Category Management Routes
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/categories", adminCategoryController.GetCategories)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/categories/statistics", adminCategoryController.GetCategoryStatistics)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Get("/admin/categories/{id}", adminCategoryController.GetCategory)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Post("/admin/categories", adminCategoryController.CreateCategory)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/categories/{id}", adminCategoryController.UpdateCategory)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Delete("/admin/categories/{id}", adminCategoryController.DeleteCategory)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/categories/{id}/activate", adminCategoryController.ActivateCategory)
+	api.Middleware(middleware.Auth(), middleware.Role(models.RoleAdmin, models.RoleSuperUser)).Put("/admin/categories/{id}/deactivate", adminCategoryController.DeactivateCategory)
 
 	// Authentication protected routes
 	api.Middleware(middleware.Auth()).Post("/auth/logout", authController.Logout)
