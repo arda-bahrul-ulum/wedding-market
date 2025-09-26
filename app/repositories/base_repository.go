@@ -42,6 +42,11 @@ func (r *BaseRepository[T]) Find(id uint) (*T, error) {
 	return &model, nil
 }
 
+// FindByID finds a record by ID (alias for Find)
+func (r *BaseRepository[T]) FindByID(id uint) (*T, error) {
+	return r.Find(id)
+}
+
 // FindBy finds a record by specific field
 func (r *BaseRepository[T]) FindBy(field string, value interface{}) (*T, error) {
 	var model T

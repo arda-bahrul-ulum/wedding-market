@@ -27,6 +27,27 @@ func (receiver *RepositoryServiceProvider) Register(app foundation.Application) 
 	facades.App().Bind("repositories.category", func(app foundation.Application) (any, error) {
 		return repoImpl.NewCategoryRepository(), nil
 	})
+
+	// Register new repositories
+	facades.App().Bind("repositories.order", func(app foundation.Application) (any, error) {
+		return repoImpl.NewOrderRepository(), nil
+	})
+
+	facades.App().Bind("repositories.service", func(app foundation.Application) (any, error) {
+		return repoImpl.NewServiceRepository(), nil
+	})
+
+	facades.App().Bind("repositories.package", func(app foundation.Application) (any, error) {
+		return repoImpl.NewPackageRepository(), nil
+	})
+
+	facades.App().Bind("repositories.review", func(app foundation.Application) (any, error) {
+		return repoImpl.NewReviewRepository(), nil
+	})
+
+	facades.App().Bind("repositories.portfolio", func(app foundation.Application) (any, error) {
+		return repoImpl.NewPortfolioRepository(), nil
+	})
 }
 
 func (receiver *RepositoryServiceProvider) Boot(app foundation.Application) {

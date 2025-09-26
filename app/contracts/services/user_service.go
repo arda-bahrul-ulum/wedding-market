@@ -40,6 +40,13 @@ type UpdateProfileRequest struct {
 	Avatar string `json:"avatar" validate:"omitempty"`
 }
 
+// UpdateUserProfileRequest represents user profile update request data
+type UpdateUserProfileRequest struct {
+	Name   string `json:"name" validate:"omitempty,min=3"`
+	Phone  string `json:"phone" validate:"omitempty"`
+	Avatar string `json:"avatar" validate:"omitempty"`
+}
+
 // UserFilters represents user filtering options
 type UserFilters struct {
 	Role     string `json:"role"`

@@ -2,60 +2,60 @@ package controllers
 
 import (
 	"strconv"
-	"time"
 
+	"goravel/app/contracts/services"
 	"goravel/app/models"
 
 	"github.com/goravel/framework/contracts/http"
-	"github.com/goravel/framework/facades"
 )
 
-type VendorController struct{}
+type VendorController struct {
+	vendorService  services.VendorServiceInterface
+	serviceService services.ServiceServiceInterface
+	orderService   services.OrderServiceInterface
+}
 
-func NewVendorController() *VendorController {
-	return &VendorController{}
+func NewVendorController(
+	vendorService services.VendorServiceInterface,
+	serviceService services.ServiceServiceInterface,
+	orderService services.OrderServiceInterface,
+) *VendorController {
+	return &VendorController{
+		vendorService:  vendorService,
+		serviceService: serviceService,
+		orderService:   orderService,
+	}
 }
 
 // GetProfile returns vendor profile
 func (c *VendorController) GetProfile(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
 
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
+	response, err := c.vendorService.GetVendorProfile(user.ID)
+	if err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Vendor profile not found",
+			"message": "Failed to get vendor profile",
 		})
 	}
 
-	// Load user data
-	vendorProfile.User = user
+	statusCode := 200
+	if !response.Success {
+		if response.Message == "Vendor profile not found" {
+			statusCode = 404
+		} else {
+			statusCode = 500
+		}
+	}
 
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"data":    vendorProfile,
-	})
+	return ctx.Response().Status(statusCode).Json(response)
 }
 
 // UpdateProfile updates vendor profile
 func (c *VendorController) UpdateProfile(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
 
-	var request struct {
-		BusinessName string  `json:"business_name" validate:"required"`
-		BusinessType string  `json:"business_type" validate:"required,oneof=personal company wedding_organizer"`
-		Description  string  `json:"description"`
-		Address      string  `json:"address"`
-		City         string  `json:"city"`
-		Province     string  `json:"province"`
-		PostalCode   string  `json:"postal_code"`
-		Latitude     float64 `json:"latitude"`
-		Longitude    float64 `json:"longitude"`
-		Website      string  `json:"website"`
-		Instagram    string  `json:"instagram"`
-		Whatsapp     string  `json:"whatsapp"`
-	}
-
+	var request services.UpdateVendorProfileRequest
 	if err := ctx.Request().Bind(&request); err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -64,54 +64,29 @@ func (c *VendorController) UpdateProfile(ctx http.Context) http.Response {
 		})
 	}
 
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Vendor profile not found",
-		})
-	}
-
-	// Update profile
-	vendorProfile.BusinessName = request.BusinessName
-	vendorProfile.BusinessType = request.BusinessType
-	vendorProfile.Description = request.Description
-	vendorProfile.Address = request.Address
-	vendorProfile.City = request.City
-	vendorProfile.Province = request.Province
-	vendorProfile.PostalCode = request.PostalCode
-	vendorProfile.Latitude = request.Latitude
-	vendorProfile.Longitude = request.Longitude
-	vendorProfile.Website = request.Website
-	vendorProfile.Instagram = request.Instagram
-	vendorProfile.Whatsapp = request.Whatsapp
-
-	if err := facades.Orm().Query().Save(&vendorProfile); err != nil {
+	response, err := c.vendorService.UpdateVendorProfile(user.ID, &request)
+	if err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Failed to update profile",
+			"message": "Failed to update vendor profile",
 		})
 	}
 
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Profile updated successfully",
-		"data":    vendorProfile,
-	})
+	statusCode := 200
+	if !response.Success {
+		if response.Message == "Vendor profile not found" {
+			statusCode = 404
+		} else {
+			statusCode = 500
+		}
+	}
+
+	return ctx.Response().Status(statusCode).Json(response)
 }
 
 // GetServices returns vendor's services
 func (c *VendorController) GetServices(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
-
-	// Get vendor profile
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Vendor profile not found",
-		})
-	}
 
 	// Get query parameters
 	page, _ := strconv.Atoi(ctx.Request().Query("page", "1"))
@@ -119,76 +94,39 @@ func (c *VendorController) GetServices(ctx http.Context) http.Response {
 	categoryID := ctx.Request().Query("category_id", "")
 	search := ctx.Request().Query("search", "")
 
-	// Build query
-	query := facades.Orm().Query().Model(&models.Service{}).Where("vendor_id", vendorProfile.ID)
-
-	if categoryID != "" {
-		query = query.Where("category_id", categoryID)
+	filters := map[string]interface{}{
+		"user_id":     user.ID,
+		"page":        page,
+		"limit":       limit,
+		"category_id": categoryID,
+		"search":      search,
 	}
 
-	if search != "" {
-		query = query.Where("name ILIKE ? OR description ILIKE ?", "%"+search+"%", "%"+search+"%")
-	}
-
-	query = query.Order("created_at desc")
-
-	// Get total count
-	total, err := query.Count()
+	response, err := c.serviceService.GetVendorServices(user.ID, filters)
 	if err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Failed to count services",
+			"message": "Failed to get vendor services",
 		})
 	}
 
-	// Calculate pagination
-	offset := (page - 1) * limit
-	totalPages := int(float64(total)/float64(limit) + 0.5)
-
-	// Get services
-	var services []models.Service
-	if err := query.Offset(offset).Limit(limit).Get(&services); err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to fetch services",
-		})
+	statusCode := 200
+	if !response.Success {
+		if response.Message == "Vendor profile not found" {
+			statusCode = 404
+		} else {
+			statusCode = 500
+		}
 	}
 
-	// Load categories
-	for i := range services {
-		facades.Orm().Query().Where("id", services[i].CategoryID).First(&services[i].Category)
-	}
-
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"data": http.Json{
-			"services": services,
-			"pagination": http.Json{
-				"current_page": page,
-				"per_page":     limit,
-				"total":        total,
-				"total_pages":  totalPages,
-			},
-		},
-	})
+	return ctx.Response().Status(statusCode).Json(response)
 }
 
 // CreateService creates a new service
 func (c *VendorController) CreateService(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
 
-	var request struct {
-		CategoryID uint    `json:"category_id" validate:"required"`
-		Name       string  `json:"name" validate:"required"`
-		Description string `json:"description"`
-		Price      float64 `json:"price" validate:"required,min=0"`
-		PriceType  string  `json:"price_type" validate:"required,oneof=fixed hourly daily custom"`
-		MinPrice   float64 `json:"min_price"`
-		MaxPrice   float64 `json:"max_price"`
-		Images     string  `json:"images"` // JSON array
-		Tags       string  `json:"tags"`   // JSON array
-	}
-
+	var request services.CreateServiceRequest
 	if err := ctx.Request().Bind(&request); err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -197,54 +135,26 @@ func (c *VendorController) CreateService(ctx http.Context) http.Response {
 		})
 	}
 
-	// Get vendor profile
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Vendor profile not found",
-		})
-	}
+	request.UserID = user.ID
 
-	// Verify category exists
-	var category models.Category
-	if err := facades.Orm().Query().Where("id", request.CategoryID).Where("is_active", true).First(&category); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Category not found",
-		})
-	}
-
-	// Create service
-	service := models.Service{
-		VendorID:    vendorProfile.ID,
-		CategoryID:  request.CategoryID,
-		Name:        request.Name,
-		Description: request.Description,
-		Price:       request.Price,
-		PriceType:   request.PriceType,
-		MinPrice:    request.MinPrice,
-		MaxPrice:    request.MaxPrice,
-		IsActive:    true,
-		Images:      request.Images,
-		Tags:        request.Tags,
-	}
-
-	if err := facades.Orm().Query().Create(&service); err != nil {
+	response, err := c.serviceService.CreateService(user.ID, &request)
+	if err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
 			"message": "Failed to create service",
 		})
 	}
 
-	// Load category
-	service.Category = category
+	statusCode := 201
+	if !response.Success {
+		if response.Message == "Vendor profile not found" || response.Message == "Category not found" {
+			statusCode = 404
+		} else {
+			statusCode = 500
+		}
+	}
 
-	return ctx.Response().Status(201).Json(http.Json{
-		"success": true,
-		"message": "Service created successfully",
-		"data":    service,
-	})
+	return ctx.Response().Status(statusCode).Json(response)
 }
 
 // UpdateService updates a service
@@ -252,37 +162,7 @@ func (c *VendorController) UpdateService(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
 	serviceID := ctx.Request().Route("id")
 
-	// Get vendor profile
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Vendor profile not found",
-		})
-	}
-
-	// Get service
-	var service models.Service
-	if err := facades.Orm().Query().Where("id", serviceID).Where("vendor_id", vendorProfile.ID).First(&service); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Service not found",
-		})
-	}
-
-	var request struct {
-		CategoryID  uint    `json:"category_id" validate:"required"`
-		Name        string  `json:"name" validate:"required"`
-		Description string  `json:"description"`
-		Price       float64 `json:"price" validate:"required,min=0"`
-		PriceType   string  `json:"price_type" validate:"required,oneof=fixed hourly daily custom"`
-		MinPrice    float64 `json:"min_price"`
-		MaxPrice    float64 `json:"max_price"`
-		IsActive    bool    `json:"is_active"`
-		Images      string  `json:"images"`
-		Tags        string  `json:"tags"`
-	}
-
+	var request services.UpdateServiceRequest
 	if err := ctx.Request().Bind(&request); err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -291,42 +171,35 @@ func (c *VendorController) UpdateService(ctx http.Context) http.Response {
 		})
 	}
 
-	// Verify category exists
-	var category models.Category
-	if err := facades.Orm().Query().Where("id", request.CategoryID).Where("is_active", true).First(&category); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
+	// Convert serviceID to uint
+	serviceIDUint, err := strconv.ParseUint(serviceID, 10, 32)
+	if err != nil {
+		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
-			"message": "Category not found",
+			"message": "Invalid service ID format",
 		})
 	}
 
-	// Update service
-	service.CategoryID = request.CategoryID
-	service.Name = request.Name
-	service.Description = request.Description
-	service.Price = request.Price
-	service.PriceType = request.PriceType
-	service.MinPrice = request.MinPrice
-	service.MaxPrice = request.MaxPrice
-	service.IsActive = request.IsActive
-	service.Images = request.Images
-	service.Tags = request.Tags
+	request.UserID = user.ID
 
-	if err := facades.Orm().Query().Save(&service); err != nil {
+	response, err := c.serviceService.UpdateService(user.ID, uint(serviceIDUint), &request)
+	if err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
 			"message": "Failed to update service",
 		})
 	}
 
-	// Load category
-	service.Category = category
+	statusCode := 200
+	if !response.Success {
+		if response.Message == "Vendor profile not found" || response.Message == "Service not found" || response.Message == "Category not found" {
+			statusCode = 404
+		} else {
+			statusCode = 500
+		}
+	}
 
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Service updated successfully",
-		"data":    service,
-	})
+	return ctx.Response().Status(statusCode).Json(response)
 }
 
 // DeleteService deletes a service
@@ -334,121 +207,71 @@ func (c *VendorController) DeleteService(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
 	serviceID := ctx.Request().Route("id")
 
-	// Get vendor profile
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Vendor profile not found",
-		})
-	}
-
-	// Get service
-	var service models.Service
-	if err := facades.Orm().Query().Where("id", serviceID).Where("vendor_id", vendorProfile.ID).First(&service); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Service not found",
-		})
-	}
-
-	// Check if service has active orders
-	orderCount, err := facades.Orm().Query().Model(&models.OrderItem{}).Where("service_id", serviceID).Where("order_id IN (SELECT id FROM orders WHERE status IN ('pending', 'accepted', 'in_progress'))").Count()
+	// Convert serviceID to uint
+	serviceIDUint, err := strconv.ParseUint(serviceID, 10, 32)
 	if err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to check active orders",
-		})
-	}
-
-	if orderCount > 0 {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
-			"message": "Cannot delete service with active orders",
+			"message": "Invalid service ID format",
 		})
 	}
 
-	// Delete service
-	if _, err := facades.Orm().Query().Delete(&service); err != nil {
+	response, err := c.serviceService.DeleteService(user.ID, uint(serviceIDUint))
+	if err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
 			"message": "Failed to delete service",
 		})
 	}
 
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Service deleted successfully",
-	})
+	statusCode := 200
+	if !response.Success {
+		if response.Message == "Vendor profile not found" || response.Message == "Service not found" {
+			statusCode = 404
+		} else if response.Message == "Cannot delete service with active orders" {
+			statusCode = 400
+		} else {
+			statusCode = 500
+		}
+	}
+
+	return ctx.Response().Status(statusCode).Json(response)
 }
 
 // GetOrders returns vendor's orders
 func (c *VendorController) GetOrders(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
 
-	// Get vendor profile
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Vendor profile not found",
-		})
-	}
-
 	// Get query parameters
 	page, _ := strconv.Atoi(ctx.Request().Query("page", "1"))
 	limit, _ := strconv.Atoi(ctx.Request().Query("limit", "10"))
 	status := ctx.Request().Query("status", "")
 
-	// Build query
-	query := facades.Orm().Query().Model(&models.Order{}).Where("vendor_id", vendorProfile.ID)
-
-	if status != "" {
-		query = query.Where("status", status)
+	filters := map[string]interface{}{
+		"user_id": user.ID,
+		"page":    page,
+		"limit":   limit,
+		"status":  status,
 	}
 
-	query = query.Order("created_at desc")
-
-	// Get total count
-	total, err := query.Count()
+	response, err := c.orderService.GetVendorOrders(user.ID, filters)
 	if err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
-			"message": "Failed to count orders",
+			"message": "Failed to get vendor orders",
 		})
 	}
 
-	// Calculate pagination
-	offset := (page - 1) * limit
-	totalPages := int(float64(total)/float64(limit) + 0.5)
-
-	// Get orders
-	var orders []models.Order
-	if err := query.Offset(offset).Limit(limit).Get(&orders); err != nil {
-		return ctx.Response().Status(500).Json(http.Json{
-			"success": false,
-			"message": "Failed to fetch orders",
-		})
+	statusCode := 200
+	if !response.Success {
+		if response.Message == "Vendor profile not found" {
+			statusCode = 404
+		} else {
+			statusCode = 500
+		}
 	}
 
-	// Load related data
-	for i := range orders {
-		facades.Orm().Query().Where("id", orders[i].CustomerID).First(&orders[i].Customer)
-		facades.Orm().Query().Where("order_id", orders[i].ID).Get(&orders[i].Items)
-	}
-
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"data": http.Json{
-			"orders": orders,
-			"pagination": http.Json{
-				"current_page": page,
-				"per_page":     limit,
-				"total":        total,
-				"total_pages":  totalPages,
-			},
-		},
-	})
+	return ctx.Response().Status(statusCode).Json(response)
 }
 
 // UpdateOrderStatus updates order status
@@ -456,11 +279,7 @@ func (c *VendorController) UpdateOrderStatus(ctx http.Context) http.Response {
 	user := ctx.Value("user").(models.User)
 	orderID := ctx.Request().Route("id")
 
-	var request struct {
-		Status string `json:"status" validate:"required,oneof=accepted rejected in_progress completed"`
-		Notes  string `json:"notes"`
-	}
-
+	var request services.UpdateOrderStatusRequest
 	if err := ctx.Request().Bind(&request); err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
@@ -469,81 +288,35 @@ func (c *VendorController) UpdateOrderStatus(ctx http.Context) http.Response {
 		})
 	}
 
-	// Get vendor profile
-	var vendorProfile models.VendorProfile
-	if err := facades.Orm().Query().Where("user_id", user.ID).First(&vendorProfile); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Vendor profile not found",
-		})
-	}
-
-	// Get order
-	var order models.Order
-	if err := facades.Orm().Query().Where("id", orderID).Where("vendor_id", vendorProfile.ID).First(&order); err != nil {
-		return ctx.Response().Status(404).Json(http.Json{
-			"success": false,
-			"message": "Order not found",
-		})
-	}
-
-	// Check if status change is valid
-	validTransitions := map[string][]string{
-		"pending":    {"accepted", "rejected"},
-		"accepted":   {"in_progress", "rejected"},
-		"in_progress": {"completed"},
-		"completed":  {},
-		"rejected":   {},
-		"cancelled":  {},
-		"refunded":   {},
-	}
-
-	allowedStatuses, exists := validTransitions[order.Status]
-	if !exists {
+	// Convert orderID to uint
+	orderIDUint, err := strconv.ParseUint(orderID, 10, 32)
+	if err != nil {
 		return ctx.Response().Status(400).Json(http.Json{
 			"success": false,
-			"message": "Invalid current order status",
+			"message": "Invalid order ID format",
 		})
 	}
 
-	validTransition := false
-	for _, status := range allowedStatuses {
-		if status == request.Status {
-			validTransition = true
-			break
-		}
-	}
+	request.UserID = user.ID
 
-	if !validTransition {
-		return ctx.Response().Status(400).Json(http.Json{
-			"success": false,
-			"message": "Invalid status transition",
-		})
-	}
-
-	// Update order
-	order.Status = request.Status
-	if request.Notes != "" {
-		order.Notes = request.Notes
-	}
-
-	// If order is completed, release escrow
-	if request.Status == "completed" {
-		order.EscrowReleased = true
-		now := time.Now()
-		order.EscrowReleasedAt = &now
-	}
-
-	if err := facades.Orm().Query().Save(&order); err != nil {
+	response, err := c.orderService.UpdateOrderStatus(uint(orderIDUint), user.ID, &request)
+	if err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"success": false,
 			"message": "Failed to update order status",
 		})
 	}
 
-	return ctx.Response().Status(200).Json(http.Json{
-		"success": true,
-		"message": "Order status updated successfully",
-		"data":    order,
-	})
+	statusCode := 200
+	if !response.Success {
+		if response.Message == "Vendor profile not found" || response.Message == "Order not found" {
+			statusCode = 404
+		} else if response.Message == "Invalid current order status" || response.Message == "Invalid status transition" {
+			statusCode = 400
+		} else {
+			statusCode = 500
+		}
+	}
+
+	return ctx.Response().Status(statusCode).Json(response)
 }

@@ -9,6 +9,7 @@ type VendorProfileRepositoryInterface interface {
 	BaseRepositoryInterface[models.VendorProfile]
 	
 	// Vendor profile-specific methods
+	FindByID(id uint) (*models.VendorProfile, error)
 	FindByUserID(userID uint) (*models.VendorProfile, error)
 	FindByBusinessType(businessType string) ([]*models.VendorProfile, error)
 	FindVerifiedVendors() ([]*models.VendorProfile, error)

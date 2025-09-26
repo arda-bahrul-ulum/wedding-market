@@ -91,7 +91,8 @@ func (s *AuthService) Register(request *services.RegisterRequest) (*services.Ser
 	}
 
 	// Create profile based on role
-	if request.Role == models.RoleVendor {
+	switch request.Role {
+	case models.RoleVendor:
 		vendorProfile := &models.VendorProfile{
 			UserID:       user.ID,
 			BusinessName: user.Name + " Business",
@@ -101,7 +102,7 @@ func (s *AuthService) Register(request *services.RegisterRequest) (*services.Ser
 		if err := s.vendorRepo.Create(vendorProfile); err != nil {
 			facades.Log().Error("Failed to create vendor profile: " + err.Error())
 		}
-	} else if request.Role == models.RoleCustomer {
+	case models.RoleCustomer:
 		customerProfile := &models.CustomerProfile{
 			UserID:   user.ID,
 			FullName: user.Name,

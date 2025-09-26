@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/goravel/framework/facades"
 
+	"goravel/app/contracts/services"
 	"goravel/app/http/controllers"
 	"goravel/app/http/middleware"
 	"goravel/app/models"
@@ -17,14 +18,39 @@ func Api() {
 	}
 	authController := authControllerInterface.(*controllers.AuthController)
 	
-	// For now, keep the old way for other controllers until they are refactored
-	marketplaceController := controllers.NewMarketplaceController()
-	orderController := controllers.NewOrderController()
-	vendorController := controllers.NewVendorController()
-	adminController := controllers.NewAdminController()
-	userController := controllers.NewUserController()
-	reviewController := controllers.NewReviewController()
-	portfolioController := controllers.NewPortfolioController()
+	// Get service instances
+	serviceServiceInterface, _ := facades.App().Make("services.ServiceServiceInterface")
+	serviceService := serviceServiceInterface.(services.ServiceServiceInterface)
+	
+	vendorServiceInterface, _ := facades.App().Make("services.VendorServiceInterface")
+	vendorService := vendorServiceInterface.(services.VendorServiceInterface)
+	
+	packageServiceInterface, _ := facades.App().Make("services.PackageServiceInterface")
+	packageService := packageServiceInterface.(services.PackageServiceInterface)
+	
+	orderServiceInterface, _ := facades.App().Make("services.OrderServiceInterface")
+	orderService := orderServiceInterface.(services.OrderServiceInterface)
+	
+	adminServiceInterface, _ := facades.App().Make("services.AdminServiceInterface")
+	adminService := adminServiceInterface.(services.AdminServiceInterface)
+	
+	userServiceInterface, _ := facades.App().Make("services.UserServiceInterface")
+	userService := userServiceInterface.(services.UserServiceInterface)
+	
+	reviewServiceInterface, _ := facades.App().Make("services.ReviewServiceInterface")
+	reviewService := reviewServiceInterface.(services.ReviewServiceInterface)
+	
+	portfolioServiceInterface, _ := facades.App().Make("services.PortfolioServiceInterface")
+	portfolioService := portfolioServiceInterface.(services.PortfolioServiceInterface)
+
+	// Initialize controllers with dependencies
+	marketplaceController := controllers.NewMarketplaceController(serviceService, vendorService, packageService)
+	orderController := controllers.NewOrderController(orderService)
+	vendorController := controllers.NewVendorController(vendorService, serviceService, orderService)
+	adminController := controllers.NewAdminController(adminService)
+	userController := controllers.NewUserController(userService)
+	reviewController := controllers.NewReviewController(reviewService)
+	portfolioController := controllers.NewPortfolioController(portfolioService)
 
 	// Public routes
 	api := facades.Route().Prefix("api/v1")

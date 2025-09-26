@@ -13,6 +13,7 @@ type UserRepositoryInterface interface {
 	FindByRole(role string) ([]*models.User, error)
 	FindActiveUsers() ([]*models.User, error)
 	FindByEmailAndRole(email, role string) (*models.User, error)
+	FindByID(id uint) (*models.User, error)
 	UpdateLastLogin(id uint) error
 	ActivateUser(id uint) error
 	DeactivateUser(id uint) error
