@@ -128,7 +128,7 @@ function MarketplacePage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
-            <Card hover>
+            <Card>
               <CardHeader>
                 <CardTitle>Filter Pencarian</CardTitle>
                 <CardDescription>Temukan vendor yang tepat</CardDescription>
@@ -355,7 +355,7 @@ function MarketplacePage() {
                 {Array.isArray(vendors) &&
                   vendors.map((vendor) => (
                     <Link key={vendor.id} to={`/vendor/${vendor.id}`}>
-                      <Card className="group hover hover:scale-105 transition-all duration-300 overflow-hidden">
+                      <Card className="group overflow-hidden">
                         <div className="relative">
                           <img
                             src={
@@ -363,7 +363,7 @@ function MarketplacePage() {
                               "https://picsum.photos/400/300"
                             }
                             alt={vendor.business_name}
-                            className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-110"
+                            className="w-full h-56 object-cover"
                           />
                           <div className="absolute top-4 right-4">
                             <button
@@ -371,7 +371,7 @@ function MarketplacePage() {
                                 e.preventDefault();
                                 // Add to wishlist logic
                               }}
-                              className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white transition-all duration-200 shadow-lg"
+                              className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center text-gray-400 shadow-lg"
                             >
                               <Heart className="w-5 h-5" />
                             </button>
@@ -387,7 +387,7 @@ function MarketplacePage() {
                         </div>
                         <CardBody className="p-6">
                           <div className="mb-4">
-                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors mb-2 line-clamp-1">
+                            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
                               {vendor.business_name}
                             </h3>
                             <p className="text-gray-600 text-sm line-clamp-2">
@@ -415,9 +415,9 @@ function MarketplacePage() {
                                 {vendor.services_count || 0} Jasa Tersedia
                               </span>
                             </div>
-                            <Button size="sm" className="group/btn">
+                            <Button size="sm">
                               Lihat Detail
-                              <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-200" />
+                              <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
                           </div>
                         </CardBody>
@@ -438,9 +438,8 @@ function MarketplacePage() {
                     onClick={() =>
                       handlePageChange(pagination.current_page - 1)
                     }
-                    className="group"
                   >
-                    <ArrowRight className="w-4 h-4 mr-2 rotate-180 group-hover:-translate-x-1 transition-transform duration-200" />
+                    <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
                     Previous
                   </Button>
 
@@ -495,10 +494,9 @@ function MarketplacePage() {
                     onClick={() =>
                       handlePageChange(pagination.current_page + 1)
                     }
-                    className="group"
                   >
                     Next
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </nav>
               </div>

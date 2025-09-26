@@ -83,8 +83,10 @@ function AdminDashboard() {
         },
       });
       const ordersData = await ordersResponse.json();
-      if (ordersData.success) {
+      if (ordersData.success && ordersData.data && ordersData.data.orders) {
         setRecentOrders(ordersData.data.orders);
+      } else {
+        setRecentOrders([]);
       }
 
       // Fetch recent vendors
@@ -94,8 +96,10 @@ function AdminDashboard() {
         },
       });
       const vendorsData = await vendorsResponse.json();
-      if (vendorsData.success) {
+      if (vendorsData.success && vendorsData.data && vendorsData.data.vendors) {
         setRecentVendors(vendorsData.data.vendors);
+      } else {
+        setRecentVendors([]);
       }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -339,7 +343,7 @@ function AdminDashboard() {
             </CardHeader>
             <CardBody>
               <div className="space-y-4">
-                {recentOrders.length > 0 ? (
+                {recentOrders && recentOrders.length > 0 ? (
                   recentOrders.map((order) => (
                     <div
                       key={order.id}
@@ -397,7 +401,7 @@ function AdminDashboard() {
             </CardHeader>
             <CardBody>
               <div className="space-y-4">
-                {recentVendors.length > 0 ? (
+                {recentVendors && recentVendors.length > 0 ? (
                   recentVendors.map((vendor) => (
                     <div
                       key={vendor.id}
